@@ -57,7 +57,7 @@ public class MenuManager : MonoBehaviour
     }
     
     // --- FUNGSI-FUNGSI DI BAWAH INI TETAP SAMA ---
-    public void PlayGame() { SceneManager.LoadScene("Game"); }
+    public void PlayGame() { SceneManager.LoadScene("Gameplay"); }
     public void ShowCreditPanel() { if (creditPanel != null) creditPanel.SetActive(true); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false); }
     public void HideCreditPanel() { if (creditPanel != null) creditPanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
     public void HideGameRulePanel() { if (gamerulePanel != null) gamerulePanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
