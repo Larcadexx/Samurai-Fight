@@ -1,110 +1,111 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
 {
-   [Header("UI Panels")]
-    public GameObject mainButtonsPanel;
-    public GameObject creditPanel;
-    public GameObject gamerulePanel;
+    [Header("Tombol Utama")]
+    public GameObject playButton;
+    public GameObject gameRuleButton;
+    public GameObject creditButton;
 
-    [Header("Buttons")]
-    public Button playButton;
-    public Button creditButton;
-    public Button gameRuleButton;
-    public Button backFromCreditButton;
-    public Button backFromGameRuleButton;
-    public Button playButtonFromCredit;
-    public Button playButtonFromGameRule;
-    
-    [Header("Game Rule Pagination")]
-    public List<GameObject> rulePages;
-    public Button nextPageButton;
-    public Button prevPageButton;
+
+    [Header("Panel")]
+    public GameObject CreditPanel;
+    public GameObject GameRulePanel;
+
+    [Header("Pages")]
+    public List<GameObject> Pages;
     private int currentPageIndex = 0;
-
-    void Awake()
-    {
-        // Pendaftaran listener tidak berubah
-        if (playButton != null) playButton.onClick.AddListener(PlayGame);
-        if (playButtonFromCredit != null) playButtonFromCredit.onClick.AddListener(PlayGame);
-        if (playButtonFromGameRule != null) playButtonFromGameRule.onClick.AddListener(PlayGame);
-        if (creditButton != null) creditButton.onClick.AddListener(ShowCreditPanel);
-        if (gameRuleButton != null) gameRuleButton.onClick.AddListener(ShowGameRulePanel);
-        if (backFromCreditButton != null) backFromCreditButton.onClick.AddListener(HideCreditPanel);
-        if (backFromGameRuleButton != null) backFromGameRuleButton.onClick.AddListener(HideGameRulePanel);
-
-        if (nextPageButton != null) nextPageButton.onClick.AddListener(GoToNextPage);
-        if (prevPageButton != null) prevPageButton.onClick.AddListener(GoToPrevPage);
-    }
 
     void Start()
     {
-        if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true);
-        if (creditPanel != null) creditPanel.SetActive(false);
-        if (gamerulePanel != null) gamerulePanel.SetActive(false);
+        playButton.SetActive(true);
+        creditButton.SetActive(true);
+        gameRuleButton.SetActive(true);
+
+        CreditPanel.SetActive(false);
+        GameRulePanel.SetActive(false);
     }
 
-    public void ShowGameRulePanel()
+    public void PlayGame()
     {
-        if (gamerulePanel != null) gamerulePanel.SetActive(true);
-        if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false);
+        SceneManager.LoadScene("Gameplay");
+    }
+
+    public void ShowCredits()
+    {
+        playButton.SetActive(false);
+        creditButton.SetActive(false);
+        gameRuleButton.SetActive(false);
+
+        CreditPanel.SetActive(true);
+    }
+
+    public void HideCredits()
+    {
+        playButton.SetActive(true);
+        creditButton.SetActive(true);
+        gameRuleButton.SetActive(true);
+
+        CreditPanel.SetActive(false);
+    }
+
+    public void ShowGameRules()
+    {
+        playButton.SetActive(false);
+        creditButton.SetActive(false);
+        gameRuleButton.SetActive(false);
         
+        GameRulePanel.SetActive(true);
+
         currentPageIndex = 0;
         UpdatePageDisplay();
     }
+<<<<<<< Updated upstream
     
     // --- FUNGSI-FUNGSI DI BAWAH INI TETAP SAMA ---
     public void PlayGame() { SceneManager.LoadScene("Game"); }
     public void ShowCreditPanel() { if (creditPanel != null) creditPanel.SetActive(true); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false); }
     public void HideCreditPanel() { if (creditPanel != null) creditPanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
     public void HideGameRulePanel() { if (gamerulePanel != null) gamerulePanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
+=======
+>>>>>>> Stashed changes
 
-
-    // --- FUNGSI PAGINASI (YANG DIUBAH) ---
-
-    void GoToNextPage()
+    public void HideGameRules()
     {
-        // Pindah ke halaman selanjutnya
+        playButton.SetActive(true);
+        creditButton.SetActive(true);
+        gameRuleButton.SetActive(true);
+
+        GameRulePanel.SetActive(false);
+    }
+
+    public void NextPage()
+    {
         currentPageIndex++;
-        
-        // JIKA sudah melewati halaman terakhir, KEMBALI ke halaman pertama (index 0)
-        if (currentPageIndex >= rulePages.Count)
+        if (currentPageIndex >= Pages.Count)
         {
             currentPageIndex = 0;
         }
-        
         UpdatePageDisplay();
     }
 
-    void GoToPrevPage()
+    public void PrevPage()
     {
-        // Pindah ke halaman sebelumnya
         currentPageIndex--;
-
-        // JIKA sudah melewati halaman pertama, LOMPAT ke halaman terakhir
         if (currentPageIndex < 0)
         {
-            currentPageIndex = rulePages.Count - 1;
+            currentPageIndex = Pages.Count - 1;
         }
-
         UpdatePageDisplay();
     }
 
     void UpdatePageDisplay()
     {
-        // Pastikan ada halaman yang terdaftar untuk menghindari error
-        if (rulePages.Count == 0) return;
-
-        // Loop untuk menyalakan halaman yang aktif dan mematikan yang lain
-        for (int i = 0; i < rulePages.Count; i++)
+        for (int i = 0; i < Pages.Count; i++)
         {
-            rulePages[i].SetActive(i == currentPageIndex);
+            Pages[i].SetActive(i == currentPageIndex);
         }
-
-        // BAGIAN UNTUK MENYEMBUNYIKAN TOMBOL DIHAPUS
-        // Sekarang tombol akan selalu terlihat.
     }
 }
