@@ -13,6 +13,10 @@ public class GameManager : MonoBehaviour
 
     private List<Card> deck = new List<Card>();
 
+    // Variabel baru untuk aksi melangkah
+    private bool isPlayerMelangkah = false;
+    private int arahLangkah = 0; // 1 untuk Maju, -1 untuk Mundur
+
     void Awake() { instance = this; }
 
     void Start()
@@ -29,12 +33,9 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
-        // 1. Buat deck berisi 25 kartu
         CreateDeck();
-        // 2. Kocok deck
         ShuffleDeck();
 
-        // 3. Bagikan 10 kartu
         manusia.hand.Clear();
         ai.hand.Clear();
         for (int i = 0; i < 5; i++)
@@ -43,19 +44,74 @@ public class GameManager : MonoBehaviour
             ai.hand.Add(DrawCardFromDeck());
         }
 
-        // 4. Update UI
         uiManager.UpdatePlayerHandUI(manusia);
         uiManager.UpdateMainDeckUI(deck.Count);
-
-        // 5. BARU: Catat sisa stok kartu di deck SETELAH dibagikan
         LogDeckStock();
-
-        // 6. Catat kartu yang ada di tangan pemain
         LogPlayerHand(manusia);
         LogPlayerHand(ai);
+        
+        // TODO: Ganti ke giliran AI sesuai aturan
+        // Untuk sekarang, kita langsung ke giliran pemain untuk testing
+        uiManager.ShowOpsiAwalPanel(true);
     }
 
-    // Fungsi ini sekarang hanya membuat deck, tanpa log
+    // --- FUNGSI BARU UNTUK AKSI PEMAIN ---
+
+    // 1. Dipanggil saat tombol "Melangkah" di OpsiAwalPanel ditekan.
+    public void OnMelangkahButtonPressed()
+    {
+        uiManager.ShowOpsiAwalPanel(false);
+        uiManager.ShowAksiMelangkahPanel(true);
+    }
+
+    // 2. Dipanggil saat tombol "Maju" atau "Mundur" ditekan.
+    public void OnArahLangkahPressed(bool isMaju)
+    {
+        isPlayerMelangkah = true;
+        arahLangkah = isMaju ? 1 : -1;
+
+        Debug.Log("Silakan pilih kartu untuk melangkah.");
+        uiManager.ShowAksiMelangkahPanel(false);
+    }
+
+    // 3. Dipanggil dari CardController saat sebuah kartu di tangan diklik.
+    public void OnCardInHandClicked(Card clickedCard)
+    {
+        if (isPlayerMelangkah)
+        {
+            int newPosition = manusia.position + (clickedCard.value * arahLangkah);
+            
+            bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
+
+            if (isValidMove)
+            {
+                manusia.position = newPosition;
+                Debug.Log($"Pemain melangkah ke posisi: {manusia.position}");
+
+                manusia.hand.Remove(clickedCard);
+
+                isPlayerMelangkah = false;
+                arahLangkah = 0;
+                
+                uiManager.UpdatePlayerHandUI(manusia);
+
+                // TODO: Pindah ke fase "Sergap" (menampilkan AksiSergapPanel)
+            }
+            else
+            {
+                Debug.Log("Langkah tidak valid! Anda tidak bisa melangkah melewati lawan atau keluar papan.");
+                isPlayerMelangkah = false;
+                uiManager.ShowOpsiAwalPanel(true);
+            }
+        }
+        else
+        {
+            Debug.Log("Pilih aksi dulu (Melangkah / Serang).");
+        }
+    }
+
+    // --- FUNGSI MANAJEMEN DEK & LOGGING (Tidak Berubah) ---
+
     private void CreateDeck()
     {
         deck.Clear();
@@ -68,21 +124,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Fungsi baru untuk mencatat sisa stok kartu di deck
     private void LogDeckStock()
     {
         Dictionary<int, int> sisaStok = new Dictionary<int, int>();
-        // Hitung sisa kartu di dalam deck
         foreach (Card card in deck)
         {
-            if (!sisaStok.ContainsKey(card.value))
-            {
-                sisaStok[card.value] = 0;
-            }
+            if (!sisaStok.ContainsKey(card.value)) { sisaStok[card.value] = 0; }
             sisaStok[card.value]++;
         }
 
-        // Buat log dengan format yang Anda inginkan
         StringBuilder logStok = new StringBuilder("Sisa Stok Kartu di deck : ");
         for (int i = 1; i <= 5; i++)
         {

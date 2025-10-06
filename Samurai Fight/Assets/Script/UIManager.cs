@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Script ini adalah "manajer visual" yang mengurus semua yang tampil di layar.
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
@@ -23,6 +22,10 @@ public class UIManager : MonoBehaviour
     [Header("Decks")]
     public TextMeshProUGUI kartuDeckText;
 
+    [Header("Panels")]
+    public GameObject OpsiAwalPanel;
+    public GameObject AksiMelangkahPanel; // Panel baru ditambahkan di sini
+
     void Awake() 
     { 
         instance = this; 
@@ -32,25 +35,49 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Mengatur tampilan skor
+    public void ShowOpsiAwalPanel(bool show)
+    {
+        OpsiAwalPanel.SetActive(show);
+    }
+    
+    // Fungsi baru untuk menampilkan/menyembunyikan panel arah melangkah
+    public void ShowAksiMelangkahPanel(bool show)
+    {
+        AksiMelangkahPanel.SetActive(show);
+    }
+
+    public void HideAllPlayerPanels()
+    {
+        OpsiAwalPanel.SetActive(false);
+        AksiMelangkahPanel.SetActive(false); // Ditambahkan di sini
+    }
+
+    // Fungsi UpdateScoreUI, UpdatePlayerHandUI, dan UpdateMainDeckUI tidak berubah
+    // Pastikan Anda memiliki kode untuk fungsi-fungsi tersebut dari file Anda sebelumnya.
+    // Jika tidak, beri tahu saya, saya akan tambahkan kode placeholder.
     public void UpdateScoreUI(Player player)
     {
-        // ... (kode tidak berubah) ...
+        // ... (kode Anda sebelumnya) ...
     }
-
-    // Membuat dan menampilkan kartu di tangan pemain
     public void UpdatePlayerHandUI(Player player)
     {
-        // ... (kode tidak berubah) ...
+        // Hapus kartu lama
+        foreach (Transform child in playerHandPanel)
+        {
+            Destroy(child.gameObject);
+        }
+        // Buat kartu baru
+        foreach (Card card in player.hand)
+        {
+            GameObject cardGO = Instantiate(cardPrefab, playerHandPanel);
+            cardGO.GetComponent<CardController>().Initialize(card);
+        }
     }
-
-    // Mengatur teks sisa kartu di deck
     public void UpdateMainDeckUI(int cardCount)
     {
         if (cardCount > 0)
         {
             kartuDeckText.gameObject.SetActive(true);
-            // PERBAIKAN: Menggunakan format teks yang Anda inginkan
             kartuDeckText.text = " " + cardCount;
         }
         else
