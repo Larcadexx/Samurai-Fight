@@ -129,7 +129,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecuteAITurnCoroutine()
     {
         uiManager.ShowMessage("Giliran AI...", 0f);
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2.0f);
 
         if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
@@ -159,7 +159,7 @@ public class GameManager : MonoBehaviour
                 var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position -= chosenCard.value;
-                uiManager.ShowMessage($"AI melangkah maju", 2f);
+                uiManager.ShowMessage($"AI melangkah maju", 7f);
                 MovePawnVisual(ai, ai.position);
                 ai.hand.Remove(chosenCard);
             }
@@ -168,11 +168,11 @@ public class GameManager : MonoBehaviour
                 var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position += chosenCard.value;
-                uiManager.ShowMessage($"AI melangkah mundur", 2f);
+                uiManager.ShowMessage($"AI melangkah mundur", 7f);
                 MovePawnVisual(ai, ai.position);
                 ai.hand.Remove(chosenCard);
             }
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(3.5f);
             EndTurn();
         }
     }
@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
     public void OnMelangkahButtonPressed()
     {
         if (activePlayer != manusia) return;
-        uiManager.ShowMessage("Pilih arah untuk melangkah.", 0f);
+        uiManager.ShowMessage("Maju atau Mundur??", 0f);
         uiManager.ShowAksiMelangkahPanel(true);
         CheckAvailableMoveDirections();
     }
@@ -203,7 +203,7 @@ public class GameManager : MonoBehaviour
         isPlayerMelangkah = true;
         arahLangkah = isMaju ? 1 : -1;
         string arah = isMaju ? "maju" : "mundur";
-        uiManager.ShowMessage($"Pilih kartu untuk melangkah {arah}.", 0f);
+        uiManager.ShowMessage($"Melangkah Seberapa Jauh??", 0f);
         
         uiManager.ShowHandPanelOnly();
         uiManager.SetPlayerHandInteractable(true);

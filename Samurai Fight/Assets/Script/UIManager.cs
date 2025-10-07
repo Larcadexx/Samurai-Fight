@@ -8,17 +8,17 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
-    [Header("Position Markers")]
+    [Header("Perpindahan Panel Kartu")]
     public Transform handPanelDefaultMarker;
     public Transform handPanelSelectionMarker;
 
-    [Header("Persistent UI")]
+    [Header("Hide Panel")]
     public GameObject[] persistentUIPanels;
 
-    [Header("Asset Gambar Skor")]
+    [Header("Asset Skor")]
     public Sprite scorePenuhSprite;
 
-    [Header("Score Display")]
+    [Header("Score Object")]
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
 
@@ -229,7 +229,7 @@ public class UIManager : MonoBehaviour
         if (cardCount > 0)
         {
             kartuDeckText.gameObject.SetActive(true);
-            kartuDeckText.text = "Sisa: " + cardCount;
+            kartuDeckText.text = " " + cardCount;
         }
         else { kartuDeckText.text = "Deck Habis!"; }
     }
