@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // <-- Tambahkan ini untuk mengakses komponen Image
+using UnityEngine.UI;
 
 public class CardController : MonoBehaviour
 {
@@ -19,8 +19,6 @@ public class CardController : MonoBehaviour
     public void OnClick()
     {
         if (cardData == null) return;
-        
-        // Teruskan data kartu dan informasi tentang CardController ini ke GameManager
         GameManager.instance.OnCardInHandClicked(cardData, this); 
     }
 
