@@ -1,31 +1,39 @@
-// CardController.cs
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI; // <-- Tambahkan ini untuk mengakses komponen Image
 
-// Script ini mengontrol perilaku setiap objek kartu yang ada di tangan pemain.
 public class CardController : MonoBehaviour
 {
-    // Menyimpan data kartu (nilai) yang dipegang oleh objek ini.
     private Card cardData;
-    // Referensi ke komponen TextMeshPro untuk menampilkan nilai kartu.
     public TextMeshProUGUI valueCardText;
+    
+    public Image background; 
+    private bool isSelected = false;
 
-    // Fungsi untuk inisialisasi, dipanggil oleh UIManager setelah kartu dibuat.
     public void Initialize(Card data)
     {
-        // Menyimpan data kartu yang diterima.
         cardData = data;
-        // Menampilkan nilai kartu ke UI Text.
         valueCardText.text = data.value.ToString();
     }
-
-    // Fungsi yang dipanggil saat objek kartu ini diklik oleh pemain.
+    
     public void OnClick()
     {
-        // Jika karena suatu hal kartu ini tidak punya data, hentikan fungsi.
         if (cardData == null) return;
         
-        // Memanggil fungsi di GameManager dan mengirimkan data kartu yang diklik.
-        GameManager.instance.OnCardInHandClicked(cardData); 
+        // Teruskan data kartu dan informasi tentang CardController ini ke GameManager
+        GameManager.instance.OnCardInHandClicked(cardData, this); 
+    }
+
+    public void ToggleSelection(bool select)
+    {
+        isSelected = select;
+        if (isSelected)
+        {
+            background.color = Color.yellow;
+        }
+        else
+        {
+            background.color = Color.white;
+        }
     }
 }

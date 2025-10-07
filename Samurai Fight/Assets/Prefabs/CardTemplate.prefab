@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueCardText: {fileID: 7624051139939879367}
+  background: {fileID: 976316170421911208}
 --- !u!1 &2876355142954208167
 GameObject:
   m_ObjectHideFlags: 0

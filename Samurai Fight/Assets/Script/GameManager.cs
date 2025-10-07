@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Text;
 using System.Linq;
 
@@ -19,12 +20,14 @@ public class GameManager : MonoBehaviour
     private List<Card> deck = new List<Card>();
 
     private Player activePlayer;
-    private enum AttackPhase { None, AwaitingTangkis, AwaitingSerangBalik, AwaitingTangkisSerangBalik }
+    private enum AttackPhase { None, AwaitingTangkis, AwaitingSerangBalik, AwaitingTangkisPlayer, PlayerSelectingParryCards }
     private AttackPhase currentAttackPhase = AttackPhase.None;
 
     private Player attacker;
     private Player defender;
     private int attackValue;
+
+    private List<KeyValuePair<Card, CardController>> selectedParryCards = new List<KeyValuePair<Card, CardController>>();
 
     private bool isPlayerMelangkah = false;
     private bool isPlayerMenyerang = false;
@@ -47,10 +50,10 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
+        ResetTangkisButton();
         currentAttackPhase = AttackPhase.None;
         isPlayerMelangkah = false;
         isPlayerMenyerang = false;
-        uiManager.HideAllPlayerPanels();
 
         manusia.position = 1;
         ai.position = 23;
@@ -76,13 +79,16 @@ public class GameManager : MonoBehaviour
 
     private void StartTurn()
     {
+        uiManager.RestoreDefaultLayout();
+        
         Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
         if (activePlayer.isAI)
         {
-            Invoke("ExecuteAITurn", 1.5f);
+            StartCoroutine(ExecuteAITurnCoroutine());
         }
         else
         {
+            uiManager.ShowMessage("Giliran Anda!", 2f);
             CheckAvailablePlayerActions();
             uiManager.ShowOpsiAwalPanel(true);
             uiManager.SetPlayerHandInteractable(false);
@@ -94,7 +100,6 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Giliran {activePlayer.playerName} berakhir.");
         RefillHand(activePlayer);
         
-        // Cek apakah refill memicu tie breaker, jika ya, EndTurn berhenti di sini
         if (deck.Count == 0 && (manusia.hand.Count < 5 || ai.hand.Count < 5)) return;
 
         activePlayer = (activePlayer == manusia) ? ai : manusia;
@@ -117,19 +122,16 @@ public class GameManager : MonoBehaviour
 
         if (!canMove && !canAttack)
         {
-            Debug.Log("Pemain terpojok! Memulai Tie Breaker...");
-            ExecuteTieBreaker();
+            StartCoroutine(ExecuteTieBreakerCoroutine());
         }
     }
     
-    private void ExecuteAITurn()
+    private IEnumerator ExecuteAITurnCoroutine()
     {
-        if (ai.hand.Count == 0) 
-        {
-            Debug.Log("AI tidak punya kartu, mengakhiri giliran.");
-            EndTurn(); 
-            return; 
-        }
+        uiManager.ShowMessage("Giliran AI...", 0f);
+        yield return new WaitForSeconds(1.5f);
+
+        if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
         var possibleActions = new List<string>();
         int distance = manusia.position - ai.position;
@@ -138,43 +140,39 @@ public class GameManager : MonoBehaviour
         if (ai.hand.Any(card => ai.position - card.value > manusia.position)) { possibleActions.Add("Maju"); }
         if (ai.hand.Any(card => ai.position + card.value <= 23)) { possibleActions.Add("Mundur"); }
 
-        if (possibleActions.Count == 0)
-        {
-            Debug.Log("AI terpojok! Memulai Tie Breaker...");
-            ExecuteTieBreaker();
-            return;
-        }
+        if (possibleActions.Count == 0) { StartCoroutine(ExecuteTieBreakerCoroutine()); yield break; }
 
         string chosenAction = possibleActions[Random.Range(0, possibleActions.Count)];
-        Debug.Log($"AI memiliki opsi [{string.Join(", ", possibleActions)}] dan memilih: {chosenAction}");
-
+        
         if (chosenAction == "Serang")
         {
             Card attackCard = ai.hand.First(card => card.value == distance);
-            Debug.Log($"AI menyerang dengan kartu {attackCard.value}");
+            uiManager.ShowMessage($"AI menyerang dengan kartu {attackCard.value}", 2f);
+            yield return new WaitForSeconds(1f);
             ai.hand.Remove(attackCard);
             InitiateAttack(ai, manusia, attackCard.value);
         }
-        else if (chosenAction == "Maju")
+        else 
         {
-            var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-            
-            ai.position -= chosenCard.value;
-            MovePawnVisual(ai, ai.position);
-            Debug.Log($"AI melangkah maju ke {ai.position} dengan kartu {chosenCard.value}");
-            ai.hand.Remove(chosenCard);
-            EndTurn();
-        }
-        else if (chosenAction == "Mundur")
-        {
-            var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-
-            ai.position += chosenCard.value;
-            MovePawnVisual(ai, ai.position);
-            Debug.Log($"AI melangkah mundur ke {ai.position} dengan kartu {chosenCard.value}");
-            ai.hand.Remove(chosenCard);
+            if (chosenAction == "Maju")
+            {
+                var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
+                Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+                ai.position -= chosenCard.value;
+                uiManager.ShowMessage($"AI melangkah maju", 2f);
+                MovePawnVisual(ai, ai.position);
+                ai.hand.Remove(chosenCard);
+            }
+            else if (chosenAction == "Mundur")
+            {
+                var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
+                Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+                ai.position += chosenCard.value;
+                uiManager.ShowMessage($"AI melangkah mundur", 2f);
+                MovePawnVisual(ai, ai.position);
+                ai.hand.Remove(chosenCard);
+            }
+            yield return new WaitForSeconds(1.5f);
             EndTurn();
         }
     }
@@ -182,8 +180,7 @@ public class GameManager : MonoBehaviour
     public void OnMelangkahButtonPressed()
     {
         if (activePlayer != manusia) return;
-        
-        uiManager.ShowOpsiAwalPanel(false);
+        uiManager.ShowMessage("Pilih arah untuk melangkah.", 0f);
         uiManager.ShowAksiMelangkahPanel(true);
         CheckAvailableMoveDirections();
     }
@@ -192,7 +189,6 @@ public class GameManager : MonoBehaviour
     {
         bool canMoveForward = false;
         bool canMoveBackward = false;
-
         foreach (var card in manusia.hand)
         {
             if (manusia.position + card.value < ai.position) canMoveForward = true;
@@ -204,12 +200,12 @@ public class GameManager : MonoBehaviour
     public void OnArahLangkahPressed(bool isMaju)
     {
         if (activePlayer != manusia) return;
-
         isPlayerMelangkah = true;
         arahLangkah = isMaju ? 1 : -1;
+        string arah = isMaju ? "maju" : "mundur";
+        uiManager.ShowMessage($"Pilih kartu untuk melangkah {arah}.", 0f);
         
-        Debug.Log("Arah dipilih. Silakan pilih kartu untuk melangkah.");
-        uiManager.ShowAksiMelangkahPanel(false);
+        uiManager.ShowHandPanelOnly();
         uiManager.SetPlayerHandInteractable(true);
     }
 
@@ -217,16 +213,37 @@ public class GameManager : MonoBehaviour
     {
         if (activePlayer != manusia) return;
         isPlayerMenyerang = true;
-        uiManager.ShowOpsiAwalPanel(false);
-        Debug.Log("Anda memilih Serang...");
+        uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak.", 0f);
+        
+        uiManager.ShowHandPanelOnly();
         uiManager.SetPlayerHandInteractable(true);
     }
 
-    public void OnCardInHandClicked(Card clickedCard)
+    public void OnCardInHandClicked(Card clickedCard, CardController cardController)
     {
-        if (activePlayer != manusia || (!isPlayerMenyerang && !isPlayerMelangkah)) return;
+        if (activePlayer != manusia) return;
 
+        if (currentAttackPhase == AttackPhase.PlayerSelectingParryCards)
+        {
+            var cardEntry = new KeyValuePair<Card, CardController>(clickedCard, cardController);
+            if (selectedParryCards.Contains(cardEntry))
+            {
+                selectedParryCards.Remove(cardEntry);
+                cardController.ToggleSelection(false);
+            }
+            else
+            {
+                selectedParryCards.Add(cardEntry);
+                cardController.ToggleSelection(true);
+            }
+            int currentParryTotal = selectedParryCards.Sum(entry => entry.Key.value);
+            uiManager.UpdateSelectedParryTotal(currentParryTotal);
+            return;
+        }
+
+        if (!isPlayerMenyerang && !isPlayerMelangkah) return;
         uiManager.SetPlayerHandInteractable(false);
+        uiManager.HideMessage();
 
         if (isPlayerMenyerang)
         {
@@ -262,7 +279,6 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Kartu itu tidak bisa digunakan untuk arah yang dipilih!");
                 isPlayerMelangkah = false;
                 arahLangkah = 0;
                 uiManager.SetPlayerHandInteractable(false);
@@ -277,104 +293,213 @@ public class GameManager : MonoBehaviour
         attacker = currentAttacker;
         defender = currentDefender;
         attackValue = value;
-        currentAttackPhase = AttackPhase.AwaitingTangkis;
-
-        Debug.Log($"{attacker.playerName} menyerang {defender.playerName} dengan kekuatan {attackValue}.");
+        uiManager.ShowAttackStrength(attackValue);
 
         if (defender.isAI)
         {
-            Invoke("DecideAITangkis", 1f);
+            currentAttackPhase = AttackPhase.AwaitingTangkis;
+            StartCoroutine(DecideAITangkisCoroutine());
         }
         else
         {
+            currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
+            uiManager.ShowMessage("Anda diserang! Pilih 'Tangkis' untuk melawan.", 0f);
             uiManager.ShowAksiTangkisPanel(true);
         }
     }
 
-    private void DecideAITangkis()
+    private IEnumerator DecideAITangkisCoroutine()
     {
-        Card parryCard = ai.hand.FirstOrDefault(c => c.value == attackValue);
-        bool canParry = parryCard != null && ai.hand.Count > 1;
-
-        if (canParry)
+        yield return new WaitForSeconds(1f);
+        List<Card> parryCombination = FindParryCombination(attackValue, ai.hand);
+        
+        if (parryCombination != null)
         {
-            Debug.Log($"AI berhasil menangkis dengan kartu {parryCard.value}.");
-            ai.hand.Remove(parryCard);
+            var cardValues = parryCombination.Select(c => c.value.ToString());
+            uiManager.ShowMessage($"AI menangkis dengan [{string.Join(" + ", cardValues)}]!", 2f);
+            yield return new WaitForSeconds(1.5f);
+            
+            foreach(var card in parryCombination) { ai.hand.Remove(card); }
             RefillHand(ai);
             
             currentAttackPhase = AttackPhase.AwaitingSerangBalik;
-            ExecuteAISerangBalik();
+            StartCoroutine(ExecuteAISerangBalikCoroutine());
         }
         else
         {
-            Debug.Log("AI gagal atau memilih tidak menangkis!");
-            RoundOver(attacker);
+            uiManager.ShowMessage("Serangan berhasil!", 2f);
+            yield return new WaitForSeconds(1.5f);
+            StartCoroutine(RoundOverCoroutine(attacker));
         }
     }
 
-    private void ExecuteAISerangBalik()
+    private List<Card> FindParryCombination(int target, List<Card> hand)
     {
-        if (ai.hand.Count == 0) { RoundOver(ai); return; }
+        List<Card> FindSubsetSum(int currentTarget, List<Card> currentHand, List<Card> currentCombination)
+        {
+            if (currentTarget == 0)
+            {
+                if (hand.Count - currentCombination.Count >= 1) { return currentCombination; }
+                return null;
+            }
+            if (currentTarget < 0 || currentHand.Count == 0) return null;
 
+            Card head = currentHand[0];
+            List<Card> tail = currentHand.GetRange(1, currentHand.Count - 1);
+            
+            List<Card> withHeadCombination = new List<Card>(currentCombination);
+            withHeadCombination.Add(head);
+            List<Card> resultWith = FindSubsetSum(currentTarget - head.value, tail, withHeadCombination);
+            if (resultWith != null) return resultWith;
+
+            List<Card> resultWithout = FindSubsetSum(currentTarget, tail, currentCombination);
+            if (resultWithout != null) return resultWithout;
+
+            return null;
+        }
+        return FindSubsetSum(target, new List<Card>(hand), new List<Card>());
+    }
+
+    private IEnumerator ExecuteAISerangBalikCoroutine()
+    {
+        if (ai.hand.Count == 0) { StartCoroutine(RoundOverCoroutine(ai)); yield break; }
+        
         Card counterCard = ai.hand[Random.Range(0, ai.hand.Count)];
-        ai.hand.Remove(counterCard);
+        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kartu {counterCard.value}!", 2f);
+        yield return new WaitForSeconds(1.5f);
 
-        Debug.Log($"AI melakukan Serang Balik dengan kartu {counterCard.value}!");
+        ai.hand.Remove(counterCard);
         InitiateAttack(ai, manusia, counterCard.value);
-        currentAttackPhase = AttackPhase.AwaitingTangkisSerangBalik;
     }
 
     public void OnPlayerTangkisYes()
     {
-        uiManager.ShowAksiTangkisPanel(false);
-        Debug.Log("Pemain mencoba menangkis... (Logika pilih kartu belum ada)");
-        RoundOver(attacker);
+        if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
+        
+        currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
+        
+        uiManager.ShowHandPanelOnly();
+        uiManager.ShowMessage("Pilih kartu, lalu tekan 'Tangkis' lagi untuk konfirmasi.", 0f);
+        
+        var tangkisButton = uiManager.AksiTangkisPanel.transform.Find("TangkisYesButton").GetComponent<Button>();
+        tangkisButton.onClick.RemoveAllListeners();
+        tangkisButton.onClick.AddListener(OnPlayerConfirmTangkis);
+        
+        uiManager.AksiTangkisPanel.SetActive(true);
+        uiManager.SetPlayerHandInteractable(true);
+        uiManager.UpdateSelectedParryTotal(0);
+    }
+
+    public void OnPlayerConfirmTangkis()
+    {
+        uiManager.SetPlayerHandInteractable(false);
+        uiManager.HideAllPlayerPanels();
+
+        int totalParryValue = selectedParryCards.Sum(entry => entry.Key.value);
+        bool hasEnoughValue = totalParryValue == attackValue;
+        bool hasRemainingCard = manusia.hand.Count - selectedParryCards.Count >= 1;
+
+        if (hasEnoughValue && hasRemainingCard)
+        {
+            uiManager.ShowMessage("Serangan berhasil ditangkis!", 2.5f);
+            foreach(var entry in selectedParryCards)
+            {
+                manusia.hand.Remove(entry.Key);
+            }
+            uiManager.UpdatePlayerHandUI(manusia);
+            EndTurn();
+        }
+        else
+        {
+            Debug.Log($"Pemain gagal menangkis!");
+            StartCoroutine(RoundOverCoroutine(attacker));
+        }
+        
+        foreach(var entry in selectedParryCards) { entry.Value.ToggleSelection(false); }
+        selectedParryCards.Clear();
+        currentAttackPhase = AttackPhase.None;
+        ResetTangkisButton();
     }
 
     public void OnPlayerTangkisNo()
     {
-        uiManager.ShowAksiTangkisPanel(false);
+        if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer && currentAttackPhase != AttackPhase.PlayerSelectingParryCards) return;
+        
+        uiManager.HideAllPlayerPanels();
+        currentAttackPhase = AttackPhase.None;
+        ResetTangkisButton();
+        
         Debug.Log("Pemain memilih tidak menangkis!");
-        RoundOver(attacker);
+        StartCoroutine(RoundOverCoroutine(attacker));
     }
-
-    private void ExecuteTieBreaker()
+    
+    private void ResetTangkisButton()
     {
-        Debug.Log("--- TIE BREAKER DIMULAI ---");
-        int totalManusia = manusia.hand.Sum(card => card.value);
-        int totalAI = ai.hand.Sum(card => card.value);
-
-        Debug.Log($"Total nilai tangan Manusia: {totalManusia}");
-        Debug.Log($"Total nilai tangan AI: {totalAI}");
-
-        if (totalManusia > totalAI)
+        if (uiManager != null && uiManager.AksiTangkisPanel != null)
         {
-            RoundOver(manusia);
-        }
-        else if (totalAI > totalManusia)
-        {
-            RoundOver(ai);
-        }
-        else
-        {
-            Debug.Log("Hasil Tie Breaker seri! Tidak ada yang mendapat skor.");
-            Invoke("StartRound", 3f);
+            var tangkisButton = uiManager.AksiTangkisPanel.transform.Find("TangkisYesButton").GetComponent<Button>();
+            if (tangkisButton != null)
+            {
+                tangkisButton.onClick.RemoveAllListeners();
+                tangkisButton.onClick.AddListener(OnPlayerTangkisYes);
+            }
         }
     }
     
     private void RoundOver(Player winner)
     {
+        StartCoroutine(RoundOverCoroutine(winner));
+    }
+
+    private IEnumerator RoundOverCoroutine(Player winner)
+    {
         Debug.Log($"--- RONDE BERAKHIR! Pemenang: {winner.playerName} ---");
+        uiManager.HideAttackStrength();
+        uiManager.HideMessage();
+        ResetTangkisButton();
+        
+        uiManager.ShowMessage($"{winner.playerName} memenangkan ronde!", 2.5f);
+        
         winner.score++;
         uiManager.UpdateScoreUI(winner);
 
+        yield return new WaitForSeconds(2.5f);
+
         if (winner.score >= 5)
         {
+            uiManager.ShowMessage($"{winner.playerName} adalah PEMENANGNYA!", 0f);
             Debug.Log($"--- GAME BERAKHIR! PEMENANG UTAMA: {winner.playerName} ---");
         }
         else
         {
-            Invoke("StartRound", 3f);
+            StartRound();
+        }
+    }
+
+    private void ExecuteTieBreaker()
+    {
+        StartCoroutine(ExecuteTieBreakerCoroutine());
+    }
+
+    private IEnumerator ExecuteTieBreakerCoroutine()
+    {
+        Debug.Log("--- TIE BREAKER DIMULAI ---");
+        uiManager.HideAttackStrength();
+        uiManager.ShowMessage("Kartu habis atau pemain terpojok! TIE BREAKER!", 2.5f);
+        yield return new WaitForSeconds(2.5f);
+
+        int totalManusia = manusia.hand.Sum(card => card.value);
+        int totalAI = ai.hand.Sum(card => card.value);
+        Debug.Log($"Total nilai tangan Manusia: {totalManusia}");
+        Debug.Log($"Total nilai tangan AI: {totalAI}");
+        
+        if (totalManusia > totalAI) { RoundOver(manusia); }
+        else if (totalAI > totalManusia) { RoundOver(ai); }
+        else
+        {
+            uiManager.ShowMessage("Hasil Tie Breaker seri!", 2.5f);
+            yield return new WaitForSeconds(2.5f);
+            StartRound();
         }
     }
     
@@ -392,8 +517,8 @@ public class GameManager : MonoBehaviour
             Card newCard = DrawCardFromDeck();
             if (newCard == null) 
             {
-                Debug.Log("Deck habis saat refill! Memulai Tie Breaker...");
-                ExecuteTieBreaker();
+                Debug.Log("Deck habis saat refill!");
+                StartCoroutine(ExecuteTieBreakerCoroutine());
                 return;
             }
             player.hand.Add(newCard);
@@ -432,36 +557,5 @@ public class GameManager : MonoBehaviour
         Card drawnCard = deck[0];
         deck.RemoveAt(0);
         return drawnCard;
-    }
-
-    private void LogPlayerHand(Player player)
-    {
-        StringBuilder logTangan = new StringBuilder($"{player.playerName} : ");
-        foreach (Card card in player.hand)
-        {
-            logTangan.Append(card.value + " ");
-        }
-        Debug.Log(logTangan.ToString());
-    }
-    
-    private void LogDeckStock()
-    {
-        Dictionary<int, int> sisaStok = new Dictionary<int, int>();
-        foreach (Card card in deck)
-        {
-            if (!sisaStok.ContainsKey(card.value))
-            {
-                sisaStok.Add(card.value, 0);
-            }
-            sisaStok[card.value]++;
-        }
-
-        StringBuilder logStok = new StringBuilder("Sisa Stok Kartu di deck : ");
-        for (int i = 1; i <= 5; i++)
-        {
-            int jumlah = sisaStok.ContainsKey(i) ? sisaStok[i] : 0;
-            logStok.Append($"{i}={jumlah} ");
-        }
-        Debug.Log(logStok.ToString());
     }
 }
