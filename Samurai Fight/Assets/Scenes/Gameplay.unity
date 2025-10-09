@@ -1477,7 +1477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handPanelDefaultMarker: {fileID: 237557661}
   handPanelSelectionMarker: {fileID: 1003532405}
-  handPanelAttackMarker: {fileID: 0}
+  handPanelAttackMarker: {fileID: 1871932442}
   persistentUIPanels:
   - {fileID: 1932294802}
   - {fileID: 725696661}
@@ -1498,7 +1498,6 @@ MonoBehaviour:
   - {fileID: 2052184148}
   cardPrefab: {fileID: 1222007696930093430, guid: 059f6eb2099484b7eaf32ead9e43a128, type: 3}
   KartuManusiaPanel: {fileID: 1623273788}
-  cardSlots: []
   kartuDeckText: {fileID: 1585151040}
   NilaiSerangan: {fileID: 1439845858}
   SystemMessage: {fileID: 691151048}
@@ -7504,7 +7503,7 @@ RectTransform:
   m_GameObject: {fileID: 1623273787}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -288.12466}
-  m_LocalScale: {x: 0.47756276, y: 0.26282096, z: 0.41799575}
+  m_LocalScale: {x: 0.41609496, y: 0.2289929, z: 0.36419493}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1760312964}
@@ -8384,6 +8383,7 @@ Transform:
   m_Children:
   - {fileID: 1623273788}
   - {fileID: 237557661}
+  - {fileID: 1871932442}
   - {fileID: 1003532405}
   m_Father: {fileID: 1641180304}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8632,6 +8632,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 10, y: 0, z: 0}
+--- !u!1 &1871932441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1871932442}
+  m_Layer: 0
+  m_Name: PosisiTengah
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1871932442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871932441}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 76.51459, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1760312964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1880356756
 GameObject:
   m_ObjectHideFlags: 0
