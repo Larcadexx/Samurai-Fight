@@ -33,8 +33,11 @@ public class GameManager : MonoBehaviour
     private bool isPlayerMelangkah = false;
     private bool isPlayerMenyerang = false;
     private bool isPlayerInSergapMode = false;
+    private bool isPlayerStrengtheningAttack = false;
     private int arahLangkah = 0;
     private bool isGameOver = false;
+
+    private Card initialAttackCard;
 
     void Awake() { instance = this; }
 
@@ -58,6 +61,7 @@ public class GameManager : MonoBehaviour
         isPlayerMelangkah = false;
         isPlayerMenyerang = false;
         isPlayerInSergapMode = false;
+        isPlayerStrengtheningAttack = false;
         isGameOver = false;
 
         manusia.position = 1;
@@ -263,7 +267,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode) return;
+        if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack) return;
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
 
@@ -273,9 +277,19 @@ public class GameManager : MonoBehaviour
             if (clickedCard.value == distance)
             {
                 isPlayerMenyerang = false;
+                initialAttackCard = clickedCard;
                 manusia.hand.Remove(clickedCard);
                 uiManager.UpdatePlayerHandUI(manusia);
-                InitiateAttack(manusia, ai, clickedCard.value);
+
+                if (manusia.hand.Count > 0)
+                {
+                    uiManager.ShowPerkuatSeranganPanel(true);
+                    uiManager.ShowMessage("Perkuat serangan?", 0f);
+                }
+                else
+                {
+                    InitiateAttack(manusia, ai, initialAttackCard.value);
+                }
             }
             else
             {
@@ -283,6 +297,15 @@ public class GameManager : MonoBehaviour
                 CheckAvailablePlayerActions();
                 uiManager.ShowOpsiAwalPanel(true);
             }
+        }
+        else if (isPlayerStrengtheningAttack)
+        {
+            isPlayerStrengtheningAttack = false;
+            int totalAttackValue = initialAttackCard.value + clickedCard.value;
+            Debug.Log($"Serangan diperkuat! Total: {initialAttackCard.value} + {clickedCard.value} = {totalAttackValue}");
+            manusia.hand.Remove(clickedCard);
+            uiManager.UpdatePlayerHandUI(manusia);
+            InitiateAttack(manusia, ai, totalAttackValue);
         }
         else if (isPlayerMelangkah)
         {
@@ -339,6 +362,20 @@ public class GameManager : MonoBehaviour
                 EndTurn();
             }
         }
+    }
+
+    public void OnPerkuatYesButtonPressed()
+    {
+        isPlayerStrengtheningAttack = true;
+        uiManager.ShowMessage("Pilih satu kartu untuk memperkuat.", 0f);
+        uiManager.ShowHandPanelOnly("attack");
+        uiManager.SetPlayerHandInteractable(true);
+    }
+
+    public void OnPerkuatNoButtonPressed()
+    {
+        uiManager.HideAllPlayerPanels();
+        InitiateAttack(manusia, ai, initialAttackCard.value);
     }
 
     public void OnSergapYesButtonPressed()

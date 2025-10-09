@@ -33,14 +33,15 @@ public class UIManager : MonoBehaviour
     [Header("Info Tambahan")]
     public TextMeshProUGUI NilaiSerangan;
     public TextMeshProUGUI SystemMessage;
-    public TextMeshProUGUI KemenanganText;
+    public TextMeshProUGUI KemenanganText; // <-- HILANG SEBELUMNYA
 
     [Header("Panels")]
     public GameObject OpsiAwalPanel;
     public GameObject AksiMelangkahPanel;
     public GameObject AksiTangkisPanel;
     public GameObject AksiSergapPanel;
-    public GameObject KemenanganPanel;
+    public GameObject PerkuatSeranganPanel;
+    public GameObject KemenanganPanel; // <-- HILANG SEBELUMNYA
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -137,6 +138,15 @@ public class UIManager : MonoBehaviour
         if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
 
         AksiSergapPanel.SetActive(show);
+    }
+
+    public void ShowPerkuatSeranganPanel(bool show)
+    {
+        HideAllPlayerPanels();
+        SetPersistentUIVisibility(false);
+        if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
+
+        PerkuatSeranganPanel.SetActive(show);
     }
 
     public void ShowHandPanelOnly(string context)
@@ -269,6 +279,7 @@ public class UIManager : MonoBehaviour
         AksiMelangkahPanel.SetActive(false);
         AksiTangkisPanel.SetActive(false);
         AksiSergapPanel.SetActive(false);
+        if (PerkuatSeranganPanel != null) PerkuatSeranganPanel.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
     }
     
