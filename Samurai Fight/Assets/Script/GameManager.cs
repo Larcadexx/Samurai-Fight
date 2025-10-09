@@ -71,14 +71,12 @@ public class GameManager : MonoBehaviour
 
         CreateDeck();
         ShuffleDeck();
-
-        System.Array.Clear(manusia.hand, 0, manusia.hand.Length);
-        System.Array.Clear(ai.hand, 0, ai.hand.Length);
-
+        manusia.hand.Clear();
+        ai.hand.Clear();
         for (int i = 0; i < 5; i++)
         {
-            manusia.hand[i] = DrawCardFromDeck();
-            ai.hand[i] = DrawCardFromDeck();
+            manusia.hand.Add(DrawCardFromDeck());
+            ai.hand.Add(DrawCardFromDeck());
         }
         uiManager.UpdatePlayerHandUI(manusia);
         uiManager.UpdateMainDeckUI(deck.Count);
@@ -91,7 +89,9 @@ public class GameManager : MonoBehaviour
     private void StartTurn()
     {
         if (isGameOver) return;
+        
         uiManager.RestoreDefaultLayout();
+        
         Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
         if (activePlayer.isAI)
         {
@@ -110,33 +110,13 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"Giliran {activePlayer.playerName} berakhir.");
         RefillHand(activePlayer);
-        if (System.Array.Exists(deck.ToArray(), card => card == null) && System.Array.Exists(manusia.hand, card => card == null)) return;
+        
+        if (deck.Count == 0 && (manusia.hand.Count < 5 || ai.hand.Count < 5)) return;
 
         activePlayer = (activePlayer == manusia) ? ai : manusia;
         StartTurn();
     }
-
-    private void RefillHand(Player player)
-    {
-        for (int i = 0; i < player.hand.Length; i++)
-        {
-            if (player.hand[i] == null)
-            {
-                Card newCard = DrawCardFromDeck();
-                if (newCard == null) 
-                {
-                    Debug.Log("Deck habis saat refill!");
-                    StartCoroutine(ExecuteTieBreakerCoroutine());
-                    return;
-                }
-                player.hand[i] = newCard;
-            }
-        }
-        
-        if (!player.isAI) { uiManager.UpdatePlayerHandUI(player); }
-        uiManager.UpdateMainDeckUI(deck.Count);
-    }
-
+    
     public void PlayAgain()
     {
         Debug.Log("Memulai permainan baru...");
@@ -157,14 +137,13 @@ public class GameManager : MonoBehaviour
         bool canMove = false;
         foreach (var card in manusia.hand)
         {
-            if (card == null) continue;
             if (manusia.position + card.value < ai.position) canMove = true;
             if (manusia.position - card.value >= 1) canMove = true;
             if (canMove) break;
         }
 
         int distance = ai.position - manusia.position;
-        bool canAttack = manusia.hand.Any(card => card != null && card.value == distance);
+        bool canAttack = manusia.hand.Any(card => card.value == distance);
         uiManager.UpdateActionButtons(canMove, canAttack);
 
         if (!canMove && !canAttack)
@@ -178,14 +157,14 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Giliran AI...", 0f);
         yield return new WaitForSeconds(1.5f);
 
-        if (!ai.hand.Any(c => c != null)) { EndTurn(); yield break; }
+        if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
         var possibleActions = new List<string>();
         int distance = manusia.position - ai.position;
 
-        if (ai.hand.Any(card => card != null && card.value == distance)) { possibleActions.Add("Serang"); }
-        if (ai.hand.Any(card => card != null && ai.position - card.value > manusia.position)) { possibleActions.Add("Maju"); }
-        if (ai.hand.Any(card => card != null && ai.position + card.value <= 23)) { possibleActions.Add("Mundur"); }
+        if (ai.hand.Any(card => card.value == distance)) { possibleActions.Add("Serang"); }
+        if (ai.hand.Any(card => ai.position - card.value > manusia.position)) { possibleActions.Add("Maju"); }
+        if (ai.hand.Any(card => ai.position + card.value <= 23)) { possibleActions.Add("Mundur"); }
 
         if (possibleActions.Count == 0) { StartCoroutine(ExecuteTieBreakerCoroutine()); yield break; }
 
@@ -193,38 +172,31 @@ public class GameManager : MonoBehaviour
         
         if (chosenAction == "Serang")
         {
-            Card attackCard = ai.hand.First(card => card != null && card.value == distance);
+            Card attackCard = ai.hand.First(card => card.value == distance);
             uiManager.ShowMessage($"AI menyerang dengan kartu {attackCard.value}", 2f);
             yield return new WaitForSeconds(1f);
-            
-            int cardIndex = System.Array.IndexOf(ai.hand, attackCard);
-            if(cardIndex != -1) ai.hand[cardIndex] = null;
-            
+            ai.hand.Remove(attackCard);
             InitiateAttack(ai, manusia, attackCard.value);
         }
         else 
         {
             if (chosenAction == "Maju")
             {
-                var validCards = ai.hand.Where(card => card != null && ai.position - card.value > manusia.position).ToList();
+                var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position -= chosenCard.value;
                 uiManager.ShowMessage($"AI melangkah maju", 2f);
                 MovePawnVisual(ai, ai.position);
-                
-                int cardIndex = System.Array.IndexOf(ai.hand, chosenCard);
-                if(cardIndex != -1) ai.hand[cardIndex] = null;
+                ai.hand.Remove(chosenCard);
             }
             else if (chosenAction == "Mundur")
             {
-                var validCards = ai.hand.Where(card => card != null && ai.position + card.value <= 23).ToList();
+                var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position += chosenCard.value;
                 uiManager.ShowMessage($"AI melangkah mundur", 2f);
                 MovePawnVisual(ai, ai.position);
-
-                int cardIndex = System.Array.IndexOf(ai.hand, chosenCard);
-                if(cardIndex != -1) ai.hand[cardIndex] = null;
+                ai.hand.Remove(chosenCard);
             }
             yield return new WaitForSeconds(1.5f);
             EndTurn();
@@ -245,7 +217,6 @@ public class GameManager : MonoBehaviour
         bool canMoveBackward = false;
         foreach (var card in manusia.hand)
         {
-            if(card == null) continue;
             if (manusia.position + card.value < ai.position) canMoveForward = true;
             if (manusia.position - card.value >= 1) canMoveBackward = true;
         }
@@ -259,6 +230,7 @@ public class GameManager : MonoBehaviour
         arahLangkah = isMaju ? 1 : -1;
         string arah = isMaju ? "maju" : "mundur";
         uiManager.ShowMessage($"Pilih kartu untuk melangkah {arah}.", 0f);
+        
         uiManager.ShowHandPanelOnly("move");
         uiManager.SetPlayerHandInteractable(true);
     }
@@ -268,6 +240,7 @@ public class GameManager : MonoBehaviour
         if (activePlayer != manusia) return;
         isPlayerMenyerang = true;
         uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak.", 0f);
+        
         uiManager.ShowHandPanelOnly("attack");
         uiManager.SetPlayerHandInteractable(true);
     }
@@ -298,8 +271,6 @@ public class GameManager : MonoBehaviour
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
 
-        int cardIndex = System.Array.IndexOf(manusia.hand, clickedCard);
-
         if (isPlayerMenyerang)
         {
             int distance = ai.position - manusia.position;
@@ -307,10 +278,10 @@ public class GameManager : MonoBehaviour
             {
                 isPlayerMenyerang = false;
                 initialAttackCard = clickedCard;
-                if(cardIndex != -1) manusia.hand[cardIndex] = null;
+                manusia.hand.Remove(clickedCard);
                 uiManager.UpdatePlayerHandUI(manusia);
 
-                if (manusia.hand.Any(c => c != null))
+                if (manusia.hand.Count > 0)
                 {
                     uiManager.ShowPerkuatSeranganPanel(true);
                     uiManager.ShowMessage("Perkuat serangan?", 0f);
@@ -331,7 +302,8 @@ public class GameManager : MonoBehaviour
         {
             isPlayerStrengtheningAttack = false;
             int totalAttackValue = initialAttackCard.value + clickedCard.value;
-            if(cardIndex != -1) manusia.hand[cardIndex] = null;
+            Debug.Log($"Serangan diperkuat! Total: {initialAttackCard.value} + {clickedCard.value} = {totalAttackValue}");
+            manusia.hand.Remove(clickedCard);
             uiManager.UpdatePlayerHandUI(manusia);
             InitiateAttack(manusia, ai, totalAttackValue);
         }
@@ -343,11 +315,11 @@ public class GameManager : MonoBehaviour
             if (isValidMove)
             {
                 int newDistance = ai.position - newPosition;
-                bool canSergap = manusia.hand.Any(card => card != null && card != clickedCard && card.value == newDistance);
+                bool canSergap = manusia.hand.Any(card => card != clickedCard && card.value == newDistance);
 
                 manusia.position = newPosition;
                 MovePawnVisual(manusia, manusia.position);
-                if(cardIndex != -1) manusia.hand[cardIndex] = null;
+                manusia.hand.Remove(clickedCard);
                 isPlayerMelangkah = false;
                 arahLangkah = 0;
                 uiManager.UpdatePlayerHandUI(manusia);
@@ -375,20 +347,23 @@ public class GameManager : MonoBehaviour
         {
             isPlayerInSergapMode = false;
             int distance = ai.position - manusia.position;
+
             if (clickedCard.value == distance)
             {
-                if(cardIndex != -1) manusia.hand[cardIndex] = null;
+                Debug.Log($"Sergap berhasil dengan kartu {clickedCard.value}!");
+                manusia.hand.Remove(clickedCard);
                 uiManager.UpdatePlayerHandUI(manusia);
                 InitiateAttack(manusia, ai, clickedCard.value);
             }
             else
             {
+                Debug.Log($"Sergap gagal! Kartu {clickedCard.value} tidak sesuai dengan jarak {distance}.");
                 uiManager.ShowMessage("Sergap Gagal!", 2f);
                 EndTurn();
             }
         }
     }
-    
+
     public void OnPerkuatYesButtonPressed()
     {
         isPlayerStrengtheningAttack = true;
@@ -448,11 +423,7 @@ public class GameManager : MonoBehaviour
             uiManager.ShowMessage($"AI menangkis dengan [{string.Join(" + ", cardValues)}]!", 2f);
             yield return new WaitForSeconds(1.5f);
             
-            foreach(var card in parryCombination)
-            {
-                int cardIndex = System.Array.IndexOf(ai.hand, card);
-                if(cardIndex != -1) ai.hand[cardIndex] = null;
-            }
+            foreach(var card in parryCombination) { ai.hand.Remove(card); }
             RefillHand(ai);
             
             currentAttackPhase = AttackPhase.AwaitingSerangBalik;
@@ -466,21 +437,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private List<Card> FindParryCombination(int target, Card[] hand)
+    private List<Card> FindParryCombination(int target, List<Card> hand)
     {
-        List<Card> currentHandList = hand.Where(c => c != null).ToList();
-
-        List<Card> FindSubsetSum(int currentTarget, List<Card> availableCards, List<Card> currentCombination)
+        List<Card> FindSubsetSum(int currentTarget, List<Card> currentHand, List<Card> currentCombination)
         {
             if (currentTarget == 0)
             {
-                if (currentHandList.Count - currentCombination.Count >= 1) { return currentCombination; }
+                if (hand.Count - currentCombination.Count >= 1) { return currentCombination; }
                 return null;
             }
-            if (currentTarget < 0 || availableCards.Count == 0) return null;
+            if (currentTarget < 0 || currentHand.Count == 0) return null;
 
-            Card head = availableCards[0];
-            List<Card> tail = availableCards.GetRange(1, availableCards.Count - 1);
+            Card head = currentHand[0];
+            List<Card> tail = currentHand.GetRange(1, currentHand.Count - 1);
             
             List<Card> withHeadCombination = new List<Card>(currentCombination);
             withHeadCombination.Add(head);
@@ -492,21 +461,18 @@ public class GameManager : MonoBehaviour
 
             return null;
         }
-        return FindSubsetSum(target, currentHandList, new List<Card>());
+        return FindSubsetSum(target, new List<Card>(hand), new List<Card>());
     }
 
     private IEnumerator ExecuteAISerangBalikCoroutine()
     {
-        if (!ai.hand.Any(c => c != null)) { StartCoroutine(RoundOverCoroutine(ai)); yield break; }
+        if (ai.hand.Count == 0) { StartCoroutine(RoundOverCoroutine(ai)); yield break; }
         
-        var availableCards = ai.hand.Where(c => c != null).ToList();
-        Card counterCard = availableCards[Random.Range(0, availableCards.Count)];
+        Card counterCard = ai.hand[Random.Range(0, ai.hand.Count)];
         uiManager.ShowMessage($"AI melakukan Serang Balik dengan kartu {counterCard.value}!", 2f);
         yield return new WaitForSeconds(1.5f);
 
-        int cardIndex = System.Array.IndexOf(ai.hand, counterCard);
-        if(cardIndex != -1) ai.hand[cardIndex] = null;
-
+        ai.hand.Remove(counterCard);
         InitiateAttack(ai, manusia, counterCard.value);
     }
 
@@ -515,6 +481,7 @@ public class GameManager : MonoBehaviour
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         
         currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
+        
         uiManager.ShowHandPanelOnly("move");
         uiManager.ShowMessage("Pilih kartu, lalu tekan 'Tangkis' lagi untuk konfirmasi.", 0f);
         
@@ -534,16 +501,14 @@ public class GameManager : MonoBehaviour
 
         int totalParryValue = selectedParryCards.Sum(entry => entry.Key.value);
         bool hasEnoughValue = totalParryValue == attackValue;
-        int currentHandCount = manusia.hand.Count(c => c != null);
-        bool hasRemainingCard = currentHandCount - selectedParryCards.Count >= 1;
+        bool hasRemainingCard = manusia.hand.Count - selectedParryCards.Count >= 1;
 
         if (hasEnoughValue && hasRemainingCard)
         {
             uiManager.ShowMessage("Serangan berhasil ditangkis!", 2.5f);
             foreach(var entry in selectedParryCards)
             {
-                int cardIndex = System.Array.IndexOf(manusia.hand, entry.Key);
-                if(cardIndex != -1) manusia.hand[cardIndex] = null;
+                manusia.hand.Remove(entry.Key);
             }
             uiManager.UpdatePlayerHandUI(manusia);
             EndTurn();
@@ -563,9 +528,11 @@ public class GameManager : MonoBehaviour
     public void OnPlayerTangkisNo()
     {
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer && currentAttackPhase != AttackPhase.PlayerSelectingParryCards) return;
+        
         uiManager.HideAllPlayerPanels();
         currentAttackPhase = AttackPhase.None;
         ResetTangkisButton();
+        
         Debug.Log("Pemain memilih tidak menangkis!");
         StartCoroutine(RoundOverCoroutine(attacker));
     }
@@ -628,8 +595,8 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Kartu habis atau pemain terpojok! TIE BREAKER!", 2.5f);
         yield return new WaitForSeconds(2.5f);
 
-        int totalManusia = manusia.hand.Where(c => c != null).Sum(card => card.value);
-        int totalAI = ai.hand.Where(c => c != null).Sum(card => card.value);
+        int totalManusia = manusia.hand.Sum(card => card.value);
+        int totalAI = ai.hand.Sum(card => card.value);
         Debug.Log($"Total nilai tangan Manusia: {totalManusia}");
         Debug.Log($"Total nilai tangan AI: {totalAI}");
         
@@ -648,6 +615,24 @@ public class GameManager : MonoBehaviour
         GameObject pawnToMove = player.isAI ? pionAI : pionManusia;
         Transform targetPetak = petakPapan[targetPosition - 1];
         pawnToMove.transform.position = targetPetak.position;
+    }
+
+    private void RefillHand(Player player)
+    {
+        while (player.hand.Count < 5)
+        {
+            Card newCard = DrawCardFromDeck();
+            if (newCard == null) 
+            {
+                Debug.Log("Deck habis saat refill!");
+                StartCoroutine(ExecuteTieBreakerCoroutine());
+                return;
+            }
+            player.hand.Add(newCard);
+        }
+        
+        if (!player.isAI) { uiManager.UpdatePlayerHandUI(player); }
+        uiManager.UpdateMainDeckUI(deck.Count);
     }
     
     private void CreateDeck()
