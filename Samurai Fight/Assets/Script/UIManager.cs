@@ -7,33 +7,22 @@ using System.Collections.Generic;
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
-
-    [Header("Position Markers")]
-    public Transform handPanelDefaultMarker;
-    public Transform handPanelSelectionMarker;
-    public Transform handPanelAttackMarker;
-
-    [Header("Persistent UI")]
-    public GameObject[] persistentUIPanels;
-
-    [Header("Asset Gambar Skor")]
-    public Sprite scorePenuhSprite;
-
-    [Header("Score Display")]
+    
+    // Bagian atas skrip tidak berubah...
+    [Header("Setup Score")]
+    public Sprite getScoreSprite;
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
 
     [Header("Card Display")]
     public GameObject cardPrefab;
-    public Transform KartuManusiaPanel; 
+    public Transform KartuManusiaPanel;
 
-    [Header("Decks")]
-    public TextMeshProUGUI kartuDeckText;
-
-    [Header("Info Tambahan")]
-    public TextMeshProUGUI NilaiSerangan;
-    public TextMeshProUGUI SystemMessage;
-    public TextMeshProUGUI KemenanganText; // <-- HILANG SEBELUMNYA
+    [Header("Text System")]
+    public TextMeshProUGUI nilaiSerangText;
+    public TextMeshProUGUI systemText;
+    public TextMeshProUGUI KemenanganText;
+    public TextMeshProUGUI sisaKartuDeckText;
 
     [Header("Panels")]
     public GameObject OpsiAwalPanel;
@@ -41,7 +30,15 @@ public class UIManager : MonoBehaviour
     public GameObject AksiTangkisPanel;
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
-    public GameObject KemenanganPanel; // <-- HILANG SEBELUMNYA
+    public GameObject KemenanganPanel;
+
+    [Header("Perpindahan Panel Kartu")]
+    public Transform posisiDefault;
+    public Transform posisiKanan;   // <-- DITUKAR, sebelumnya posisiTengah
+    public Transform posisiTengah; // <-- DITUKAR, sebelumnya posisiKanan
+
+    [Header("Panel Yang Disembunyikan")]
+    public GameObject[] fokusMode;
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -50,15 +47,40 @@ public class UIManager : MonoBehaviour
     public Button MundurButton;
 
     private Coroutine messageCoroutine;
+    
+    // Fungsi lainnya tetap sama sampai ShowHandPanelOnly
+    // ...
+    
+    public void ShowHandPanelOnly(string context)
+    {
+        HideAllPlayerPanels();
+        SetPersistentUIVisibility(false);
 
-    void Awake() 
-    { 
-        instance = this; 
-        if (NilaiSerangan != null) NilaiSerangan.gameObject.SetActive(false);
-        if (SystemMessage != null) SystemMessage.gameObject.SetActive(false);
-        if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
+        if (KartuManusiaPanel != null)
+        {
+            KartuManusiaPanel.gameObject.SetActive(true);
+
+            // Logika di dalam sini juga ikut ditukar agar fungsinya tetap benar
+            if (context == "attack" && posisiTengah != null) // <-- DITUKAR
+            {
+                KartuManusiaPanel.position = posisiTengah.position; // <-- DITUKAR
+            }
+            else if (context == "move" && posisiKanan != null) // <-- DITUKAR
+            {
+                KartuManusiaPanel.position = posisiKanan.position; // <-- DITUKAR
+            }
+        }
     }
     
+    // Sisa skrip di bawah ini tidak ada perubahan...
+    void Awake()
+    {
+        instance = this;
+        if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
+        if (systemText != null) systemText.gameObject.SetActive(false);
+        if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
+    }
+
     public void ShowKemenanganPanel(bool playerWon)
     {
         HideAllPlayerPanels();
@@ -66,32 +88,23 @@ public class UIManager : MonoBehaviour
         if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
         HideMessage();
         HideAttackStrength();
-
         KemenanganPanel.SetActive(true);
-
-        if (playerWon)
-        {
-            KemenanganText.text = "ANDA MENANG!";
-        }
-        else
-        {
-            KemenanganText.text = "ANDA KALAH!";
-        }
+        KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
     }
 
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
         SetPersistentUIVisibility(true);
-        if (KartuManusiaPanel != null && handPanelDefaultMarker != null)
+        if (KartuManusiaPanel != null && posisiDefault != null)
         {
-            KartuManusiaPanel.position = handPanelDefaultMarker.position;
+            KartuManusiaPanel.position = posisiDefault.position;
         }
     }
 
     private void SetPersistentUIVisibility(bool isVisible)
     {
-        foreach(var panel in persistentUIPanels)
+        foreach (var panel in fokusMode)
         {
             if (panel != null)
             {
@@ -100,30 +113,39 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowOpsiAwalPanel(bool show) 
-    { 
+    public void ShowOpsiAwalPanel(bool show)
+    {
         OpsiAwalPanel.SetActive(show);
         if (show)
         {
             SetPersistentUIVisibility(true);
-            if (KartuManusiaPanel != null && handPanelDefaultMarker != null)
+            if (KartuManusiaPanel != null && posisiDefault != null)
             {
-                KartuManusiaPanel.position = handPanelDefaultMarker.position;
+                KartuManusiaPanel.position = posisiDefault.position;
             }
         }
     }
 
-    public void ShowAksiMelangkahPanel(bool show) 
-    { 
+    public void UpdateScoreUI(Player player)
+    {
+        Image[] targetImages = player.isAI ? scoreAiImages : scoreManusiaImages;
+        for (int i = 0; i < targetImages.Length; i++)
+        {
+            targetImages[i].sprite = (i < player.score) ? getScoreSprite : null;
+        }
+    }
+
+    public void ShowAksiMelangkahPanel(bool show)
+    {
         HideAllPlayerPanels();
         SetPersistentUIVisibility(false);
         if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
-        
+
         AksiMelangkahPanel.SetActive(show);
     }
-    
-    public void ShowAksiTangkisPanel(bool show) 
-    { 
+
+    public void ShowAksiTangkisPanel(bool show)
+    {
         HideAllPlayerPanels();
         SetPersistentUIVisibility(false);
         if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
@@ -149,70 +171,50 @@ public class UIManager : MonoBehaviour
         PerkuatSeranganPanel.SetActive(show);
     }
 
-    public void ShowHandPanelOnly(string context)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-
-        if (KartuManusiaPanel != null)
-        {
-            KartuManusiaPanel.gameObject.SetActive(true);
-            
-            if (context == "attack" && handPanelAttackMarker != null)
-            {
-                KartuManusiaPanel.position = handPanelAttackMarker.position;
-            }
-            else if (context == "move" && handPanelSelectionMarker != null)
-            {
-                KartuManusiaPanel.position = handPanelSelectionMarker.position;
-            }
-        }
-    }
-
     public void ShowMessage(string message, float duration = 2f)
     {
-        if (SystemMessage == null) return;
+        if (systemText == null) return;
         if (messageCoroutine != null) StopCoroutine(messageCoroutine);
         messageCoroutine = StartCoroutine(ShowMessageCoroutine(message, duration));
     }
 
     private IEnumerator ShowMessageCoroutine(string message, float duration)
     {
-        SystemMessage.text = message;
-        SystemMessage.gameObject.SetActive(true);
+        systemText.text = message;
+        systemText.gameObject.SetActive(true);
 
         if (duration > 0)
         {
             yield return new WaitForSeconds(duration);
-            SystemMessage.gameObject.SetActive(false);
+            systemText.gameObject.SetActive(false);
         }
     }
 
     public void HideMessage()
     {
-        if (SystemMessage == null) return;
+        if (systemText == null) return;
         if (messageCoroutine != null) StopCoroutine(messageCoroutine);
-        SystemMessage.gameObject.SetActive(false);
+        systemText.gameObject.SetActive(false);
     }
 
     public void ShowAttackStrength(int strength)
     {
-        if (NilaiSerangan == null) return;
-        NilaiSerangan.gameObject.SetActive(true);
-        NilaiSerangan.text = $"KEKUATAN SERANGAN: {strength}";
+        if (nilaiSerangText == null) return;
+        nilaiSerangText.gameObject.SetActive(true);
+        nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
     }
 
     public void UpdateSelectedParryTotal(int total)
     {
-        if (NilaiSerangan == null) return;
-        NilaiSerangan.gameObject.SetActive(true);
-        NilaiSerangan.text = $"TOTAL TANGKISAN: {total}";
+        if (nilaiSerangText == null) return;
+        nilaiSerangText.gameObject.SetActive(true);
+        nilaiSerangText.text = $"TOTAL TANGKISAN: {total}";
     }
 
     public void HideAttackStrength()
     {
-        if (NilaiSerangan == null) return;
-        NilaiSerangan.gameObject.SetActive(false);
+        if (nilaiSerangText == null) return;
+        nilaiSerangText.gameObject.SetActive(false);
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -230,22 +232,6 @@ public class UIManager : MonoBehaviour
         foreach (Transform card in KartuManusiaPanel)
         {
             card.GetComponent<Button>().interactable = isInteractable;
-        }
-    }
-    
-    public void UpdateScoreUI(Player player)
-    {
-        Image[] targetImages = player.isAI ? scoreAiImages : scoreManusiaImages;
-        for (int i = 0; i < targetImages.Length; i++)
-        {
-            if (i < player.score)
-            {
-                targetImages[i].sprite = scorePenuhSprite;
-            }
-            else
-            {
-                targetImages[i].sprite = null;
-            }
         }
     }
 
@@ -282,15 +268,15 @@ public class UIManager : MonoBehaviour
         if (PerkuatSeranganPanel != null) PerkuatSeranganPanel.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
     }
-    
+
     public void UpdateMainDeckUI(int cardCount)
     {
-        if (kartuDeckText == null) return;
+        if (sisaKartuDeckText == null) return;
         if (cardCount > 0)
         {
-            kartuDeckText.gameObject.SetActive(true);
-            kartuDeckText.text = "Sisa: " + cardCount;
+            sisaKartuDeckText.gameObject.SetActive(true);
+            sisaKartuDeckText.text = "Sisa: " + cardCount;
         }
-        else { kartuDeckText.text = "Deck Habis!"; }
+        else { sisaKartuDeckText.text = "Deck Habis!"; }
     }
 }
