@@ -370,7 +370,7 @@ public class GameManager : MonoBehaviour
         else
         {
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
-            uiManager.ShowMessage("Anda diserang! Pilih 'Tangkis' untuk melawan.", 0f);
+            uiManager.ShowMessage($"Anda diserang! Kekuatan serangan: {value}. Pilih 'Tangkis' untuk melawan.", 0f);
             uiManager.ShowAksiTangkisPanel(true);
         }
     }
