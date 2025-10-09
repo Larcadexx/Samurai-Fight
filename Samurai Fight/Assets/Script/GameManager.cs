@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Text;
 using System.Linq;
 
@@ -31,7 +32,9 @@ public class GameManager : MonoBehaviour
 
     private bool isPlayerMelangkah = false;
     private bool isPlayerMenyerang = false;
+    private bool isPlayerInSergapMode = false;
     private int arahLangkah = 0;
+    private bool isGameOver = false;
 
     void Awake() { instance = this; }
 
@@ -54,6 +57,8 @@ public class GameManager : MonoBehaviour
         currentAttackPhase = AttackPhase.None;
         isPlayerMelangkah = false;
         isPlayerMenyerang = false;
+        isPlayerInSergapMode = false;
+        isGameOver = false;
 
         manusia.position = 1;
         ai.position = 23;
@@ -79,6 +84,8 @@ public class GameManager : MonoBehaviour
 
     private void StartTurn()
     {
+        if (isGameOver) return;
+        
         uiManager.RestoreDefaultLayout();
         
         Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
@@ -105,6 +112,21 @@ public class GameManager : MonoBehaviour
         activePlayer = (activePlayer == manusia) ? ai : manusia;
         StartTurn();
     }
+    
+    public void PlayAgain()
+    {
+        Debug.Log("Memulai permainan baru...");
+        uiManager.KemenanganPanel.SetActive(false);
+        manusia.score = 0;
+        ai.score = 0;
+        Start();
+    }
+
+    public void GoToMainMenu()
+    {
+        Debug.Log("Kembali ke Main Menu...");
+        SceneManager.LoadScene("MainMenu");
+    }
 
     private void CheckAvailablePlayerActions()
     {
@@ -129,7 +151,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecuteAITurnCoroutine()
     {
         uiManager.ShowMessage("Giliran AI...", 0f);
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.5f);
 
         if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
@@ -159,7 +181,7 @@ public class GameManager : MonoBehaviour
                 var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position -= chosenCard.value;
-                uiManager.ShowMessage($"AI melangkah maju", 7f);
+                uiManager.ShowMessage($"AI melangkah maju", 2f);
                 MovePawnVisual(ai, ai.position);
                 ai.hand.Remove(chosenCard);
             }
@@ -168,11 +190,11 @@ public class GameManager : MonoBehaviour
                 var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
                 Card chosenCard = validCards[Random.Range(0, validCards.Count)];
                 ai.position += chosenCard.value;
-                uiManager.ShowMessage($"AI melangkah mundur", 7f);
+                uiManager.ShowMessage($"AI melangkah mundur", 2f);
                 MovePawnVisual(ai, ai.position);
                 ai.hand.Remove(chosenCard);
             }
-            yield return new WaitForSeconds(3.5f);
+            yield return new WaitForSeconds(1.5f);
             EndTurn();
         }
     }
@@ -180,7 +202,7 @@ public class GameManager : MonoBehaviour
     public void OnMelangkahButtonPressed()
     {
         if (activePlayer != manusia) return;
-        uiManager.ShowMessage("Maju atau Mundur??", 0f);
+        uiManager.ShowMessage("Pilih arah untuk melangkah.", 0f);
         uiManager.ShowAksiMelangkahPanel(true);
         CheckAvailableMoveDirections();
     }
@@ -203,9 +225,9 @@ public class GameManager : MonoBehaviour
         isPlayerMelangkah = true;
         arahLangkah = isMaju ? 1 : -1;
         string arah = isMaju ? "maju" : "mundur";
-        uiManager.ShowMessage($"Melangkah Seberapa Jauh??", 0f);
+        uiManager.ShowMessage($"Pilih kartu untuk melangkah {arah}.", 0f);
         
-        uiManager.ShowHandPanelOnly();
+        uiManager.ShowHandPanelOnly("move");
         uiManager.SetPlayerHandInteractable(true);
     }
 
@@ -215,7 +237,7 @@ public class GameManager : MonoBehaviour
         isPlayerMenyerang = true;
         uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak.", 0f);
         
-        uiManager.ShowHandPanelOnly();
+        uiManager.ShowHandPanelOnly("attack");
         uiManager.SetPlayerHandInteractable(true);
     }
 
@@ -241,7 +263,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (!isPlayerMenyerang && !isPlayerMelangkah) return;
+        if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode) return;
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
 
@@ -269,13 +291,25 @@ public class GameManager : MonoBehaviour
 
             if (isValidMove)
             {
+                int newDistance = ai.position - newPosition;
+                bool canSergap = manusia.hand.Any(card => card != clickedCard && card.value == newDistance);
+
                 manusia.position = newPosition;
                 MovePawnVisual(manusia, manusia.position);
                 manusia.hand.Remove(clickedCard);
                 isPlayerMelangkah = false;
                 arahLangkah = 0;
                 uiManager.UpdatePlayerHandUI(manusia);
-                EndTurn();
+
+                if (canSergap)
+                {
+                    uiManager.ShowMessage("Anda bisa melakukan Sergap!", 0f);
+                    uiManager.ShowAksiSergapPanel(true);
+                }
+                else
+                {
+                    EndTurn();
+                }
             }
             else
             {
@@ -286,6 +320,39 @@ public class GameManager : MonoBehaviour
                 uiManager.ShowOpsiAwalPanel(true);
             }
         }
+        else if (isPlayerInSergapMode)
+        {
+            isPlayerInSergapMode = false;
+            int distance = ai.position - manusia.position;
+
+            if (clickedCard.value == distance)
+            {
+                Debug.Log($"Sergap berhasil dengan kartu {clickedCard.value}!");
+                manusia.hand.Remove(clickedCard);
+                uiManager.UpdatePlayerHandUI(manusia);
+                InitiateAttack(manusia, ai, clickedCard.value);
+            }
+            else
+            {
+                Debug.Log($"Sergap gagal! Kartu {clickedCard.value} tidak sesuai dengan jarak {distance}.");
+                uiManager.ShowMessage("Sergap Gagal!", 2f);
+                EndTurn();
+            }
+        }
+    }
+
+    public void OnSergapYesButtonPressed()
+    {
+        isPlayerInSergapMode = true;
+        uiManager.ShowMessage("Pilih kartu untuk melakukan Sergap.", 0f);
+        uiManager.ShowHandPanelOnly("attack");
+        uiManager.SetPlayerHandInteractable(true);
+    }
+
+    public void OnSergapNoButtonPressed()
+    {
+        uiManager.HideAllPlayerPanels();
+        EndTurn();
     }
     
     private void InitiateAttack(Player currentAttacker, Player currentDefender, int value)
@@ -378,7 +445,7 @@ public class GameManager : MonoBehaviour
         
         currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
         
-        uiManager.ShowHandPanelOnly();
+        uiManager.ShowHandPanelOnly("move");
         uiManager.ShowMessage("Pilih kartu, lalu tekan 'Tangkis' lagi untuk konfirmasi.", 0f);
         
         var tangkisButton = uiManager.AksiTangkisPanel.transform.Find("TangkisYesButton").GetComponent<Button>();
@@ -467,8 +534,11 @@ public class GameManager : MonoBehaviour
 
         if (winner.score >= 5)
         {
+            isGameOver = true;
             uiManager.ShowMessage($"{winner.playerName} adalah PEMENANGNYA!", 0f);
             Debug.Log($"--- GAME BERAKHIR! PEMENANG UTAMA: {winner.playerName} ---");
+            yield return new WaitForSeconds(2f);
+            uiManager.ShowKemenanganPanel(winner == manusia);
         }
         else
         {
