@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviour
     [Header("Card Display")]
     public GameObject cardPrefab;
     public Transform KartuManusiaPanel; 
+    public Transform[] cardSlots; 
 
     [Header("Decks")]
     public TextMeshProUGUI kartuDeckText;
@@ -33,7 +34,7 @@ public class UIManager : MonoBehaviour
     [Header("Info Tambahan")]
     public TextMeshProUGUI NilaiSerangan;
     public TextMeshProUGUI SystemMessage;
-    public TextMeshProUGUI KemenanganText; // <-- HILANG SEBELUMNYA
+    public TextMeshProUGUI KemenanganText;
 
     [Header("Panels")]
     public GameObject OpsiAwalPanel;
@@ -41,7 +42,7 @@ public class UIManager : MonoBehaviour
     public GameObject AksiTangkisPanel;
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
-    public GameObject KemenanganPanel; // <-- HILANG SEBELUMNYA
+    public GameObject KemenanganPanel;
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -56,35 +57,16 @@ public class UIManager : MonoBehaviour
         instance = this; 
         if (NilaiSerangan != null) NilaiSerangan.gameObject.SetActive(false);
         if (SystemMessage != null) SystemMessage.gameObject.SetActive(false);
-        if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
+        if (KemenanganPanel != null) KemenanganPanel.gameObject.SetActive(false);
     }
     
-    public void ShowKemenanganPanel(bool playerWon)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
-        HideMessage();
-        HideAttackStrength();
-
-        KemenanganPanel.SetActive(true);
-
-        if (playerWon)
-        {
-            KemenanganText.text = "ANDA MENANG!";
-        }
-        else
-        {
-            KemenanganText.text = "ANDA KALAH!";
-        }
-    }
-
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
         SetPersistentUIVisibility(true);
         if (KartuManusiaPanel != null && handPanelDefaultMarker != null)
         {
+            KartuManusiaPanel.gameObject.SetActive(true);
             KartuManusiaPanel.position = handPanelDefaultMarker.position;
         }
     }
@@ -102,15 +84,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowOpsiAwalPanel(bool show) 
     { 
-        OpsiAwalPanel.SetActive(show);
         if (show)
         {
-            SetPersistentUIVisibility(true);
-            if (KartuManusiaPanel != null && handPanelDefaultMarker != null)
-            {
-                KartuManusiaPanel.position = handPanelDefaultMarker.position;
-            }
+            RestoreDefaultLayout();
         }
+        OpsiAwalPanel.SetActive(show);
     }
 
     public void ShowAksiMelangkahPanel(bool show) 
@@ -148,7 +126,8 @@ public class UIManager : MonoBehaviour
 
         PerkuatSeranganPanel.SetActive(show);
     }
-
+    
+    // --- FUNGSI YANG DIPERBAIKI ---
     public void ShowHandPanelOnly(string context)
     {
         HideAllPlayerPanels();
@@ -169,6 +148,23 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void UpdatePlayerHandUI(Player player)
+    {
+        for (int i = 0; i < cardSlots.Length; i++)
+        {
+            if (cardSlots[i].childCount > 0)
+            {
+                Destroy(cardSlots[i].GetChild(0).gameObject);
+            }
+
+            if (player.hand[i] != null)
+            {
+                GameObject cardGO = Instantiate(cardPrefab, cardSlots[i]);
+                cardGO.GetComponent<CardController>().Initialize(player.hand[i]);
+            }
+        }
+    }
+    
     public void ShowMessage(string message, float duration = 2f)
     {
         if (SystemMessage == null) return;
@@ -215,21 +211,14 @@ public class UIManager : MonoBehaviour
         NilaiSerangan.gameObject.SetActive(false);
     }
 
-    public void UpdatePlayerHandUI(Player player)
-    {
-        foreach (Transform child in KartuManusiaPanel) { Destroy(child.gameObject); }
-        foreach (Card card in player.hand)
-        {
-            GameObject cardGO = Instantiate(cardPrefab, KartuManusiaPanel);
-            cardGO.GetComponent<CardController>().Initialize(card);
-        }
-    }
-
     public void SetPlayerHandInteractable(bool isInteractable)
     {
-        foreach (Transform card in KartuManusiaPanel)
+        foreach (Transform slot in cardSlots)
         {
-            card.GetComponent<Button>().interactable = isInteractable;
+            if (slot.childCount > 0)
+            {
+                slot.GetChild(0).GetComponent<Button>().interactable = isInteractable;
+            }
         }
     }
     
@@ -292,5 +281,25 @@ public class UIManager : MonoBehaviour
             kartuDeckText.text = "Sisa: " + cardCount;
         }
         else { kartuDeckText.text = "Deck Habis!"; }
+    }
+
+    public void ShowKemenanganPanel(bool playerWon)
+    {
+        HideAllPlayerPanels();
+        SetPersistentUIVisibility(false);
+        if (KartuManusiaPanel != null) KartuManusiaPanel.gameObject.SetActive(false);
+        HideMessage();
+        HideAttackStrength();
+
+        KemenanganPanel.SetActive(true);
+
+        if (playerWon)
+        {
+            KemenanganText.text = "ANDA MENANG!";
+        }
+        else
+        {
+            KemenanganText.text = "ANDA KALAH!";
+        }
     }
 }
