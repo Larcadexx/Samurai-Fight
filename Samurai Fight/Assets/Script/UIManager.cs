@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviour
     
     // Bagian atas skrip tidak berubah...
     [Header("Setup Score")]
-    public Sprite getScoreSprite;
+    // public Sprite getScoreSprite; // <-- DIHAPUS, sudah tidak digunakan lagi
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
 
@@ -34,8 +34,8 @@ public class UIManager : MonoBehaviour
 
     [Header("Perpindahan Panel Kartu")]
     public Transform posisiDefault;
-    public Transform posisiKanan;   // <-- DITUKAR, sebelumnya posisiTengah
-    public Transform posisiTengah; // <-- DITUKAR, sebelumnya posisiKanan
+    public Transform posisiKanan;   
+    public Transform posisiTengah; 
 
     [Header("Panel Yang Disembunyikan")]
     public GameObject[] fokusMode;
@@ -48,37 +48,18 @@ public class UIManager : MonoBehaviour
 
     private Coroutine messageCoroutine;
     
-    // Fungsi lainnya tetap sama sampai ShowHandPanelOnly
-    // ...
-    
-    public void ShowHandPanelOnly(string context)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-
-        if (KartuManusiaPanel != null)
-        {
-            KartuManusiaPanel.gameObject.SetActive(true);
-
-            // Logika di dalam sini juga ikut ditukar agar fungsinya tetap benar
-            if (context == "attack" && posisiTengah != null) // <-- DITUKAR
-            {
-                KartuManusiaPanel.position = posisiTengah.position; // <-- DITUKAR
-            }
-            else if (context == "move" && posisiKanan != null) // <-- DITUKAR
-            {
-                KartuManusiaPanel.position = posisiKanan.position; // <-- DITUKAR
-            }
-        }
-    }
-    
-    // Sisa skrip di bawah ini tidak ada perubahan...
     void Awake()
     {
         instance = this;
         if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
+    }
+    
+    // Ditambahkan untuk memastikan skor disembunyikan di awal
+    void Start()
+    {
+        ResetScoreUI();
     }
 
     public void ShowKemenanganPanel(bool playerWon)
@@ -126,15 +107,57 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // DIUBAH: Logika untuk menampilkan skor
     public void UpdateScoreUI(Player player)
     {
+        // Tentukan array Image mana yang akan digunakan (Manusia atau AI)
         Image[] targetImages = player.isAI ? scoreAiImages : scoreManusiaImages;
-        for (int i = 0; i < targetImages.Length; i++)
+        
+        // Pastikan skor berada dalam rentang yang valid (1 s/d 5)
+        if (player.score > 0 && player.score <= targetImages.Length)
         {
-            targetImages[i].sprite = (i < player.score) ? getScoreSprite : null;
+            // Aktifkan GameObject dari Image skor yang sesuai.
+            // Contoh: jika skor pemain = 1, maka aktifkan targetImages[0]
+            targetImages[player.score - 1].gameObject.SetActive(true);
+        }
+    }
+    
+    // DIUBAH: Logika untuk mereset skor
+    public void ResetScoreUI()
+    {
+        // Sembunyikan semua GameObject Image skor manusia
+        foreach (Image img in scoreManusiaImages)
+        {
+            img.gameObject.SetActive(false);
+        }
+        
+        // Sembunyikan semua GameObject Image skor AI
+        foreach (Image img in scoreAiImages)
+        {
+            img.gameObject.SetActive(false);
         }
     }
 
+    public void ShowHandPanelOnly(string context)
+    {
+        HideAllPlayerPanels();
+        SetPersistentUIVisibility(false);
+
+        if (KartuManusiaPanel != null)
+        {
+            KartuManusiaPanel.gameObject.SetActive(true);
+            
+            if (context == "attack" && posisiTengah != null)
+            {
+                KartuManusiaPanel.position = posisiTengah.position;
+            }
+            else if (context == "move" && posisiKanan != null)
+            {
+                KartuManusiaPanel.position = posisiKanan.position; 
+            }
+        }
+    }
+    
     public void ShowAksiMelangkahPanel(bool show)
     {
         HideAllPlayerPanels();
@@ -232,18 +255,6 @@ public class UIManager : MonoBehaviour
         foreach (Transform card in KartuManusiaPanel)
         {
             card.GetComponent<Button>().interactable = isInteractable;
-        }
-    }
-
-    public void ResetScoreUI()
-    {
-        foreach (Image img in scoreManusiaImages)
-        {
-            img.sprite = null;
-        }
-        foreach (Image img in scoreAiImages)
-        {
-            img.sprite = null;
         }
     }
 

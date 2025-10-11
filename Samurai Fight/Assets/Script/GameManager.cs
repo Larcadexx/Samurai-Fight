@@ -611,11 +611,18 @@ public class GameManager : MonoBehaviour
     }
     
     private void MovePawnVisual(Player player, int targetPosition)
-    {
-        GameObject pawnToMove = player.isAI ? pionAI : pionManusia;
-        Transform targetPetak = petakPapan[targetPosition - 1];
-        pawnToMove.transform.position = targetPetak.position;
-    }
+{
+    GameObject pawnToMove = player.isAI ? pionAI : pionManusia;
+    Transform targetPetak = petakPapan[targetPosition - 1];
+
+    // --- BARIS YANG DIUBAH ---
+    // Awalnya:
+    // pawnToMove.transform.position = targetPetak.position;
+
+    // Menjadi (tambahkan nilai Y untuk mengangkat pion):
+    pawnToMove.transform.position = targetPetak.position + new Vector3(0, 75f, 0);
+    // -------------------------
+}
 
     private void RefillHand(Player player)
     {
