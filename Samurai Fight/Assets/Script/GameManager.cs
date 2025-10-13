@@ -104,6 +104,7 @@ public class GameManager : MonoBehaviour
             CheckAvailablePlayerActions();
             uiManager.ShowOpsiAwalPanel(true);
             uiManager.SetPlayerHandInteractable(false);
+            CameraManager.Instance.SwitchToPlayerTurn();
         }
     }
     
@@ -173,6 +174,7 @@ public class GameManager : MonoBehaviour
         
         if (chosenAction == "Serang")
         {
+            CameraManager.Instance.SwitchToAttack();
             Card attackCard = ai.hand.First(card => card.value == distance);
             uiManager.ShowMessage($"AI menyerang dengan kartu {attackCard.value}", 2f);
             yield return new WaitForSeconds(1f);
@@ -201,6 +203,7 @@ public class GameManager : MonoBehaviour
             }
             yield return new WaitForSeconds(1.5f);
             EndTurn();
+            CameraManager.Instance.SwitchToOverview();
         }
     }
     
@@ -210,6 +213,7 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Pilih arah untuk melangkah.", 0f);
         uiManager.ShowAksiMelangkahPanel(true);
         CheckAvailableMoveDirections();
+        CameraManager.Instance.SwitchToPlayerTurn();
     }
 
     private void CheckAvailableMoveDirections()
@@ -234,6 +238,7 @@ public class GameManager : MonoBehaviour
         
         uiManager.ShowHandPanelOnly("move");
         uiManager.SetPlayerHandInteractable(true);
+        CameraManager.Instance.SwitchToFollowMove();
     }
 
     public void OnSerangButtonPressed()
@@ -244,6 +249,7 @@ public class GameManager : MonoBehaviour
         
         uiManager.ShowHandPanelOnly("attack");
         uiManager.SetPlayerHandInteractable(true);
+        CameraManager.Instance.SwitchToAttack();
     }
 
     public void OnCardInHandClicked(Card clickedCard, CardController cardController)
@@ -415,6 +421,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator DecideAITangkisCoroutine()
     {
+        CameraManager.Instance.SwitchToParry();
         yield return new WaitForSeconds(1f);
         List<Card> parryCombination = FindParryCombination(attackValue, ai.hand);
         
@@ -558,6 +565,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RoundOverCoroutine(Player winner)
     {
+        CameraManager.Instance.SwitchToOverview();
         Debug.Log($"--- RONDE BERAKHIR! Pemenang: {winner.playerName} ---");
         uiManager.HideAttackStrength();
         uiManager.HideMessage();
@@ -673,4 +681,11 @@ public class GameManager : MonoBehaviour
         deck.RemoveAt(0);
         return drawnCard;
     }
+void OnPlayerTurnStart() => CameraManager.Instance.SwitchToPlayerTurn();
+void OnPlayerMove() => CameraManager.Instance.SwitchToFollowMove();
+void OnPlayerAttack() => CameraManager.Instance.SwitchToAttack();
+void OnEnemyParry() => CameraManager.Instance.SwitchToParry();
+void OnRoundEnd() => CameraManager.Instance.SwitchToOverview();
+
+
 }
