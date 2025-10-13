@@ -18,6 +18,10 @@ public class UIManager : MonoBehaviour
     // DIHAPUS: CanvasGroup tidak lagi digunakan.
     // public CanvasGroup kartuManusiaCanvasGroup; 
 
+    [Header("Posisi Panel Kartu")]
+    public Transform posisiPanelDefault;
+    public Transform posisiPanelKanan;
+    public Transform posisiPanelBawah;
     [Header("Text System")]
     public TextMeshProUGUI nilaiSerangText;
     public TextMeshProUGUI systemText;
@@ -219,4 +223,12 @@ public class UIManager : MonoBehaviour
         if (sisaKartuDeckText == null) return;
         sisaKartuDeckText.text = cardCount > 0 ? "Sisa: " + cardCount : "Deck Habis!";
     }
+
+    public void PindahkanPanelKartu(Transform targetPosisi)
+{
+    if (KartuManusiaPanel != null && targetPosisi != null)
+    {
+        KartuManusiaPanel.transform.position = targetPosisi.position;
+    }
+}
 }
