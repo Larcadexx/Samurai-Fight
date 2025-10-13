@@ -175,17 +175,31 @@ public class GameManager : MonoBehaviour
 
     public void OnCardSlotClicked(Card clickedCard, SistemKartu slotController)
     {
-        if (activePlayer != manusia) return;
+        // --- BLOK 1: LOGIKA REAKTIF (Terjadi di luar giliran pemain) ---
 
+        // Pertama, cek jika pemain sedang dalam fase memilih kartu TANGKISAN.
+        // Ini adalah interaksi UI yang unik dan harus didahulukan.
         if (currentAttackPhase == AttackPhase.PlayerSelectingParryCards)
         {
             HandleParrySelection(clickedCard, slotController);
+            return; // Selesai, hentikan fungsi di sini.
+        }
+
+        // --- BLOK 2: LOGIKA AKSI (Bisa Reaktif atau Aktif) ---
+
+        // Pengecekan utama: Aksi hanya diizinkan jika ini adalah giliran pemain (manusia),
+        // ATAU jika pemain sedang dalam mode SERANG BALIK.
+        if (activePlayer != manusia && !isPlayerInSerangBalikMode)
+        {
+            // Jika bukan giliran pemain DAN pemain tidak sedang serang balik, maka abaikan klik.
             return;
         }
 
+        // Pastikan ada aksi yang sedang menunggu untuk dieksekusi dengan kartu ini.
         if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack && !isPlayerInSerangBalikMode)
             return;
 
+        // Jika semua kondisi terpenuhi, proses aksi kartu.
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
         HandleCardAction(clickedCard);

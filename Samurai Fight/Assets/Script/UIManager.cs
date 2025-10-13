@@ -15,7 +15,8 @@ public class UIManager : MonoBehaviour
     [Header("Card Display")]
     public SistemKartu[] cardSlots;
     public GameObject KartuManusiaPanel;
-    public CanvasGroup kartuManusiaCanvasGroup;
+    // DIHAPUS: CanvasGroup tidak lagi digunakan.
+    // public CanvasGroup kartuManusiaCanvasGroup; 
 
     [Header("Text System")]
     public TextMeshProUGUI nilaiSerangText;
@@ -102,22 +103,18 @@ public class UIManager : MonoBehaviour
         }
     }
     
+    // UBAH: Fungsi ini disederhanakan untuk langsung memanipulasi tombol.
     public void SetPlayerHandInteractable(bool isInteractable)
     {
-        if (kartuManusiaCanvasGroup != null)
+        // Langsung iterasi ke setiap slot kartu.
+        foreach (var slot in cardSlots)
         {
-            kartuManusiaCanvasGroup.interactable = isInteractable;
-            kartuManusiaCanvasGroup.blocksRaycasts = isInteractable;
-        }
-        else
-        {
-            foreach (var slot in cardSlots)
+            // Dapatkan komponen Button dari slot.
+            Button button = slot.GetComponent<Button>();
+            if (button != null)
             {
-                Button button = slot.GetComponent<Button>();
-                if (button != null)
-                {
-                    button.interactable = slot.gameObject.activeSelf && isInteractable;
-                }
+                // Atur interaktivitas tombol, hanya jika slotnya aktif.
+                button.interactable = slot.gameObject.activeSelf && isInteractable;
             }
         }
     }
@@ -160,7 +157,6 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    // UBAH: Fungsi baru untuk menampilkan pesan kegagalan tangkisan yang lebih detail.
     public void ShowTangkisanGagalMessage(int nilaiPemain, int nilaiSerangan, float duration = 3f)
     {
         string message = $"Tangkisan Gagal! Total nilai kartu Anda ({nilaiPemain}) tidak cocok dengan serangan ({nilaiSerangan}).";
@@ -180,13 +176,11 @@ public class UIManager : MonoBehaviour
         nilaiSerangText.gameObject.SetActive(true);
         nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
     }
-
-    // UBAH: Fungsi ini sekarang menerima kekuatan serangan musuh sebagai parameter tambahan.
+    
     public void UpdateSelectedParryTotal(int total, int requiredStrength)
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
-        // UBAH: Teks sekarang menampilkan kedua nilai secara bersamaan.
         nilaiSerangText.text = $"SERANGAN LAWAN: {requiredStrength}  |  TANGKISAN ANDA: {total}";
     }
 
