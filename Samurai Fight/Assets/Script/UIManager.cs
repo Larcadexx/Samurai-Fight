@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [Header("Card Display")]
     public SistemKartu[] cardSlots;
     public GameObject KartuManusiaPanel;
+    public CanvasGroup kartuManusiaCanvasGroup;
 
     [Header("Text System")]
     public TextMeshProUGUI nilaiSerangText;
@@ -30,7 +31,6 @@ public class UIManager : MonoBehaviour
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
 
-    // Pastikan array ini sudah diisi di Inspector Unity
     [Header("Panel Tetap Ditampilkan")]
     public GameObject[] fokusMode;
 
@@ -52,64 +52,46 @@ public class UIManager : MonoBehaviour
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// Menampilkan semua UI utama untuk giliran pemain (tampilan penuh).
-    /// </summary>
     public void ShowFullPlayerUI()
     {
-        // Sembunyikan semua panel aksi spesifik
         AksiMelangkahPanel.SetActive(false);
         AksiTangkisPanel.SetActive(false);
         AksiSergapPanel.SetActive(false);
         PerkuatSeranganPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         
-        // Tampilkan semua elemen yang sebelumnya disembunyikan oleh fokus mode
         foreach (var element in fokusMode)
         {
             if (element != null) element.SetActive(true);
         }
 
-        // Tampilkan panel yang relevan untuk awal giliran
         OpsiAwalPanel.SetActive(true);
-        KartuManusiaPanel.SetActive(true); // Langsung tampilkan kartu
+        KartuManusiaPanel.SetActive(true);
         HideAttackStrength();
         HideMessage();
     }
 
-    /// <summary>
-    /// Masuk ke Fokus Mode: menyembunyikan UI utama dan menampilkan pesan.
-    /// </summary>
     public void EnterFokusMode(string message)
     {
-        // Sembunyikan semua panel dan UI utama
         HideAllPlayerPanels();
         foreach (var element in fokusMode)
         {
             if (element != null) element.SetActive(false);
         }
         
-        // Selalu tampilkan pesan sistem
         ShowMessage(message, 0f);
     }
 
-    /// <summary>
-    /// Mengembalikan layout ke default saat giliran AI atau ronde berakhir.
-    /// </summary>
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
         HideAttackStrength();
-        // Tampilkan kembali elemen utama saat giliran AI (jika diinginkan)
         foreach (var element in fokusMode)
         {
             if (element != null) element.SetActive(true);
         }
-        // Pastikan panel kartu manusia tidak terlihat saat giliran AI
         KartuManusiaPanel.SetActive(false); 
     }
-
-    // --- Sisa fungsi ---
 
     public void UpdatePlayerHandUI(Player player)
     {
@@ -122,12 +104,20 @@ public class UIManager : MonoBehaviour
     
     public void SetPlayerHandInteractable(bool isInteractable)
     {
-        foreach (var slot in cardSlots)
+        if (kartuManusiaCanvasGroup != null)
         {
-            Button button = slot.GetComponent<Button>();
-            if (button != null)
+            kartuManusiaCanvasGroup.interactable = isInteractable;
+            kartuManusiaCanvasGroup.blocksRaycasts = isInteractable;
+        }
+        else
+        {
+            foreach (var slot in cardSlots)
             {
-                button.interactable = slot.gameObject.activeSelf && isInteractable;
+                Button button = slot.GetComponent<Button>();
+                if (button != null)
+                {
+                    button.interactable = slot.gameObject.activeSelf && isInteractable;
+                }
             }
         }
     }
@@ -140,7 +130,7 @@ public class UIManager : MonoBehaviour
     
     public void ShowKemenanganPanel(bool playerWon)
     {
-        EnterFokusMode(""); // Bersihkan layar
+        EnterFokusMode("");
         KemenanganPanel.SetActive(true);
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
     }
@@ -169,6 +159,13 @@ public class UIManager : MonoBehaviour
             systemText.gameObject.SetActive(false);
         }
     }
+    
+    // UBAH: Fungsi baru untuk menampilkan pesan kegagalan tangkisan yang lebih detail.
+    public void ShowTangkisanGagalMessage(int nilaiPemain, int nilaiSerangan, float duration = 3f)
+    {
+        string message = $"Tangkisan Gagal! Total nilai kartu Anda ({nilaiPemain}) tidak cocok dengan serangan ({nilaiSerangan}).";
+        ShowMessage(message, duration);
+    }
 
     public void HideMessage()
     {
@@ -184,11 +181,13 @@ public class UIManager : MonoBehaviour
         nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
     }
 
-    public void UpdateSelectedParryTotal(int total)
+    // UBAH: Fungsi ini sekarang menerima kekuatan serangan musuh sebagai parameter tambahan.
+    public void UpdateSelectedParryTotal(int total, int requiredStrength)
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
-        nilaiSerangText.text = $"TOTAL TANGKISAN: {total}";
+        // UBAH: Teks sekarang menampilkan kedua nilai secara bersamaan.
+        nilaiSerangText.text = $"SERANGAN LAWAN: {requiredStrength}  |  TANGKISAN ANDA: {total}";
     }
 
     public void HideAttackStrength()
