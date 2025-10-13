@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 976316170421911208}
   - component: {fileID: 6812951461430136630}
   - component: {fileID: 7905846992480320892}
+  - component: {fileID: 7320448749792418614}
   m_Layer: 5
   m_Name: CardTemplate
   m_TagString: Untagged
@@ -62,7 +63,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -148,6 +149,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   valueCardText: {fileID: 7624051139939879367}
   background: {fileID: 976316170421911208}
+--- !u!114 &7320448749792418614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222007696930093430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 100
+  m_PreferredHeight: 150
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &2876355142954208167
 GameObject:
   m_ObjectHideFlags: 0
