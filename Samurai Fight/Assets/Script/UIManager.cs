@@ -181,7 +181,8 @@ public class UIManager : MonoBehaviour
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
-        nilaiSerangText.text = $"SERANGAN LAWAN: {requiredStrength}  |  TANGKISAN ANDA: {total}";
+        // DIUBAH: Baris ini sekarang hanya menampilkan total tangkisan Anda.
+        nilaiSerangText.text = $"TANGKISAN ANDA: {total}";
     }
 
     public void HideAttackStrength()
