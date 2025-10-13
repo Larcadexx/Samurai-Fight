@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
     public Image[] scoreAiImages;
 
     [Header("Card Display")]
-    public SistemKartu[] cardSlots; 
+    public SistemKartu[] cardSlots;
     public GameObject KartuManusiaPanel;
 
     [Header("Text System")]
@@ -29,8 +29,8 @@ public class UIManager : MonoBehaviour
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
-    
-    // VARIABEL YANG HILANG SEBELUMNYA, SEKARANG SUDAH DITAMBAHKAN KEMBALI
+
+    // Pastikan array ini sudah diisi di Inspector Unity
     [Header("Panel Tetap Ditampilkan")]
     public GameObject[] fokusMode;
 
@@ -52,31 +52,71 @@ public class UIManager : MonoBehaviour
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
     }
 
-    public void ShowOpsiAwalPanel(bool show)
+    /// <summary>
+    /// Menampilkan semua UI utama untuk giliran pemain (tampilan penuh).
+    /// </summary>
+    public void ShowFullPlayerUI()
     {
-        OpsiAwalPanel.SetActive(show);
-        if (show)
+        // Sembunyikan semua panel aksi spesifik
+        AksiMelangkahPanel.SetActive(false);
+        AksiTangkisPanel.SetActive(false);
+        AksiSergapPanel.SetActive(false);
+        PerkuatSeranganPanel.SetActive(false);
+        KonfirmasiTangkisButton.gameObject.SetActive(false);
+        
+        // Tampilkan semua elemen yang sebelumnya disembunyikan oleh fokus mode
+        foreach (var element in fokusMode)
         {
-            SetPersistentUIVisibility(true);
-            if (KartuManusiaPanel != null) KartuManusiaPanel.SetActive(false);
+            if (element != null) element.SetActive(true);
         }
+
+        // Tampilkan panel yang relevan untuk awal giliran
+        OpsiAwalPanel.SetActive(true);
+        KartuManusiaPanel.SetActive(true); // Langsung tampilkan kartu
+        HideAttackStrength();
+        HideMessage();
     }
 
-    // --- Sisa skrip tidak ada yang berubah ---
-    #region Unchanged UIManager Code
+    /// <summary>
+    /// Masuk ke Fokus Mode: menyembunyikan UI utama dan menampilkan pesan.
+    /// </summary>
+    public void EnterFokusMode(string message)
+    {
+        // Sembunyikan semua panel dan UI utama
+        HideAllPlayerPanels();
+        foreach (var element in fokusMode)
+        {
+            if (element != null) element.SetActive(false);
+        }
+        
+        // Selalu tampilkan pesan sistem
+        ShowMessage(message, 0f);
+    }
+
+    /// <summary>
+    /// Mengembalikan layout ke default saat giliran AI atau ronde berakhir.
+    /// </summary>
+    public void RestoreDefaultLayout()
+    {
+        HideAllPlayerPanels();
+        HideAttackStrength();
+        // Tampilkan kembali elemen utama saat giliran AI (jika diinginkan)
+        foreach (var element in fokusMode)
+        {
+            if (element != null) element.SetActive(true);
+        }
+        // Pastikan panel kartu manusia tidak terlihat saat giliran AI
+        KartuManusiaPanel.SetActive(false); 
+    }
+
+    // --- Sisa fungsi ---
+
     public void UpdatePlayerHandUI(Player player)
     {
-        foreach (var slot in cardSlots)
-        {
-            slot.HideSlot();
-        }
-
+        foreach (var slot in cardSlots) slot.HideSlot();
         for (int i = 0; i < player.hand.Count; i++)
         {
-            if (i < cardSlots.Length)
-            {
-                cardSlots[i].Initialize(player.hand[i]);
-            }
+            if (i < cardSlots.Length) cardSlots[i].Initialize(player.hand[i]);
         }
     }
     
@@ -100,27 +140,9 @@ public class UIManager : MonoBehaviour
     
     public void ShowKemenanganPanel(bool playerWon)
     {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        HideMessage();
-        HideAttackStrength();
+        EnterFokusMode(""); // Bersihkan layar
         KemenanganPanel.SetActive(true);
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
-    }
-
-    public void RestoreDefaultLayout()
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(true);
-        HideAttackStrength();
-    }
-
-    private void SetPersistentUIVisibility(bool isVisible)
-    {
-        foreach (var panel in fokusMode)
-        {
-            if (panel != null) panel.SetActive(isVisible);
-        }
     }
 
     public void UpdateScoreUI(Player player)
@@ -128,34 +150,6 @@ public class UIManager : MonoBehaviour
         Image[] targetImages = player.isAI ? scoreAiImages : scoreManusiaImages;
         if (player.score > 0 && player.score <= targetImages.Length)
             targetImages[player.score - 1].gameObject.SetActive(true);
-    }
-    
-    public void ShowAksiMelangkahPanel(bool show)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        AksiMelangkahPanel.SetActive(show);
-    }
-
-    public void ShowAksiTangkisPanel(bool show)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        AksiTangkisPanel.SetActive(show);
-    }
-
-    public void ShowAksiSergapPanel(bool show)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        AksiSergapPanel.SetActive(show);
-    }
-
-    public void ShowPerkuatSeranganPanel(bool show)
-    {
-        HideAllPlayerPanels();
-        SetPersistentUIVisibility(false);
-        PerkuatSeranganPanel.SetActive(show);
     }
 
     public void ShowMessage(string message, float duration = 2f)
@@ -221,8 +215,9 @@ public class UIManager : MonoBehaviour
         AksiMelangkahPanel.SetActive(false);
         AksiTangkisPanel.SetActive(false);
         AksiSergapPanel.SetActive(false);
-        if (PerkuatSeranganPanel != null) PerkuatSeranganPanel.SetActive(false);
-        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        PerkuatSeranganPanel.SetActive(false);
+        KonfirmasiTangkisButton.gameObject.SetActive(false);
+        KartuManusiaPanel.SetActive(false);
     }
 
     public void UpdateMainDeckUI(int cardCount)
@@ -230,5 +225,4 @@ public class UIManager : MonoBehaviour
         if (sisaKartuDeckText == null) return;
         sisaKartuDeckText.text = cardCount > 0 ? "Sisa: " + cardCount : "Deck Habis!";
     }
-    #endregion
 }
