@@ -2,28 +2,33 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Sistem slot kartu pada UI (mengikat data Card ke slot).
+/// Tidak mengubah perilaku: Initialize, HideSlot, OnClick, ToggleSelection.
+/// </summary>
 public class SistemKartu : MonoBehaviour
 {
     // Cukup hubungkan teks di Inspector, Image akan diambil secara otomatis
     public TextMeshProUGUI valueText;
 
     private Card cardData;
-    private Image imageComponent; // Variabel untuk menyimpan komponen Image
+    private Image imageComponent; // menyimpan komponen Image
 
-    // Awake dipanggil sekali saat skrip diinisialisasi
     private void Awake()
     {
-        // Secara otomatis mendapatkan komponen Image dari GameObject ini
+        // Dapatkan komponen Image (jika ada)
         imageComponent = GetComponent<Image>();
     }
-    
+
     /// <summary>
     /// Mengisi slot ini dengan data kartu dan menampilkannya.
     /// </summary>
     public void Initialize(Card data)
     {
         cardData = data;
-        valueText.text = data.value.ToString();
+        if (valueText != null)
+            valueText.text = data.value.ToString();
+
         gameObject.SetActive(true);
     }
 
@@ -37,12 +42,12 @@ public class SistemKartu : MonoBehaviour
     }
 
     /// <summary>
-    /// Fungsi ini dipanggil saat tombol kartu diklik.
+    /// Dipanggil saat tombol kartu diklik (di-inspector biasanya terhubung ke Event).
     /// </summary>
     public void OnClick()
     {
         if (cardData == null) return;
-        
+        if (GameManager.instance == null) return;
         GameManager.instance.OnCardSlotClicked(cardData, this);
     }
 
@@ -51,10 +56,7 @@ public class SistemKartu : MonoBehaviour
     /// </summary>
     public void ToggleSelection(bool select)
     {
-        // Menggunakan imageComponent yang sudah disimpan di Awake
         if (imageComponent != null)
-        {
             imageComponent.color = select ? Color.yellow : Color.white;
-        }
     }
 }

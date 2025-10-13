@@ -1,13 +1,13 @@
+using System;
 using System.Collections.Generic;
 
-// Kelas untuk menyimpan data tiap pemain (manusia atau AI)
-[System.Serializable]
+[Serializable]
 public class Player
 {
     public string playerName;       // Nama pemain
     public int position;            // Posisi pion di papan
     public int score;               // Skor total
-    public List<Card> hand = new(); // Kartu di tangan
+    public List<Card> hand = new List<Card>(); // Kartu di tangan
     public bool isAI;               // True kalau pemain ini AI
 
     // Constructor
@@ -17,5 +17,11 @@ public class Player
         this.position = startPos;
         this.score = 0;
         this.isAI = isAI;
+        if (hand == null) hand = new List<Card>();
+    }
+
+    public override string ToString()
+    {
+        return $"{playerName} (pos:{position} score:{score} hand:{hand?.Count ?? 0})";
     }
 }
