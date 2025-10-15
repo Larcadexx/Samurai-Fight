@@ -9,6 +9,9 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance; // Singleton instance
 
+    [Header("Panel Induk")]
+    public GameObject PanelInfoStatis; // Referensi ke panel yang berisi skor dan sisa dek
+
     [Header("Setup Score")]
     public Image[] scoreManusiaImages; // Array Image untuk skor manusia (misal: 5 gambar)
     public Image[] scoreAiImages;      // Array Image untuk skor AI
@@ -32,10 +35,6 @@ public class UIManager : MonoBehaviour
     public GameObject PerkuatSeranganPanel;  // Panel "Perkuat Ya" / "Perkuat Tidak"
     public GameObject KemenanganPanel;       // Panel yang muncul saat game berakhir
 
-    [Header("Panel Tetap Ditampilkan")]
-    // Elemen UI yang selalu ada (seperti skor, sisa deck)
-    public GameObject[] fokusMode; 
-
     [Header("Action Buttons")]
     // Referensi ke tombol-tombol utama untuk di-enable/disable
     public Button MelangkahButton;
@@ -55,8 +54,20 @@ public class UIManager : MonoBehaviour
         if (systemText != null) systemText.gameObject.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        
+        // Sembunyikan panel info di awal game
+        SetInfoPanelVisibility(false);
     }
 
+    // Fungsi baru untuk mengontrol panel info (skor & dek)
+    public void SetInfoPanelVisibility(bool isVisible)
+    {
+        if (PanelInfoStatis != null)
+        {
+            PanelInfoStatis.SetActive(isVisible);
+        }
+    }
+    
     // Menampilkan UI lengkap untuk giliran pemain
     public void ShowFullPlayerUI()
     {
@@ -67,12 +78,6 @@ public class UIManager : MonoBehaviour
         PerkuatSeranganPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         
-        // Tampilkan elemen UI tetap
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(true);
-        }
-
         // Tampilkan panel yang relevan untuk giliran pemain
         OpsiAwalPanel.SetActive(true);
         KartuManusiaPanel.SetActive(true);
@@ -80,15 +85,10 @@ public class UIManager : MonoBehaviour
         HideMessage(); // Sembunyikan pesan sistem
     }
 
-    // Masuk ke mode fokus (misal: saat AI bergerak), sembunyikan semua UI
+    // Masuk ke mode fokus (misal: saat AI bergerak), sembunyikan semua UI pemain
     public void EnterFokusMode(string message)
     {
         HideAllPlayerPanels(); // Sembunyikan semua panel
-        // Sembunyikan elemen UI tetap
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(false);
-        }
         
         // Tampilkan pesan (misal: "Giliran AI...") tanpa durasi (0f)
         ShowMessage(message, 0f); 
@@ -99,12 +99,10 @@ public class UIManager : MonoBehaviour
     {
         HideAllPlayerPanels();
         HideAttackStrength();
-        // Tampilkan lagi elemen UI tetap
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(true);
-        }
         KartuManusiaPanel.SetActive(false); // Sembunyikan panel kartu
+        
+        // Pastikan panel info juga tersembunyi sebagai default
+        SetInfoPanelVisibility(false);
     }
 
     // Mengupdate tampilan kartu di tangan pemain
@@ -149,6 +147,7 @@ public class UIManager : MonoBehaviour
     public void ShowKemenanganPanel(bool playerWon)
     {
         EnterFokusMode(""); // Masuk mode fokus (sembunyikan UI lain)
+        SetInfoPanelVisibility(false); // Sembunyikan skor dan dek saat game over
         KemenanganPanel.SetActive(true); // Tampilkan panel kemenangan
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!"; // Set teks
     }

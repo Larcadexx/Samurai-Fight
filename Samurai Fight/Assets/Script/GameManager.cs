@@ -1,4 +1,3 @@
-// Salin semua kode dari sini
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -123,11 +122,15 @@ public class GameManager : MonoBehaviour
 
         if (activePlayer.isAI)
         {
+            // Tampilkan panel info saat giliran AI
+            uiManager.SetInfoPanelVisibility(true);
             // Jika AI, jalankan logika AI
             StartCoroutine(ExecuteAITurnCoroutine());
         }
         else
         {
+            // Tampilkan panel info saat OpsiAwalPanel muncul
+            uiManager.SetInfoPanelVisibility(true);
             // Jika Manusia
             uiManager.ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f); // Tampilkan pesan
             CheckAvailablePlayerActions(); // Cek apakah pemain bisa melangkah/serang
@@ -170,6 +173,10 @@ public class GameManager : MonoBehaviour
     public void OnMelangkahButtonPressed()
     {
         if (activePlayer != manusia) return;
+
+        // Sembunyikan panel info karena pemain sudah memilih aksi
+        uiManager.SetInfoPanelVisibility(false);
+        
         isPlayerMelangkah = true; // Set state
         uiManager.ShowMessage("Pilih arah tujuan Anda.", 0f);
         uiManager.OpsiAwalPanel.SetActive(false); // Sembunyikan panel opsi
@@ -199,6 +206,10 @@ public class GameManager : MonoBehaviour
     public void OnSerangButtonPressed()
     {
         if (activePlayer != manusia) return;
+
+        // Sembunyikan panel info karena pemain sudah memilih aksi
+        uiManager.SetInfoPanelVisibility(false);
+        
         uiManager.OpsiAwalPanel.SetActive(false);
         isPlayerMenyerang = true; // Set state
         uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.", 0f);
@@ -759,7 +770,7 @@ public class GameManager : MonoBehaviour
             // Ambil transform petak tujuan dari array
             Transform targetPetak = petakPapan[targetPosition - 1]; // -1 karena array index
             // Pindahkan pion ke posisi petak (dengan offset Y agar di atas)
-            pawn.transform.position = targetPetak.position + new Vector3(0, 75f, 0);
+            pawn.transform.position = targetPetak.position + new Vector3(0, 125f, 0);
         }
     }
 
