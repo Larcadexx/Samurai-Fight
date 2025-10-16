@@ -27,12 +27,14 @@ public class GameManager : MonoBehaviour
     private bool isPlayerMelangkah, isPlayerMenyerang, isPlayerInSergapMode, isPlayerStrengtheningAttack, isPlayerInSerangBalikMode;
     private int arahLangkah = 0;
     
-    // <-- PERUBAHAN: Menambahkan konstanta untuk durasi jeda agar mudah diubah
     private const float BUTTON_PRESS_DELAY = 0.3f;
 
     private enum AttackPhase { None, AwaitingTangkis, AwaitingSerangBalik, AwaitingTangkisPlayer, PlayerSelectingParryCards }
     private AttackPhase currentAttackPhase = AttackPhase.None;
-    private bool isCurrentAttackACounter = false; 
+    private bool isCurrentAttackACounter = false;
+    
+    // <-- PERUBAHAN 1: Enum baru untuk alasan Tie Breaker
+    public enum TieBreakerReason { PlayerCornered, DeckEmpty }
 
     private Player attacker;
     private Player defender;
@@ -135,9 +137,10 @@ public class GameManager : MonoBehaviour
         RefillHand(manusia); 
         RefillHand(ai);      
         
+        // <-- PERUBAHAN 3: Memanggil Tie Breaker dengan alasan DeckEmpty
         if (deck.Count == 0 && (manusia.hand.Count < 5 || ai.hand.Count < 5))
         {
-            StartCoroutine(ExecuteTieBreakerCoroutine());
+            StartCoroutine(ExecuteTieBreakerCoroutine(TieBreakerReason.DeckEmpty));
             return;
         }
         
@@ -145,20 +148,18 @@ public class GameManager : MonoBehaviour
         StartTurn();
     }
     
-    // <-- PERUBAHAN: Ini adalah fungsi 'wrapper' yang dipanggil oleh tombol di UI
     public void OnMelangkahButtonPressed()
     {
         StartCoroutine(OnMelangkahButtonPressedCoroutine());
     }
 
-    // <-- PERUBAHAN: Logika asli sekarang ada di dalam coroutine ini
     private IEnumerator OnMelangkahButtonPressedCoroutine()
     {
         if (activePlayer != manusia) yield break;
         uiManager.OpsiAwalPanel.SetActive(false);
         if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
 
-        yield return new WaitForSeconds(BUTTON_PRESS_DELAY); // Jeda setelah tombol ditekan
+        yield return new WaitForSeconds(BUTTON_PRESS_DELAY);
 
         isPlayerMelangkah = true;
         if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
@@ -167,19 +168,17 @@ public class GameManager : MonoBehaviour
         CheckAvailableMoveDirections();
     }
 
-    // <-- PERUBAHAN: Fungsi wrapper untuk tombol arah
     public void OnArahLangkahPressed(bool isMaju)
     {
         StartCoroutine(OnArahLangkahPressedCoroutine(isMaju));
     }
 
-    // <-- PERUBAHAN: Logika asli sekarang ada di dalam coroutine ini
     private IEnumerator OnArahLangkahPressedCoroutine(bool isMaju)
     {
         if (activePlayer != manusia) yield break;
         uiManager.AksiMelangkahPanel.SetActive(false);
 
-        yield return new WaitForSeconds(BUTTON_PRESS_DELAY); // Jeda setelah tombol ditekan
+        yield return new WaitForSeconds(BUTTON_PRESS_DELAY);
 
         arahLangkah = isMaju ? 1 : -1;
         string arah = isMaju ? "maju" : "mundur";
@@ -192,19 +191,17 @@ public class GameManager : MonoBehaviour
         uiManager.SetPlayerHandInteractable(true);
     }
     
-    // <-- PERUBAHAN: Fungsi wrapper untuk tombol serang
     public void OnSerangButtonPressed()
     {
         StartCoroutine(OnSerangButtonPressedCoroutine());
     }
 
-    // <-- PERUBAHAN: Logika asli sekarang ada di dalam coroutine ini
     private IEnumerator OnSerangButtonPressedCoroutine()
     {
         if (activePlayer != manusia) yield break;
         uiManager.OpsiAwalPanel.SetActive(false);
         
-        yield return new WaitForSeconds(BUTTON_PRESS_DELAY); // Jeda setelah tombol ditekan
+        yield return new WaitForSeconds(BUTTON_PRESS_DELAY);
 
         isPlayerMenyerang = true;
         if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
@@ -515,7 +512,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(ExecuteTieBreakerCoroutine());
+            // <-- PERUBAHAN 3: Memanggil Tie Breaker dengan alasan PlayerCornered
+            StartCoroutine(ExecuteTieBreakerCoroutine(TieBreakerReason.PlayerCornered));
         }
     }
     
@@ -608,19 +606,39 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    private IEnumerator ExecuteTieBreakerCoroutine()
+    // <-- PERUBAHAN 2: Fungsi diubah untuk menerima alasan dan menampilkan pesan spesifik
+    private IEnumerator ExecuteTieBreakerCoroutine(TieBreakerReason reason)
     {
         uiManager.HideAllPlayerPanels();
         uiManager.HideAttackStrength();
-        uiManager.ShowMessage("Tidak ada aksi tersisa! TIE BREAKER diaktifkan.", 3.5f);
+
+        // Tentukan pesan berdasarkan alasan
+        string message = "";
+        switch (reason)
+        {
+            case TieBreakerReason.PlayerCornered:
+                message = "Pemain Terpojok! TIE BREAKER diaktifkan.";
+                break;
+            case TieBreakerReason.DeckEmpty:
+                message = "Deck Kartu Habis! TIE BREAKER diaktifkan.";
+                break;
+        }
+        uiManager.ShowMessage(message, 3.5f);
         yield return new WaitForSeconds(3.5f);
 
+        // Logika tie breaker tetap sama
         int totalManusia = manusia.hand.Sum(card => card.value);
         int totalAI = ai.hand.Sum(card => card.value);
 
         Player winner = null;
-        if (totalManusia > totalAI) winner = manusia;
-        else if (totalAI > totalAI) winner = ai;
+        if (totalManusia > totalAI)
+        {
+            winner = manusia;
+        }
+        else if (totalAI > totalManusia)
+        {
+            winner = ai;
+        }
 
         if (winner != null)
         {
@@ -680,9 +698,10 @@ public class GameManager : MonoBehaviour
         bool canAttack = manusia.hand.Any(card => card.value == distance);
         uiManager.UpdateActionButtons(canMove, canAttack);
 
+        // <-- PERUBAHAN 3: Memanggil Tie Breaker dengan alasan PlayerCornered
         if (!canMove && !canAttack)
         {
-            StartCoroutine(ExecuteTieBreakerCoroutine());
+            StartCoroutine(ExecuteTieBreakerCoroutine(TieBreakerReason.PlayerCornered));
         }
     }
     
