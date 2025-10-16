@@ -1436,7 +1436,7 @@ GameObject:
   m_Component:
   - component: {fileID: 287869229}
   m_Layer: 0
-  m_Name: System
+  m_Name: SystemText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2229,11 +2229,7 @@ MonoBehaviour:
   AksiSergapPanel: {fileID: 1368618154}
   PerkuatSeranganPanel: {fileID: 1357192393}
   KemenanganPanel: {fileID: 681854549}
-  fokusMode:
-  - {fileID: 1623273787}
-  - {fileID: 1932294802}
-  - {fileID: 1732885258}
-  - {fileID: 218393367}
+  InfoPanel: {fileID: 969425937}
   MelangkahButton: {fileID: 1234080717}
   SerangButton: {fileID: 631932512}
   MajuButton: {fileID: 668226391}
@@ -5347,7 +5343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 969425938}
   m_Layer: 0
-  m_Name: Info
+  m_Name: InfoPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8756,7 +8752,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 446.70154, y: 106}
+  m_AnchoredPosition: {x: 446.70154, y: 81}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1448948509
@@ -10668,9 +10664,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 576943441}
-  - {fileID: 969425938}
   - {fileID: 1760312964}
   - {fileID: 287869229}
+  - {fileID: 969425938}
   - {fileID: 2009240027}
   - {fileID: 1884075985}
   - {fileID: 1448948508}
