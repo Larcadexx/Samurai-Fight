@@ -1,5 +1,3 @@
-// Salin dan ganti seluruh isi script UIManager.cs Anda dengan kode ini
-
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,13 +7,14 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
-    [Header("Setup Score")]
+    // =======================================================================
+    // <-- BAGIAN INSPECTOR YANG SUDAH DIATUR ULANG -->
+    // =======================================================================
+
+    [Header("Setup")]
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
-
-    [Header("Card Display")]
     public SistemKartu[] cardSlots;
-    public GameObject KartuManusiaPanel;
 
     [Header("Posisi Panel Kartu")]
     public Transform posisiPanelDefault;
@@ -29,20 +28,25 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI sisaKartuDeckText;
 
     [Header("Panels")]
+    public GameObject KartuManusiaPanel;
+    public GameObject InfoPanel;
     public GameObject OpsiAwalPanel;
     public GameObject AksiMelangkahPanel;
     public GameObject AksiTangkisPanel;
-    public GameObject AksiSergapPanel;
+    public GameObject AksiSergapPanel; // Tetap di sini agar berkelompok dengan panel Aksi lainnya
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
-    public GameObject InfoPanel;
-
+    
     [Header("Action Buttons")]
     public Button MelangkahButton;
     public Button SerangButton;
     public Button MajuButton;
     public Button MundurButton;
     public Button KonfirmasiTangkisButton;
+
+    // =======================================================================
+    // <-- SISA SCRIPT TETAP SAMA -->
+    // =======================================================================
 
     private Coroutine messageCoroutine;
 
