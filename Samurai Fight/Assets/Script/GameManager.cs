@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShowRoundStartMessageAndBeginTurn()
     {
         uiManager.HideAllPlayerPanels();
-        uiManager.ShowMessage($"Ronde Ke-{roundNumber}", 2.0f);
+        uiManager.ShowMessage($"Ronde Ke-{roundNumber}", 3.5f);
         yield return new WaitForSeconds(2.0f);
         StartTurn();
     }
@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ShowPlayerTurnMessage()
     {
+        uiManager.InfoPanel.SetActive(true);
         uiManager.ShowMessage("Giliran anda!!", 1.5f);
         yield return new WaitForSeconds(1.5f);
         CheckAvailablePlayerActions();
@@ -250,7 +251,6 @@ public class GameManager : MonoBehaviour
                 break;
 
             case PlayerTurnState.SelectingSergapCard:
-                // Diubah dari Coroutine kembali ke void biasa
                 HandleSergap(clickedCard);
                 break;
 
@@ -292,8 +292,7 @@ public class GameManager : MonoBehaviour
             StartTurn();
         }
     }
-    
-    // <-- PERUBAHAN 2: Diubah kembali menjadi void dan logika visual dihapus -->
+
     private void HandleSergap(Card clickedCard)
     {
         int distance = ai.position - manusia.position;
@@ -301,26 +300,29 @@ public class GameManager : MonoBehaviour
         {
             manusia.hand.Remove(clickedCard);
             uiManager.UpdatePlayerHandUI(manusia);
-            // Langsung panggil InitiateAttack tanpa efek visual sebelumnya
-            InitiateAttack(manusia, ai, clickedCard.value, false);
+            // Panggil InitiateAttack dengan parameter 'showAttackValueUI' bernilai false
+            InitiateAttack(manusia, ai, clickedCard.value, false, false);
         }
         else
         {
             uiManager.ShowMessage("Sergap GAGAL!! Nilai tidak sesuai", 2.5f);
-            // Panggil EndTurn tanpa delay agar alur tetap cepat
             EndTurn();
         }
     }
 
-
-    private void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter)
+    // <-- PERUBAHAN 2: Menambahkan parameter boolean baru dengan nilai default true -->
+    private void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter, bool showAttackValueUI = true)
     {
         attacker = currentAttacker;
         defender = currentDefender;
         attackValue = value;
         isCurrentAttackACounter = isCounter;
 
-        uiManager.ShowAttackStrength(attackValue);
+        // Teks hanya akan muncul jika showAttackValueUI adalah true
+        if (showAttackValueUI)
+        {
+            uiManager.ShowAttackStrength(attackValue);
+        }
 
         if (defender.isAI)
         {
@@ -615,7 +617,7 @@ public class GameManager : MonoBehaviour
         bool canMove = manusia.hand.Any(card => (manusia.position + card.value < ai.position) || (manusia.position - card.value >= 1));
         int distance = ai.position - manusia.position;
         bool canAttack = manusia.hand.Any(card => card.value == distance);
-        
+
         uiManager.TampilkanUI_PilihAksiAwal(canMove, canAttack);
 
         if (!canMove && !canAttack)
