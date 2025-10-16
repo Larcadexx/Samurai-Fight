@@ -1,3 +1,5 @@
+// Salin dan ganti seluruh isi script UIManager.cs Anda dengan kode ini
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -6,10 +8,6 @@ using System.Collections;
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
-
-    // =======================================================================
-    // <-- BAGIAN INSPECTOR YANG SUDAH DIATUR ULANG -->
-    // =======================================================================
 
     [Header("Setup")]
     public Image[] scoreManusiaImages;
@@ -33,20 +31,16 @@ public class UIManager : MonoBehaviour
     public GameObject OpsiAwalPanel;
     public GameObject AksiMelangkahPanel;
     public GameObject AksiTangkisPanel;
-    public GameObject AksiSergapPanel; // Tetap di sini agar berkelompok dengan panel Aksi lainnya
+    public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
-    
+
     [Header("Action Buttons")]
     public Button MelangkahButton;
     public Button SerangButton;
     public Button MajuButton;
     public Button MundurButton;
     public Button KonfirmasiTangkisButton;
-
-    // =======================================================================
-    // <-- SISA SCRIPT TETAP SAMA -->
-    // =======================================================================
 
     private Coroutine messageCoroutine;
 
@@ -119,9 +113,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowTangkisanGagalMessage(int nilaiPemain, int nilaiSerangan, float duration = 3f)
+    public void ShowTangkisanGagalMessage(float duration = 3f)
     {
-        string message = $"Tangkisan Gagal! Total nilai kartu Anda ({nilaiPemain}) tidak cocok dengan serangan ({nilaiSerangan}).";
+        string message = "Tangkisan GAGAL!! Nilai tidak sesuai";
         ShowMessage(message, duration);
     }
 
@@ -165,10 +159,6 @@ public class UIManager : MonoBehaviour
             KartuManusiaPanel.transform.position = targetPosisi.position;
         }
     }
-    
-    // =======================================================================
-    // <-- FUNGSI KONTROL UI BARU YANG LEBIH "PINTAR" ADA DI SINI SEMUA -->
-    // =======================================================================
 
     public void RestoreDefaultLayout()
     {
@@ -176,13 +166,14 @@ public class UIManager : MonoBehaviour
         HideAttackStrength();
         KartuManusiaPanel.SetActive(false);
     }
-    
+
     public void TampilkanUI_PilihAksiAwal(bool bisaMelangkah, bool bisaMenyerang)
     {
         RestoreDefaultLayout();
         ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f);
         OpsiAwalPanel.SetActive(true);
-        InfoPanel.SetActive(true);
+        // <-- PERUBAHAN 1: Baris ini dikembalikan agar Info Panel muncul di giliran pemain -->
+        if (InfoPanel != null) InfoPanel.SetActive(true);
         PindahkanPanelKartu(posisiPanelDefault);
         KartuManusiaPanel.SetActive(true);
         MelangkahButton.interactable = bisaMelangkah;
@@ -193,7 +184,7 @@ public class UIManager : MonoBehaviour
     public void TampilkanUI_PilihArahLangkah(bool bisaMaju, bool bisaMundur)
     {
         HideAllPlayerPanels();
-        ShowMessage("Pilih arah tujuan Anda.", 0f);
+        ShowMessage("Pilih Arah Untuk Melangkah", 0f);
         AksiMelangkahPanel.SetActive(true);
         MajuButton.interactable = bisaMaju;
         MundurButton.interactable = bisaMundur;
@@ -208,7 +199,7 @@ public class UIManager : MonoBehaviour
         switch (jenisAksi)
         {
             case "melangkah":
-                message = $"Anda melangkah {detailAksi}. Pilih satu kartu untuk menentukan jarak.";
+                message = "Pilih Satu Kartu Untuk Menentukan Melangkah Seberapa Jauh";
                 targetPosisi = posisiPanelKanan;
                 break;
             case "serang":
@@ -225,7 +216,7 @@ public class UIManager : MonoBehaviour
                 break;
             case "serangbalik":
                 message = "Pilih satu kartu untuk melakukan Serang Balik.";
-                targetPosisi = posisiPanelDefault; // Atau posisi lain yang sesuai
+                targetPosisi = posisiPanelDefault;
                 break;
         }
 
@@ -240,10 +231,10 @@ public class UIManager : MonoBehaviour
         PerkuatSeranganPanel.SetActive(true);
         ShowMessage("Serangan awal siap. Ingin perkuat dengan kartu tambahan?", 0f);
     }
-    
+
     public void TampilkanUI_TawarkanSergap()
     {
-        ShowMessage("Langkah berhasil! Anda kini dalam jangkauan. Lakukan Sergap?", 0f);
+        ShowMessage("Anda Berada Didalam Jangkauan Sergap, Lakukan Sergap??", 0f);
         AksiSergapPanel.SetActive(true);
     }
 
@@ -251,7 +242,7 @@ public class UIManager : MonoBehaviour
     {
         HideAllPlayerPanels();
         HideAttackStrength();
-        string message = isSerangBalik ? $"AI melakukan Serang Balik dengan kekuatan {kekuatan}! Tangkis serangan ini?" : $"Anda diserang dengan kekuatan {kekuatan}! Tangkis serangan ini?";
+        string message = isSerangBalik ? "AI Melakukan Serang Balik. Tangkis Serangan Balik??" : $"Anda diserang dengan kekuatan {kekuatan}! Tangkis serangan ini?";
         ShowMessage(message, 0f);
         AksiTangkisPanel.SetActive(true);
     }
@@ -260,7 +251,7 @@ public class UIManager : MonoBehaviour
     {
         AksiTangkisPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(true);
-        ShowMessage($"Pilih kartu dengan total nilai {kekuatanSerangan}, lalu tekan Konfirmasi.", 0f);
+        ShowMessage($"Pilih Kartu Dengan Total Nilai {kekuatanSerangan}, Lalu Tekan Tangkis!!", 0f);
         PindahkanPanelKartu(posisiPanelKanan);
         KartuManusiaPanel.SetActive(true);
         SetPlayerHandInteractable(true);
@@ -271,15 +262,15 @@ public class UIManager : MonoBehaviour
     {
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
     }
-    
+
     public void SembunyikanPanelKartu()
     {
         if (KartuManusiaPanel != null) KartuManusiaPanel.SetActive(false);
     }
-    
+
     public void TampilkanInfoGiliranAI()
     {
-        if(InfoPanel != null) InfoPanel.SetActive(true);
+        if (InfoPanel != null) InfoPanel.SetActive(true);
         ShowMessage("Giliran AI...", 0f);
     }
 
@@ -289,7 +280,7 @@ public class UIManager : MonoBehaviour
         HideAttackStrength();
         HideMessage();
     }
-    
+
     public void HideAllPlayerPanels()
     {
         OpsiAwalPanel.SetActive(false);
