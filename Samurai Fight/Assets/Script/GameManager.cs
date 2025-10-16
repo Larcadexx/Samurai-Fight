@@ -16,6 +16,17 @@ public class GameManager : MonoBehaviour
     public GameObject pionAI;
     public Transform[] petakPapan;
 
+    // --- PERUBAHAN 1: Definisikan semua kemungkinan state pemain ---
+    private enum PlayerTurnState
+    {
+        None,                   // Status default atau saat bukan giliran pemain
+        SelectingMoveCard,      // Saat pemain memilih kartu untuk melangkah
+        SelectingAttackCard,    // Saat pemain memilih kartu untuk menyerang
+        StrengtheningAttack,    // Saat pemain memilih kartu untuk memperkuat serangan
+        SelectingSergapCard,    // Saat pemain memilih kartu untuk sergap
+        SelectingCounterCard    // Saat pemain memilih kartu untuk Serang Balik
+    }
+
     private Player manusia;
     private Player ai;
     private List<Card> deck = new List<Card>();
@@ -23,8 +34,8 @@ public class GameManager : MonoBehaviour
     private Player activePlayer;
     private bool isGameOver = false;
 
-    // Variabel state kini lebih sederhana
-    private bool isPlayerMelangkah, isPlayerMenyerang, isPlayerInSergapMode, isPlayerStrengtheningAttack, isPlayerInSerangBalikMode;
+    // --- PERUBAHAN 2: Ganti semua 'bool' dengan satu variabel state ---
+    private PlayerTurnState playerState; 
     private int arahLangkah = 0;
     
     private const float BUTTON_PRESS_DELAY = 0.3f;
@@ -63,11 +74,7 @@ public class GameManager : MonoBehaviour
     public void StartRound()
     {
         currentAttackPhase = AttackPhase.None;
-        isPlayerMelangkah = false;
-        isPlayerMenyerang = false;
-        isPlayerInSergapMode = false;
-        isPlayerStrengtheningAttack = false;
-        isPlayerInSerangBalikMode = false;
+        playerState = PlayerTurnState.None; // Reset state pemain
         isCurrentAttackACounter = false;
         isGameOver = false;
 
@@ -98,7 +105,8 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        uiManager.RestoreDefaultLayout(); // <-- Perintah umum
+        playerState = PlayerTurnState.None; // Pastikan state bersih di awal giliran
+        uiManager.RestoreDefaultLayout();
         Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
 
         if (activePlayer.isAI)
@@ -107,7 +115,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Logika game untuk memeriksa aksi tetap di sini
             CheckAvailablePlayerActions(); 
         }
     }
@@ -139,10 +146,9 @@ public class GameManager : MonoBehaviour
     {
         if (activePlayer != manusia) yield break;
         yield return new WaitForSeconds(BUTTON_PRESS_DELAY);
-
-        isPlayerMelangkah = true;
         
-        // <-- DIUBAH: GameManager hanya meminta UIManager menampilkan UI yang relevan.
+        // State tidak diubah di sini, tapi di fungsi CheckAvailableMoveDirections
+        // yang dipanggil oleh UIManager
         CheckAvailableMoveDirections(); 
     }
 
@@ -159,7 +165,8 @@ public class GameManager : MonoBehaviour
         arahLangkah = isMaju ? 1 : -1;
         string arah = isMaju ? "maju" : "mundur";
         
-        // <-- DIUBAH: Perintah umum ke UIManager
+        // --- PERUBAHAN 3: Tetapkan state saat aksi dimulai ---
+        playerState = PlayerTurnState.SelectingMoveCard;
         uiManager.TampilkanUI_PilihKartuUntukAksi("melangkah", arah);
     }
     
@@ -173,9 +180,8 @@ public class GameManager : MonoBehaviour
         if (activePlayer != manusia) yield break;
         yield return new WaitForSeconds(BUTTON_PRESS_DELAY);
 
-        isPlayerMenyerang = true;
-        
-        // <-- DIUBAH: Perintah umum ke UIManager
+        // --- Tetapkan state saat aksi dimulai ---
+        playerState = PlayerTurnState.SelectingAttackCard;
         uiManager.TampilkanUI_PilihKartuUntukAksi("serang");
     }
 
@@ -187,10 +193,9 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (activePlayer != manusia && !isPlayerInSerangBalikMode) return;
-        if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack && !isPlayerInSerangBalikMode) return;
+        // Cek apakah pemain dalam state yang valid untuk klik kartu
+        if (playerState == PlayerTurnState.None) return;
 
-        // <-- DIUBAH: UIManager diperintah untuk menyembunyikan panel kartu setelah diklik
         uiManager.SembunyikanPanelKartu();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
@@ -198,50 +203,56 @@ public class GameManager : MonoBehaviour
         StartCoroutine(HandleCardActionCoroutine(clickedCard));
     }
 
+    // --- PERUBAHAN 4: Ganti if-else if dengan switch-case yang lebih rapi ---
     private IEnumerator HandleCardActionCoroutine(Card clickedCard)
     {
-        if (isPlayerMenyerang)
+        PlayerTurnState stateSaatIni = playerState;
+        playerState = PlayerTurnState.None; // Langsung reset state untuk mencegah aksi ganda
+
+        switch (stateSaatIni)
         {
-            int distance = ai.position - manusia.position;
-            if (clickedCard.value == distance)
-            {
-                isPlayerMenyerang = false;
-                initialAttackCard = clickedCard;
-                manusia.hand.Remove(clickedCard);
-                uiManager.UpdatePlayerHandUI(manusia);
-                if (manusia.hand.Count > 0)
+            case PlayerTurnState.SelectingAttackCard:
+                int distance = ai.position - manusia.position;
+                if (clickedCard.value == distance)
                 {
-                    // <-- DIUBAH: Perintah umum ke UIManager
-                    uiManager.TampilkanUI_TawarkanPerkuatSerangan();
+                    initialAttackCard = clickedCard;
+                    manusia.hand.Remove(clickedCard);
+                    uiManager.UpdatePlayerHandUI(manusia);
+                    if (manusia.hand.Count > 0)
+                    {
+                        uiManager.TampilkanUI_TawarkanPerkuatSerangan();
+                    }
+                    else
+                    {
+                        InitiateAttack(manusia, ai, initialAttackCard.value, false);
+                    }
                 }
                 else
                 {
-                    InitiateAttack(manusia, ai, initialAttackCard.value, false);
+                    StartTurn(); // Aksi tidak valid, mulai ulang giliran
                 }
-            } else { StartTurn(); }
-        }
-        else if (isPlayerStrengtheningAttack)
-        {
-            isPlayerStrengtheningAttack = false;
-            int totalAttackValue = initialAttackCard.value + clickedCard.value;
-            manusia.hand.Remove(clickedCard);
-            uiManager.UpdatePlayerHandUI(manusia);
-            InitiateAttack(manusia, ai, totalAttackValue, false);
-        }
-        else if (isPlayerMelangkah)
-        {
-            yield return StartCoroutine(HandleMoveCoroutine(clickedCard));
-        }
-        else if (isPlayerInSergapMode)
-        {
-            HandleSergap(clickedCard);
-        }
-        else if (isPlayerInSerangBalikMode)
-        {
-            isPlayerInSerangBalikMode = false;
-            manusia.hand.Remove(clickedCard);
-            uiManager.UpdatePlayerHandUI(manusia);
-            InitiateAttack(manusia, ai, clickedCard.value, true);
+                break;
+
+            case PlayerTurnState.StrengtheningAttack:
+                int totalAttackValue = initialAttackCard.value + clickedCard.value;
+                manusia.hand.Remove(clickedCard);
+                uiManager.UpdatePlayerHandUI(manusia);
+                InitiateAttack(manusia, ai, totalAttackValue, false);
+                break;
+
+            case PlayerTurnState.SelectingMoveCard:
+                yield return StartCoroutine(HandleMoveCoroutine(clickedCard));
+                break;
+
+            case PlayerTurnState.SelectingSergapCard:
+                HandleSergap(clickedCard);
+                break;
+
+            case PlayerTurnState.SelectingCounterCard:
+                manusia.hand.Remove(clickedCard);
+                uiManager.UpdatePlayerHandUI(manusia);
+                InitiateAttack(manusia, ai, clickedCard.value, true);
+                break;
         }
     }
 
@@ -256,7 +267,6 @@ public class GameManager : MonoBehaviour
             MovePawnVisual(manusia, manusia.position);
             manusia.hand.Remove(clickedCard);
             uiManager.UpdatePlayerHandUI(manusia);
-            isPlayerMelangkah = false;
 
             yield return new WaitForSeconds(2.5f);  
 
@@ -264,7 +274,6 @@ public class GameManager : MonoBehaviour
             bool canSergap = manusia.hand.Any(card => card.value == newDistance);
             if (canSergap)
             {
-                // <-- DIUBAH: Perintah umum ke UIManager
                 uiManager.TampilkanUI_TawarkanSergap();
             }
             else
@@ -274,14 +283,12 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            isPlayerMelangkah = false;
-            StartTurn();
+            StartTurn(); // Gerakan tidak valid, mulai ulang giliran
         }
     }
 
     private void HandleSergap(Card clickedCard)
     {
-        isPlayerInSergapMode = false;
         int distance = ai.position - manusia.position;
         if (clickedCard.value == distance)
         {
@@ -291,12 +298,13 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            EndTurn();
+            EndTurn(); // Aksi tidak valid
         }
     }
 
     private void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter)
     {
+        // ... (Fungsi ini tidak berubah)
         attacker = currentAttacker;
         defender = currentDefender;
         attackValue = value;
@@ -312,26 +320,23 @@ public class GameManager : MonoBehaviour
         else
         {
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
-            // <-- DIUBAH: Perintah umum ke UIManager
             uiManager.TampilkanUI_TangkisSerangan(value, isCounter);
         }
     }
 
     public void OnPlayerTangkisYes()
     {
+        // ... (Fungsi ini tidak berubah)
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
-        
-        // <-- DIUBAH: Perintah umum ke UIManager
         uiManager.TampilkanUI_PilihKartuTangkis(attackValue);
-        
-        // Logika menambahkan listener tetap di GameManager, ini sudah benar
         uiManager.KonfirmasiTangkisButton.onClick.RemoveAllListeners();
         uiManager.KonfirmasiTangkisButton.onClick.AddListener(OnPlayerConfirmTangkis);
     }
     
     public void OnPlayerTangkisNo()
     {
+        // ... (Fungsi ini tidak berubah)
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         uiManager.HideAllPlayerPanels();
         currentAttackPhase = AttackPhase.None;
@@ -340,6 +345,7 @@ public class GameManager : MonoBehaviour
     
     private void HandleParrySelection(Card clickedCard, SistemKartu slotController)
     {
+        // ... (Fungsi ini tidak berubah)
         var cardEntry = new KeyValuePair<Card, SistemKartu>(clickedCard, slotController);
         if (selectedParryCards.Any(p => p.Value == slotController))
         {
@@ -352,13 +358,13 @@ public class GameManager : MonoBehaviour
             slotController.ToggleSelection(true);
         }
         int currentParryTotal = selectedParryCards.Sum(entry => entry.Key.value);
-        
         uiManager.UpdateSelectedParryTotal(currentParryTotal, attackValue);
     }
 
     public void OnPlayerConfirmTangkis()
     {
-        uiManager.SembunyikanTombolKonfirmasiTangkis(); // <-- Perintah lebih spesifik
+        // ... (Fungsi ini tidak berubah)
+        uiManager.SembunyikanTombolKonfirmasiTangkis();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
         
@@ -402,15 +408,15 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
         yield return new WaitForSeconds(2.5f);
-        isPlayerInSerangBalikMode = true;
-        
-        // <-- DIUBAH: Perintah umum ke UIManager
+        // --- Tetapkan state saat aksi dimulai ---
+        playerState = PlayerTurnState.SelectingCounterCard;
         uiManager.TampilkanUI_PilihKartuUntukAksi("serangbalik");
     }
     
     private IEnumerator ExecuteAITurnCoroutine()
     {
-        uiManager.TampilkanInfoGiliranAI(); // <-- Perintah umum
+        // ... (Fungsi ini tidak berubah)
+        uiManager.TampilkanInfoGiliranAI();
         yield return new WaitForSeconds(2.5f);
 
         if (ai.hand.Count == 0) { EndTurn(); yield break; }
@@ -458,6 +464,7 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator DecideAITangkisCoroutine()
     {
+        // ... (Fungsi ini tidak berubah)
         yield return new WaitForSeconds(2.5f);
         List<Card> parryCombination = FindParryCombination(attackValue, ai.hand, !isCurrentAttackACounter);
 
@@ -487,6 +494,7 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator ExecuteAISerangBalikCoroutine()
     {
+        // ... (Fungsi ini tidak berubah)
         if (ai.hand.Count == 0)
         {
             EndTurn();
@@ -501,7 +509,7 @@ public class GameManager : MonoBehaviour
     
     private List<Card> FindParryCombination(int target, List<Card> hand, bool mustHaveCardLeft)
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         List<Card> FindSubsetSum(int currentTarget, List<Card> currentHand, List<Card> currentCombination)
         {
             if (currentTarget == 0)
@@ -510,14 +518,11 @@ public class GameManager : MonoBehaviour
                 return currentCombination;
             }
             if (currentTarget < 0 || currentHand.Count == 0) return null;
-            
             Card head = currentHand[0];
             List<Card> tail = currentHand.GetRange(1, currentHand.Count - 1);
-            
             var withHead = new List<Card>(currentCombination) { head };
             var resultWith = FindSubsetSum(currentTarget - head.value, tail, withHead);
             if (resultWith != null) return resultWith;
-            
             var resultWithout = FindSubsetSum(currentTarget, tail, currentCombination);
             return resultWithout;
         }
@@ -526,7 +531,8 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RoundOverCoroutine(Player winner)
     {
-        uiManager.HideAllUIsForRoundEnd(); // <-- Perintah umum
+        // ... (Fungsi ini tidak berubah)
+        uiManager.HideAllUIsForRoundEnd();
         uiManager.ShowMessage($"{winner.playerName} memenangkan ronde!", 3.5f);
         winner.score++;
         uiManager.UpdateScoreUI(winner);
@@ -546,7 +552,8 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator ExecuteTieBreakerCoroutine(TieBreakerReason reason)
     {
-        uiManager.HideAllUIsForRoundEnd(); // <-- Perintah umum
+        // ... (Fungsi ini tidak berubah)
+        uiManager.HideAllUIsForRoundEnd();
 
         string message = "";
         switch (reason)
@@ -582,8 +589,8 @@ public class GameManager : MonoBehaviour
 
     public void OnPerkuatYesButtonPressed()
     {
-        isPlayerStrengtheningAttack = true;
-        // <-- DIUBAH: Perintah umum ke UIManager
+        // --- Tetapkan state saat aksi dimulai ---
+        playerState = PlayerTurnState.StrengtheningAttack;
         uiManager.TampilkanUI_PilihKartuUntukAksi("perkuat");
     }
     
@@ -595,8 +602,8 @@ public class GameManager : MonoBehaviour
     
     public void OnSergapYesButtonPressed()
     {
-        isPlayerInSergapMode = true;
-        // <-- DIUBAH: Perintah umum ke UIManager
+        // --- Tetapkan state saat aksi dimulai ---
+        playerState = PlayerTurnState.SelectingSergapCard;
         uiManager.TampilkanUI_PilihKartuUntukAksi("sergap");
     }
 
@@ -608,11 +615,11 @@ public class GameManager : MonoBehaviour
     
     private void CheckAvailablePlayerActions()
     {
+        // ... (Fungsi ini tidak berubah)
         bool canMove = manusia.hand.Any(card => (manusia.position + card.value < ai.position) || (manusia.position - card.value >= 1));
         int distance = ai.position - manusia.position;
         bool canAttack = manusia.hand.Any(card => card.value == distance);
         
-        // <-- DIUBAH: Logika game memanggil satu fungsi UI yang relevan
         uiManager.TampilkanUI_PilihAksiAwal(canMove, canAttack);
 
         if (!canMove && !canAttack)
@@ -623,16 +630,16 @@ public class GameManager : MonoBehaviour
     
     private void CheckAvailableMoveDirections()
     {
+        // ... (Fungsi ini tidak berubah)
         bool canMoveForward = manusia.hand.Any(card => manusia.position + card.value < ai.position);
         bool canMoveBackward = manusia.hand.Any(card => manusia.position - card.value >= 1);
 
-        // <-- DIUBAH: Logika game memanggil satu fungsi UI yang relevan
         uiManager.TampilkanUI_PilihArahLangkah(canMoveForward, canMoveBackward);
     }
 
     private void MovePawnVisual(Player player, int targetPosition)
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         GameObject pawn = player.isAI ? pionAI : pionManusia;
         if (targetPosition > 0 && targetPosition <= petakPapan.Length)
         {
@@ -643,7 +650,7 @@ public class GameManager : MonoBehaviour
 
     private void RefillHand(Player player)
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         while (player.hand.Count < 5)
         {
             Card newCard = DrawCardFromDeck();
@@ -656,7 +663,7 @@ public class GameManager : MonoBehaviour
 
     private void CreateDeck()
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         deck.Clear();
         for (int value = 1; value <= 5; value++)
         {
@@ -666,7 +673,7 @@ public class GameManager : MonoBehaviour
 
     private void ShuffleDeck()
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         System.Random rng = new System.Random();
         int n = deck.Count;
         while (n > 1)
@@ -681,7 +688,7 @@ public class GameManager : MonoBehaviour
 
     private Card DrawCardFromDeck()
     {
-        // ... (Logika ini tidak berubah)
+        // ... (Fungsi ini tidak berubah)
         if (deck.Count == 0) return null;
         Card drawn = deck[0];
         deck.RemoveAt(0);
