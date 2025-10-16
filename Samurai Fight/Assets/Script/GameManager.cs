@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
             uiManager.ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f);
             CheckAvailablePlayerActions();
             uiManager.OpsiAwalPanel.SetActive(true);
-            if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true); // <-- PERUBAHAN: Tampilkan InfoPanel di awal giliran manusia
+            if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true);
             
             if (uiManager.KartuManusiaPanel != null)
             {
@@ -146,7 +146,7 @@ public class GameManager : MonoBehaviour
     {
         if (activePlayer != manusia) return;
         isPlayerMelangkah = true;
-        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false); // <-- PERUBAHAN: Sembunyikan InfoPanel saat aksi dipilih
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
         uiManager.ShowMessage("Pilih arah tujuan Anda.", 0f);
         uiManager.OpsiAwalPanel.SetActive(false);
         
@@ -176,7 +176,7 @@ public class GameManager : MonoBehaviour
         if (activePlayer != manusia) return;
         uiManager.OpsiAwalPanel.SetActive(false);
         isPlayerMenyerang = true;
-        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false); // <-- PERUBAHAN: Sembunyikan InfoPanel saat aksi dipilih
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
         uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.", 0f);
         if (uiManager.KartuManusiaPanel != null)
         {
@@ -202,12 +202,16 @@ public class GameManager : MonoBehaviour
         if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack && !isPlayerInSerangBalikMode)
             return;
 
+        // <-- PERUBAHAN 2: Panel kartu langsung disembunyikan saat kartu dipilih.
+        if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
+        
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
-        HandleCardAction(clickedCard);
+        
+        StartCoroutine(HandleCardActionCoroutine(clickedCard));
     }
 
-    private void HandleCardAction(Card clickedCard)
+    private IEnumerator HandleCardActionCoroutine(Card clickedCard)
     {
         if (isPlayerMenyerang)
         {
@@ -220,8 +224,6 @@ public class GameManager : MonoBehaviour
                 uiManager.UpdatePlayerHandUI(manusia);
                 if (manusia.hand.Count > 0)
                 {
-                    if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
-
                     uiManager.PerkuatSeranganPanel.SetActive(true);
                     uiManager.ShowMessage("Serangan awal siap. Ingin perkuat dengan kartu tambahan?", 0f);
                 }
@@ -241,7 +243,7 @@ public class GameManager : MonoBehaviour
         }
         else if (isPlayerMelangkah)
         {
-            HandleMove(clickedCard);
+            yield return StartCoroutine(HandleMoveCoroutine(clickedCard));
         }
         else if (isPlayerInSergapMode)
         {
@@ -256,7 +258,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleMove(Card clickedCard)
+    private IEnumerator HandleMoveCoroutine(Card clickedCard)
     {
         int newPosition = manusia.position + (clickedCard.value * arahLangkah);
         bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
@@ -268,6 +270,8 @@ public class GameManager : MonoBehaviour
             manusia.hand.Remove(clickedCard);
             uiManager.UpdatePlayerHandUI(manusia);
             isPlayerMelangkah = false;
+
+            yield return new WaitForSeconds(2.5f); 
 
             int newDistance = ai.position - newPosition;
             bool canSergap = manusia.hand.Any(card => card.value == newDistance);
@@ -320,6 +324,9 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            // <-- PERUBAHAN 1: Sembunyikan InfoPanel saat pemain diserang.
+            if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
+
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
             string message = isCounter ? $"AI melakukan Serang Balik dengan kekuatan {value}! Tangkis serangan ini?" : $"Anda diserang dengan kekuatan {value}! Tangkis serangan ini?";
             uiManager.ShowMessage(message, 0f);
@@ -391,27 +398,27 @@ public class GameManager : MonoBehaviour
         {
             if (isCurrentAttackACounter)
             {
-                uiManager.ShowMessage("Serang balik berhasil ditangkis!", 2.5f);
+                uiManager.ShowMessage("Serang balik berhasil ditangkis!", 3.0f);
                 foreach (var entry in selectedParryCards) manusia.hand.Remove(entry.Key);
                 uiManager.UpdatePlayerHandUI(manusia);
                 EndTurn();
             }
             else if (hasRemainingCardForCounter)
             {
-                uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 1.5f);
+                uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 2.5f);
                 foreach (var entry in selectedParryCards) manusia.hand.Remove(entry.Key);
                 uiManager.UpdatePlayerHandUI(manusia);
                 StartCoroutine(ExecutePlayerSerangBalikCoroutine());
             }
             else
             {
-                uiManager.ShowMessage("Tangkisan Gagal! Anda harus menyisakan minimal 1 kartu untuk bisa Serang Balik.", 3f);
+                uiManager.ShowMessage("Tangkisan Gagal! Anda harus menyisakan minimal 1 kartu untuk bisa Serang Balik.", 3.5f);
                 StartCoroutine(RoundOverCoroutine(attacker));
             }
         }
         else
         {
-            uiManager.ShowTangkisanGagalMessage(totalParryValue, attackValue, 3f);
+            uiManager.ShowTangkisanGagalMessage(totalParryValue, attackValue, 3.5f);
             StartCoroutine(RoundOverCoroutine(attacker));
         }
 
@@ -425,7 +432,10 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
-        yield return new WaitForSeconds(1.5f);
+        // <-- PERUBAHAN 1: Sembunyikan InfoPanel saat pemain melakukan serang balik.
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false);
+
+        yield return new WaitForSeconds(2.5f);
         isPlayerInSerangBalikMode = true;
         uiManager.ShowMessage("Pilih satu kartu untuk melakukan Serang Balik.", 0f);
         if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(true);
@@ -434,9 +444,9 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator ExecuteAITurnCoroutine()
     {
-        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true); // <-- PERUBAHAN: Tampilkan InfoPanel di awal giliran AI
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true);
         uiManager.ShowMessage("Giliran AI...", 0f);
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2.5f);
 
         if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
@@ -448,8 +458,8 @@ public class GameManager : MonoBehaviour
         if (canAttack)
         {
             Card attackCard = ai.hand.First(card => card.value == distance);
-            uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2f);
-            yield return new WaitForSeconds(1f);
+            uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
+            yield return new WaitForSeconds(2.0f);
             ai.hand.Remove(attackCard);
             InitiateAttack(ai, manusia, attackCard.value, isCounter: false);
         }
@@ -458,10 +468,10 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position -= chosenCard.value;
-            uiManager.ShowMessage("AI melangkah maju.", 2f);
+            uiManager.ShowMessage("AI melangkah maju.", 2.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(2.5f);
             EndTurn();
         }
         else if (canMoveBackward)
@@ -469,10 +479,10 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position += chosenCard.value;
-            uiManager.ShowMessage("AI melangkah mundur.", 2f);
+            uiManager.ShowMessage("AI melangkah mundur.", 2.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(2.5f);
             EndTurn();
         }
         else
@@ -483,13 +493,13 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator DecideAITangkisCoroutine()
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2.5f);
         List<Card> parryCombination = FindParryCombination(attackValue, ai.hand, !isCurrentAttackACounter);
 
         if (parryCombination != null)
         {
-            uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 2.5f);
-            yield return new WaitForSeconds(2f);
+            uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
+            yield return new WaitForSeconds(3.0f);
             foreach (var card in parryCombination) ai.hand.Remove(card);
 
             if (isCurrentAttackACounter) 
@@ -516,8 +526,8 @@ public class GameManager : MonoBehaviour
             yield break;
         }
         Card counterCard = ai.hand[Random.Range(0, ai.hand.Count)];
-        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {counterCard.value}!", 2f);
-        yield return new WaitForSeconds(1.5f);
+        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {counterCard.value}!", 2.5f);
+        yield return new WaitForSeconds(2.5f);
         ai.hand.Remove(counterCard);
         InitiateAttack(ai, manusia, counterCard.value, true);
     }
@@ -551,10 +561,10 @@ public class GameManager : MonoBehaviour
         uiManager.HideAllPlayerPanels();
         uiManager.HideAttackStrength();
         uiManager.HideMessage();
-        uiManager.ShowMessage($"{winner.playerName} memenangkan ronde!", 2.5f);
+        uiManager.ShowMessage($"{winner.playerName} memenangkan ronde!", 3.5f);
         winner.score++;
         uiManager.UpdateScoreUI(winner);
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(3.5f);
 
         if (winner.score >= 5)
         {
@@ -572,8 +582,8 @@ public class GameManager : MonoBehaviour
     {
         uiManager.HideAllPlayerPanels();
         uiManager.HideAttackStrength();
-        uiManager.ShowMessage("Tidak ada aksi tersisa! TIE BREAKER diaktifkan.", 2.5f);
-        yield return new WaitForSeconds(2.5f);
+        uiManager.ShowMessage("Tidak ada aksi tersisa! TIE BREAKER diaktifkan.", 3.5f);
+        yield return new WaitForSeconds(3.5f);
 
         int totalManusia = manusia.hand.Sum(card => card.value);
         int totalAI = ai.hand.Sum(card => card.value);
@@ -588,8 +598,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            uiManager.ShowMessage("Hasil Tie Breaker seri!", 2.5f);
-            yield return new WaitForSeconds(2.5f);
+            uiManager.ShowMessage("Hasil Tie Breaker seri!", 3.0f);
+            yield return new WaitForSeconds(3.0f);
             StartRound();
         }
     }
@@ -621,7 +631,8 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Pilih kartu untuk melakukan Sergap.", 0f);
         if (uiManager.KartuManusiaPanel != null)
         {
-            uiManager.PindahkanPanelKartu(uiManager.posisiPanelBawah);
+            // <-- PERUBAHAN 3: Memastikan panel kartu dipindah ke posisi bawah.
+            uiManager.PindahkanPanelKartu(uiManager.posisiPanelKanan);
             uiManager.KartuManusiaPanel.SetActive(true);
         }
         uiManager.SetPlayerHandInteractable(true);
