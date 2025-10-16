@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
-    public GameObject InfoPanel; // <-- BARIS BARU: Referensi untuk InfoPanel
+    public GameObject InfoPanel;
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -52,29 +52,8 @@ public class UIManager : MonoBehaviour
         if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
-        if (InfoPanel != null) InfoPanel.SetActive(false); // <-- BARIS BARU: Sembunyikan InfoPanel saat game dimulai
+        if (InfoPanel != null) InfoPanel.SetActive(false);
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
-    }
-
-    public void ShowFullPlayerUI()
-    {
-        AksiMelangkahPanel.SetActive(false);
-        AksiTangkisPanel.SetActive(false);
-        AksiSergapPanel.SetActive(false);
-        PerkuatSeranganPanel.SetActive(false);
-        KonfirmasiTangkisButton.gameObject.SetActive(false);
-
-        OpsiAwalPanel.SetActive(true);
-        KartuManusiaPanel.SetActive(true);
-        HideAttackStrength();
-        HideMessage();
-    }
-
-    public void RestoreDefaultLayout()
-    {
-        HideAllPlayerPanels();
-        HideAttackStrength();
-        KartuManusiaPanel.SetActive(false);
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -160,37 +139,13 @@ public class UIManager : MonoBehaviour
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
-        nilaiSerangText.text = $"TANGKISAN ANDA: {total}";
+        nilaiSerangText.text = $"TANGKISAN ANDA: {total} / {requiredStrength}";
     }
 
     public void HideAttackStrength()
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(false);
-    }
-
-    public void UpdateActionButtons(bool canMove, bool canAttack)
-    {
-        MelangkahButton.interactable = canMove;
-        SerangButton.interactable = canAttack;
-    }
-
-    public void UpdateMoveDirectionButtons(bool canMoveForward, bool canMoveBackward)
-    {
-        MajuButton.interactable = canMoveForward;
-        MundurButton.interactable = canMoveBackward;
-    }
-
-    public void HideAllPlayerPanels()
-    {
-        OpsiAwalPanel.SetActive(false);
-        AksiMelangkahPanel.SetActive(false);
-        AksiTangkisPanel.SetActive(false);
-        AksiSergapPanel.SetActive(false);
-        PerkuatSeranganPanel.SetActive(false);
-        if (InfoPanel != null) InfoPanel.SetActive(false); // <-- BARIS BARU: Pastikan InfoPanel ikut tersembunyi
-        KonfirmasiTangkisButton.gameObject.SetActive(false);
-        KartuManusiaPanel.SetActive(false);
     }
 
     public void UpdateMainDeckUI(int cardCount)
@@ -205,5 +160,141 @@ public class UIManager : MonoBehaviour
         {
             KartuManusiaPanel.transform.position = targetPosisi.position;
         }
+    }
+    
+    // =======================================================================
+    // <-- FUNGSI KONTROL UI BARU YANG LEBIH "PINTAR" ADA DI SINI SEMUA -->
+    // =======================================================================
+
+    public void RestoreDefaultLayout()
+    {
+        HideAllPlayerPanels();
+        HideAttackStrength();
+        KartuManusiaPanel.SetActive(false);
+    }
+    
+    public void TampilkanUI_PilihAksiAwal(bool bisaMelangkah, bool bisaMenyerang)
+    {
+        RestoreDefaultLayout();
+        ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f);
+        OpsiAwalPanel.SetActive(true);
+        InfoPanel.SetActive(true);
+        PindahkanPanelKartu(posisiPanelDefault);
+        KartuManusiaPanel.SetActive(true);
+        MelangkahButton.interactable = bisaMelangkah;
+        SerangButton.interactable = bisaMenyerang;
+        SetPlayerHandInteractable(false);
+    }
+
+    public void TampilkanUI_PilihArahLangkah(bool bisaMaju, bool bisaMundur)
+    {
+        HideAllPlayerPanels();
+        ShowMessage("Pilih arah tujuan Anda.", 0f);
+        AksiMelangkahPanel.SetActive(true);
+        MajuButton.interactable = bisaMaju;
+        MundurButton.interactable = bisaMundur;
+    }
+
+    public void TampilkanUI_PilihKartuUntukAksi(string jenisAksi, string detailAksi = "")
+    {
+        HideAllPlayerPanels();
+        string message = "";
+        Transform targetPosisi = posisiPanelDefault;
+
+        switch (jenisAksi)
+        {
+            case "melangkah":
+                message = $"Anda melangkah {detailAksi}. Pilih satu kartu untuk menentukan jarak.";
+                targetPosisi = posisiPanelKanan;
+                break;
+            case "serang":
+                message = "Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.";
+                targetPosisi = posisiPanelBawah;
+                break;
+            case "perkuat":
+                message = "Pilih satu kartu tambahan untuk memperkuat serangan.";
+                targetPosisi = posisiPanelKanan;
+                break;
+            case "sergap":
+                message = "Pilih kartu untuk melakukan Sergap.";
+                targetPosisi = posisiPanelBawah;
+                break;
+            case "serangbalik":
+                message = "Pilih satu kartu untuk melakukan Serang Balik.";
+                targetPosisi = posisiPanelDefault; // Atau posisi lain yang sesuai
+                break;
+        }
+
+        ShowMessage(message, 0f);
+        PindahkanPanelKartu(targetPosisi);
+        KartuManusiaPanel.SetActive(true);
+        SetPlayerHandInteractable(true);
+    }
+
+    public void TampilkanUI_TawarkanPerkuatSerangan()
+    {
+        PerkuatSeranganPanel.SetActive(true);
+        ShowMessage("Serangan awal siap. Ingin perkuat dengan kartu tambahan?", 0f);
+    }
+    
+    public void TampilkanUI_TawarkanSergap()
+    {
+        ShowMessage("Langkah berhasil! Anda kini dalam jangkauan. Lakukan Sergap?", 0f);
+        AksiSergapPanel.SetActive(true);
+    }
+
+    public void TampilkanUI_TangkisSerangan(int kekuatan, bool isSerangBalik)
+    {
+        HideAllPlayerPanels();
+        HideAttackStrength();
+        string message = isSerangBalik ? $"AI melakukan Serang Balik dengan kekuatan {kekuatan}! Tangkis serangan ini?" : $"Anda diserang dengan kekuatan {kekuatan}! Tangkis serangan ini?";
+        ShowMessage(message, 0f);
+        AksiTangkisPanel.SetActive(true);
+    }
+
+    public void TampilkanUI_PilihKartuTangkis(int kekuatanSerangan)
+    {
+        AksiTangkisPanel.SetActive(false);
+        KonfirmasiTangkisButton.gameObject.SetActive(true);
+        ShowMessage($"Pilih kartu dengan total nilai {kekuatanSerangan}, lalu tekan Konfirmasi.", 0f);
+        PindahkanPanelKartu(posisiPanelKanan);
+        KartuManusiaPanel.SetActive(true);
+        SetPlayerHandInteractable(true);
+        UpdateSelectedParryTotal(0, kekuatanSerangan);
+    }
+
+    public void SembunyikanTombolKonfirmasiTangkis()
+    {
+        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+    }
+    
+    public void SembunyikanPanelKartu()
+    {
+        if (KartuManusiaPanel != null) KartuManusiaPanel.SetActive(false);
+    }
+    
+    public void TampilkanInfoGiliranAI()
+    {
+        if(InfoPanel != null) InfoPanel.SetActive(true);
+        ShowMessage("Giliran AI...", 0f);
+    }
+
+    public void HideAllUIsForRoundEnd()
+    {
+        HideAllPlayerPanels();
+        HideAttackStrength();
+        HideMessage();
+    }
+    
+    public void HideAllPlayerPanels()
+    {
+        OpsiAwalPanel.SetActive(false);
+        AksiMelangkahPanel.SetActive(false);
+        AksiTangkisPanel.SetActive(false);
+        AksiSergapPanel.SetActive(false);
+        PerkuatSeranganPanel.SetActive(false);
+        if (InfoPanel != null) InfoPanel.SetActive(false);
+        KonfirmasiTangkisButton.gameObject.SetActive(false);
+        KartuManusiaPanel.SetActive(false);
     }
 }
