@@ -1,3 +1,5 @@
+// Salin dan ganti seluruh isi script UIManager.cs Anda dengan kode ini
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -33,6 +35,7 @@ public class UIManager : MonoBehaviour
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
+    public GameObject InfoPanel; // <-- BARIS BARU: Referensi untuk InfoPanel
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -49,6 +52,7 @@ public class UIManager : MonoBehaviour
         if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
+        if (InfoPanel != null) InfoPanel.SetActive(false); // <-- BARIS BARU: Sembunyikan InfoPanel saat game dimulai
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
     }
 
@@ -184,6 +188,7 @@ public class UIManager : MonoBehaviour
         AksiTangkisPanel.SetActive(false);
         AksiSergapPanel.SetActive(false);
         PerkuatSeranganPanel.SetActive(false);
+        if (InfoPanel != null) InfoPanel.SetActive(false); // <-- BARIS BARU: Pastikan InfoPanel ikut tersembunyi
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         KartuManusiaPanel.SetActive(false);
     }

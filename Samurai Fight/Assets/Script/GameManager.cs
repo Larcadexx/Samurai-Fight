@@ -1,4 +1,5 @@
-// Salin semua kode dari sini
+// Salin dan ganti seluruh isi script GameManager.cs Anda dengan kode ini
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -96,32 +97,32 @@ public class GameManager : MonoBehaviour
     }
 
     private void StartTurn()
-{
-    if (isGameOver) return;
-
-    uiManager.RestoreDefaultLayout();
-    Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
-
-    if (activePlayer.isAI)
     {
-        StartCoroutine(ExecuteAITurnCoroutine());
-    }
-    else
-    {
-        uiManager.ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f);
-        CheckAvailablePlayerActions();
-        uiManager.OpsiAwalPanel.SetActive(true);
-        
-        if (uiManager.KartuManusiaPanel != null)
+        if (isGameOver) return;
+
+        uiManager.RestoreDefaultLayout();
+        Debug.Log($"Sekarang giliran: {activePlayer.playerName}");
+
+        if (activePlayer.isAI)
         {
-            // V-- TAMBAHKAN KODE ANDA DI SINI --V
-            uiManager.PindahkanPanelKartu(uiManager.posisiPanelDefault); 
-            uiManager.KartuManusiaPanel.SetActive(true);
+            StartCoroutine(ExecuteAITurnCoroutine());
         }
+        else
+        {
+            uiManager.ShowMessage("Giliran Anda! Pilih aksi: Melangkah atau Serang.", 0f);
+            CheckAvailablePlayerActions();
+            uiManager.OpsiAwalPanel.SetActive(true);
+            if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true); // <-- PERUBAHAN: Tampilkan InfoPanel di awal giliran manusia
+            
+            if (uiManager.KartuManusiaPanel != null)
+            {
+                uiManager.PindahkanPanelKartu(uiManager.posisiPanelDefault); 
+                uiManager.KartuManusiaPanel.SetActive(true);
+            }
 
-        uiManager.SetPlayerHandInteractable(false);
+            uiManager.SetPlayerHandInteractable(false);
+        }
     }
-}
     
     private void EndTurn()
     {
@@ -145,10 +146,10 @@ public class GameManager : MonoBehaviour
     {
         if (activePlayer != manusia) return;
         isPlayerMelangkah = true;
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false); // <-- PERUBAHAN: Sembunyikan InfoPanel saat aksi dipilih
         uiManager.ShowMessage("Pilih arah tujuan Anda.", 0f);
         uiManager.OpsiAwalPanel.SetActive(false);
         
-        // UBAH: Tambahkan baris ini untuk menyembunyikan panel kartu
         if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
         
         uiManager.AksiMelangkahPanel.SetActive(true);
@@ -164,7 +165,6 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage($"Anda melangkah {arah}. Pilih satu kartu untuk menentukan jarak.", 0f);
         if (uiManager.KartuManusiaPanel != null)
         {
-            // V-- TAMBAHKAN BARIS INI --V
             uiManager.PindahkanPanelKartu(uiManager.posisiPanelKanan);
             uiManager.KartuManusiaPanel.SetActive(true);
         }
@@ -172,47 +172,36 @@ public class GameManager : MonoBehaviour
     }
 
     public void OnSerangButtonPressed()
-{
-    if (activePlayer != manusia) return;
-    uiManager.OpsiAwalPanel.SetActive(false);
-    isPlayerMenyerang = true;
-    uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.", 0f);
-    if (uiManager.KartuManusiaPanel != null)
     {
-        // V-- TAMBAHKAN BARIS INI --V
-        uiManager.PindahkanPanelKartu(uiManager.posisiPanelBawah);
-        uiManager.KartuManusiaPanel.SetActive(true);
+        if (activePlayer != manusia) return;
+        uiManager.OpsiAwalPanel.SetActive(false);
+        isPlayerMenyerang = true;
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(false); // <-- PERUBAHAN: Sembunyikan InfoPanel saat aksi dipilih
+        uiManager.ShowMessage("Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.", 0f);
+        if (uiManager.KartuManusiaPanel != null)
+        {
+            uiManager.PindahkanPanelKartu(uiManager.posisiPanelBawah);
+            uiManager.KartuManusiaPanel.SetActive(true);
+        }
+        uiManager.SetPlayerHandInteractable(true);
     }
-    uiManager.SetPlayerHandInteractable(true);
-}
 
     public void OnCardSlotClicked(Card clickedCard, SistemKartu slotController)
     {
-        // --- BLOK 1: LOGIKA REAKTIF (Terjadi di luar giliran pemain) ---
-
-        // Pertama, cek jika pemain sedang dalam fase memilih kartu TANGKISAN.
-        // Ini adalah interaksi UI yang unik dan harus didahulukan.
         if (currentAttackPhase == AttackPhase.PlayerSelectingParryCards)
         {
             HandleParrySelection(clickedCard, slotController);
-            return; // Selesai, hentikan fungsi di sini.
-        }
-
-        // --- BLOK 2: LOGIKA AKSI (Bisa Reaktif atau Aktif) ---
-
-        // Pengecekan utama: Aksi hanya diizinkan jika ini adalah giliran pemain (manusia),
-        // ATAU jika pemain sedang dalam mode SERANG BALIK.
-        if (activePlayer != manusia && !isPlayerInSerangBalikMode)
-        {
-            // Jika bukan giliran pemain DAN pemain tidak sedang serang balik, maka abaikan klik.
             return;
         }
 
-        // Pastikan ada aksi yang sedang menunggu untuk dieksekusi dengan kartu ini.
+        if (activePlayer != manusia && !isPlayerInSerangBalikMode)
+        {
+            return;
+        }
+
         if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack && !isPlayerInSerangBalikMode)
             return;
 
-        // Jika semua kondisi terpenuhi, proses aksi kartu.
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
         HandleCardAction(clickedCard);
@@ -231,7 +220,6 @@ public class GameManager : MonoBehaviour
                 uiManager.UpdatePlayerHandUI(manusia);
                 if (manusia.hand.Count > 0)
                 {
-                    // UBAH: Sembunyikan panel kartu sebelum menampilkan pilihan
                     if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
 
                     uiManager.PerkuatSeranganPanel.SetActive(true);
@@ -336,7 +324,6 @@ public class GameManager : MonoBehaviour
             string message = isCounter ? $"AI melakukan Serang Balik dengan kekuatan {value}! Tangkis serangan ini?" : $"Anda diserang dengan kekuatan {value}! Tangkis serangan ini?";
             uiManager.ShowMessage(message, 0f);
 
-            // UBAH: Sembunyikan panel kartu dan info serangan saat pilihan muncul
             if (uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
             uiManager.HideAttackStrength();
 
@@ -345,25 +332,24 @@ public class GameManager : MonoBehaviour
     }
 
     public void OnPlayerTangkisYes()
-{
-    if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
-    currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
-    uiManager.AksiTangkisPanel.SetActive(false);
-    uiManager.KonfirmasiTangkisButton.gameObject.SetActive(true);
-    uiManager.KonfirmasiTangkisButton.onClick.RemoveAllListeners();
-    uiManager.KonfirmasiTangkisButton.onClick.AddListener(OnPlayerConfirmTangkis);
-    uiManager.ShowMessage($"Pilih kartu dengan total nilai {attackValue}, lalu tekan Konfirmasi.", 0f);
-
-    if (uiManager.KartuManusiaPanel != null)
     {
-        // V-- TAMBAHKAN KODE ANDA DI SINI --V
-        uiManager.PindahkanPanelKartu(uiManager.posisiPanelKanan);
-        uiManager.KartuManusiaPanel.SetActive(true);
+        if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
+        currentAttackPhase = AttackPhase.PlayerSelectingParryCards;
+        uiManager.AksiTangkisPanel.SetActive(false);
+        uiManager.KonfirmasiTangkisButton.gameObject.SetActive(true);
+        uiManager.KonfirmasiTangkisButton.onClick.RemoveAllListeners();
+        uiManager.KonfirmasiTangkisButton.onClick.AddListener(OnPlayerConfirmTangkis);
+        uiManager.ShowMessage($"Pilih kartu dengan total nilai {attackValue}, lalu tekan Konfirmasi.", 0f);
+
+        if (uiManager.KartuManusiaPanel != null)
+        {
+            uiManager.PindahkanPanelKartu(uiManager.posisiPanelKanan);
+            uiManager.KartuManusiaPanel.SetActive(true);
+        }
+        
+        uiManager.SetPlayerHandInteractable(true);
+        uiManager.UpdateSelectedParryTotal(0, attackValue);
     }
-    
-    uiManager.SetPlayerHandInteractable(true);
-    uiManager.UpdateSelectedParryTotal(0, attackValue);
-}
     
     public void OnPlayerTangkisNo()
     {
@@ -388,7 +374,6 @@ public class GameManager : MonoBehaviour
         }
         int currentParryTotal = selectedParryCards.Sum(entry => entry.Key.value);
         
-        // Kode yang sudah diperbaiki
         uiManager.UpdateSelectedParryTotal(currentParryTotal, attackValue);
     }
 
@@ -449,6 +434,7 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator ExecuteAITurnCoroutine()
     {
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true); // <-- PERUBAHAN: Tampilkan InfoPanel di awal giliran AI
         uiManager.ShowMessage("Giliran AI...", 0f);
         yield return new WaitForSeconds(1.5f);
 
@@ -616,7 +602,6 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Pilih satu kartu tambahan untuk memperkuat serangan.", 0f);
         if (uiManager.KartuManusiaPanel != null)
         {
-            // V-- TAMBAHKAN BARIS INI --V
             uiManager.PindahkanPanelKartu(uiManager.posisiPanelKanan);
             uiManager.KartuManusiaPanel.SetActive(true);
         }
@@ -625,7 +610,6 @@ public class GameManager : MonoBehaviour
     
     public void OnPerkuatNoButtonPressed()
     {
-        // Fungsi ini sudah benar karena menyembunyikan semua panel, termasuk PerkuatSeranganPanel.
         uiManager.HideAllPlayerPanels();
         InitiateAttack(manusia, ai, initialAttackCard.value, false);
     }
@@ -637,7 +621,6 @@ public class GameManager : MonoBehaviour
         uiManager.ShowMessage("Pilih kartu untuk melakukan Sergap.", 0f);
         if (uiManager.KartuManusiaPanel != null)
         {
-            // V-- TAMBAHKAN BARIS INI --V
             uiManager.PindahkanPanelKartu(uiManager.posisiPanelBawah);
             uiManager.KartuManusiaPanel.SetActive(true);
         }
@@ -646,7 +629,6 @@ public class GameManager : MonoBehaviour
 
     public void OnSergapNoButtonPressed()
     {
-        // Kode ini sudah benar, tidak perlu diubah.
         uiManager.HideAllPlayerPanels();
         EndTurn();
     }
