@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
-using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -15,13 +14,12 @@ public class UIManager : MonoBehaviour
     [Header("Card Display")]
     public SistemKartu[] cardSlots;
     public GameObject KartuManusiaPanel;
-    // DIHAPUS: CanvasGroup tidak lagi digunakan.
-    // public CanvasGroup kartuManusiaCanvasGroup; 
 
     [Header("Posisi Panel Kartu")]
     public Transform posisiPanelDefault;
     public Transform posisiPanelKanan;
     public Transform posisiPanelBawah;
+
     [Header("Text System")]
     public TextMeshProUGUI nilaiSerangText;
     public TextMeshProUGUI systemText;
@@ -35,9 +33,6 @@ public class UIManager : MonoBehaviour
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
-
-    [Header("Panel Tetap Ditampilkan")]
-    public GameObject[] fokusMode;
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -64,11 +59,6 @@ public class UIManager : MonoBehaviour
         AksiSergapPanel.SetActive(false);
         PerkuatSeranganPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
-        
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(true);
-        }
 
         OpsiAwalPanel.SetActive(true);
         KartuManusiaPanel.SetActive(true);
@@ -76,26 +66,11 @@ public class UIManager : MonoBehaviour
         HideMessage();
     }
 
-    public void EnterFokusMode(string message)
-    {
-        HideAllPlayerPanels();
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(false);
-        }
-        
-        ShowMessage(message, 0f);
-    }
-
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
         HideAttackStrength();
-        foreach (var element in fokusMode)
-        {
-            if (element != null) element.SetActive(true);
-        }
-        KartuManusiaPanel.SetActive(false); 
+        KartuManusiaPanel.SetActive(false);
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -106,32 +81,28 @@ public class UIManager : MonoBehaviour
             if (i < cardSlots.Length) cardSlots[i].Initialize(player.hand[i]);
         }
     }
-    
-    // UBAH: Fungsi ini disederhanakan untuk langsung memanipulasi tombol.
+
     public void SetPlayerHandInteractable(bool isInteractable)
     {
-        // Langsung iterasi ke setiap slot kartu.
         foreach (var slot in cardSlots)
         {
-            // Dapatkan komponen Button dari slot.
             Button button = slot.GetComponent<Button>();
             if (button != null)
             {
-                // Atur interaktivitas tombol, hanya jika slotnya aktif.
                 button.interactable = slot.gameObject.activeSelf && isInteractable;
             }
         }
     }
-    
+
     public void ResetScoreUI()
     {
         foreach (Image img in scoreManusiaImages) img.gameObject.SetActive(false);
         foreach (Image img in scoreAiImages) img.gameObject.SetActive(false);
     }
-    
+
     public void ShowKemenanganPanel(bool playerWon)
     {
-        EnterFokusMode("");
+        HideAllPlayerPanels();
         KemenanganPanel.SetActive(true);
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
     }
@@ -160,7 +131,7 @@ public class UIManager : MonoBehaviour
             systemText.gameObject.SetActive(false);
         }
     }
-    
+
     public void ShowTangkisanGagalMessage(int nilaiPemain, int nilaiSerangan, float duration = 3f)
     {
         string message = $"Tangkisan Gagal! Total nilai kartu Anda ({nilaiPemain}) tidak cocok dengan serangan ({nilaiSerangan}).";
@@ -180,12 +151,11 @@ public class UIManager : MonoBehaviour
         nilaiSerangText.gameObject.SetActive(true);
         nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
     }
-    
+
     public void UpdateSelectedParryTotal(int total, int requiredStrength)
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
-        // DIUBAH: Baris ini sekarang hanya menampilkan total tangkisan Anda.
         nilaiSerangText.text = $"TANGKISAN ANDA: {total}";
     }
 
@@ -225,10 +195,10 @@ public class UIManager : MonoBehaviour
     }
 
     public void PindahkanPanelKartu(Transform targetPosisi)
-{
-    if (KartuManusiaPanel != null && targetPosisi != null)
     {
-        KartuManusiaPanel.transform.position = targetPosisi.position;
+        if (KartuManusiaPanel != null && targetPosisi != null)
+        {
+            KartuManusiaPanel.transform.position = targetPosisi.position;
+        }
     }
-}
 }
