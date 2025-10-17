@@ -1378,7 +1378,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnSergapYesButtonPressed
+        m_MethodName: btnSergapYes
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1870,7 +1870,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnSergapNoButtonPressed
+        m_MethodName: btnSergapNo
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2003,7 +2003,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnArahLangkahPressed
+        m_MethodName: btnArahLangkahPressed
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3700,7 +3700,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnSerangButtonPressed
+        m_MethodName: btnSerangPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3924,7 +3924,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnArahLangkahPressed
+        m_MethodName: btnArahLangkahPressed
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7328,7 +7328,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnMelangkahButtonPressed
+        m_MethodName: btnMelangkahPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8135,7 +8135,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnPerkuatYesButtonPressed
+        m_MethodName: btnPerkuatSeranganYes
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8952,7 +8952,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnPlayerTangkisYes
+        m_MethodName: btnConfirmTangkis
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9617,7 +9617,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnPlayerTangkisYes
+        m_MethodName: btnTangkisYes
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11006,7 +11006,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnPerkuatNoButtonPressed
+        m_MethodName: btnPerkuatSeranganNo
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13676,7 +13676,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1267798870}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnPlayerTangkisNo
+        m_MethodName: btnTangkisNo
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
