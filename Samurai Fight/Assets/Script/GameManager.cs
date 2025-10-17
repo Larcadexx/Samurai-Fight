@@ -132,7 +132,6 @@ public class GameManager : MonoBehaviour
         CheckAvailablePlayerActions();
     }
 
-
     private void EndTurn()
     {
         if (isGameOver) return;
@@ -278,7 +277,7 @@ public class GameManager : MonoBehaviour
             bool canSergap = player.hand.Any(card => card.value == newDistance); 
             if (canSergap)
             {
-                uiManager.ShowSergap();
+                StartCoroutine(uiManager.ShowSergap());
             }
             else
             {
@@ -327,7 +326,7 @@ public class GameManager : MonoBehaviour
         else
         {
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
-            uiManager.ShowTangkis(value, isCounter);
+            StartCoroutine(uiManager.ShowTangkis(value, isCounter));
         }
     }
 
@@ -418,7 +417,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecuteAITurnCoroutine()
     {
         uiManager.ShowInfo_AITurn();
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(2.0f);
 
         if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
@@ -440,7 +439,7 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position - card.value > player.position).ToList(); 
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position -= chosenCard.value;
-            uiManager.ShowMessage("AI melangkah maju.", 3.5f);
+            uiManager.ShowMessage("AI melangkah maju.", 2.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
             yield return new WaitForSeconds(2.5f);
@@ -451,7 +450,7 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position += chosenCard.value;
-            uiManager.ShowMessage("AI melangkah mundur.", 3.5f);
+            uiManager.ShowMessage("AI melangkah mundur.", 2.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
             yield return new WaitForSeconds(2.5f);
@@ -626,7 +625,7 @@ public class GameManager : MonoBehaviour
         bool canMoveForward = player.hand.Any(card => player.position + card.value < ai.position); 
         bool canMoveBackward = player.hand.Any(card => player.position - card.value >= 1); 
 
-        uiManager.ShowArahLangkah(canMoveForward, canMoveBackward);
+        StartCoroutine(uiManager.ShowArahLangkah(canMoveForward, canMoveBackward));
     }
 
     private void MovePawnVisual(Player player, int targetPosition)

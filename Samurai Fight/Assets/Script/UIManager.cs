@@ -179,9 +179,10 @@ public class UIManager : MonoBehaviour
         SetPlayerHandInteractable(false);
     }
 
-    public void ShowArahLangkah(bool bisaMaju, bool bisaMundur)
+    public IEnumerator ShowArahLangkah(bool bisaMaju, bool bisaMundur)
     {
         HideAllPlayerPanels();
+        yield return new WaitForSeconds(1.5f);
         ShowMessage("Pilih arah untuk melangkah!!", 0f);
         AksiMelangkahPanel.SetActive(true);
         MajuButton.interactable = bisaMaju;
@@ -230,15 +231,17 @@ public class UIManager : MonoBehaviour
         ShowMessage("Serangan berhasil!! ingin perkuat serangan??", 0f);
     }
 
-    public void ShowSergap()
+    public IEnumerator ShowSergap()
     {
+        yield return new WaitForSeconds(2.0f);
         ShowMessage("Anda berada di jangkauan sergap, Lakukan Sergap??", 0f);
         AksiSergapPanel.SetActive(true);
     }
 
-    public void ShowTangkis(int kekuatan, bool isSerangBalik)
+    public IEnumerator ShowTangkis(int kekuatan, bool isSerangBalik)
     {
         HideAllPlayerPanels();
+        yield return new WaitForSeconds(1.5f);
         HideAttackStrength();
         string message = isSerangBalik ? "AI melakukan serang balik. Tangkis Serangan Balik??" : $"Anda diserang dengan kekuatan {kekuatan}! Tangkis serangan ini?";
         ShowMessage(message, 0f);
