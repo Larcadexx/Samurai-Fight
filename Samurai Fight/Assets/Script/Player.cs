@@ -11,10 +11,10 @@ public class Player
     public bool isAI;               // True kalau pemain ini AI
 
     // Constructor
-    public Player(string name, int startPos, bool isAI = false)
+    public Player(string name, int startPosition, bool isAI = false) // Perubahan: startPos -> startPosition
     {
         this.playerName = name;
-        this.position = startPos;
+        this.position = startPosition; // Perubahan: startPos -> startPosition
         this.score = 0;
         this.isAI = isAI;
     }

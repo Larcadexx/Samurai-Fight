@@ -8,8 +8,8 @@ public class Card
     public int value;
 
     // Constructor — dipanggil saat membuat kartu baru
-    public Card(int val)
+    public Card(int value) // Perubahan: val -> value
     {
-        this.value = val; // Simpan nilai ke dalam variabel di kelas
+        this.value = value; // Simpan nilai ke dalam variabel di kelas
     }
 }

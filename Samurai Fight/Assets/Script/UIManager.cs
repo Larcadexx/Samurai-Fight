@@ -1,5 +1,3 @@
-// Salin dan ganti seluruh isi script UIManager.cs Anda dengan kode ini
-
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -152,7 +150,7 @@ public class UIManager : MonoBehaviour
         sisaKartuDeckText.text = cardCount > 0 ? "Sisa: " + cardCount : "Deck Habis!";
     }
 
-    public void PindahkanPanelKartu(Transform targetPosisi)
+    public void MoveCardPanel(Transform targetPosisi)
     {
         if (KartuManusiaPanel != null && targetPosisi != null)
         {
@@ -167,23 +165,21 @@ public class UIManager : MonoBehaviour
         KartuManusiaPanel.SetActive(false);
     }
 
-    public void TampilkanUI_PilihAksiAwal(bool bisaMelangkah, bool bisaMenyerang)
+    public void ShowOpsiAwal(bool bisaMelangkah, bool bisaMenyerang)
     {
         RestoreDefaultLayout();
-        // GameManager akan menampilkan pesan "Giliran anda!!", jadi kita hanya perlu setup UI di sini.
         OpsiAwalPanel.SetActive(true);
         
-        // <-- INI PERBAIKANNYA: Memastikan InfoPanel selalu aktif saat giliran Anda -->
         if (InfoPanel != null) InfoPanel.SetActive(true);
         
-        PindahkanPanelKartu(posisiPanelDefault);
+        MoveCardPanel(posisiPanelDefault);
         KartuManusiaPanel.SetActive(true);
         MelangkahButton.interactable = bisaMelangkah;
         SerangButton.interactable = bisaMenyerang;
         SetPlayerHandInteractable(false);
     }
 
-    public void TampilkanUI_PilihArahLangkah(bool bisaMaju, bool bisaMundur)
+    public void ShowArahLangkah(bool bisaMaju, bool bisaMundur)
     {
         HideAllPlayerPanels();
         ShowMessage("Pilih arah untuk melangkah!!", 0f);
@@ -192,7 +188,7 @@ public class UIManager : MonoBehaviour
         MundurButton.interactable = bisaMundur;
     }
 
-    public void TampilkanUI_PilihKartuUntukAksi(string jenisAksi, string detailAksi = "")
+    public void ShowPilihKartuAksi(string jenisAksi, string detailAksi = "")
     {
         HideAllPlayerPanels();
         string message = "";
@@ -223,24 +219,24 @@ public class UIManager : MonoBehaviour
         }
 
         ShowMessage(message, 0f);
-        PindahkanPanelKartu(targetPosisi);
+        MoveCardPanel(targetPosisi);
         KartuManusiaPanel.SetActive(true);
         SetPlayerHandInteractable(true);
     }
 
-    public void TampilkanUI_TawarkanPerkuatSerangan()
+    public void ShowPerkuatSerangan()
     {
         PerkuatSeranganPanel.SetActive(true);
         ShowMessage("Serangan berhasil!! ingin perkuat serangan??", 0f);
     }
 
-    public void TampilkanUI_TawarkanSergap()
+    public void ShowSergap()
     {
         ShowMessage("Anda berada di jangkauan sergap, Lakukan Sergap??", 0f);
         AksiSergapPanel.SetActive(true);
     }
 
-    public void TampilkanUI_TangkisSerangan(int kekuatan, bool isSerangBalik)
+    public void ShowTangkis(int kekuatan, bool isSerangBalik)
     {
         HideAllPlayerPanels();
         HideAttackStrength();
@@ -249,28 +245,28 @@ public class UIManager : MonoBehaviour
         AksiTangkisPanel.SetActive(true);
     }
 
-    public void TampilkanUI_PilihKartuTangkis(int kekuatanSerangan)
+    public void ShowPilihKartuTangkis(int kekuatanSerangan)
     {
         AksiTangkisPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(true);
         ShowMessage($"Pilih Kartu Dengan Total Nilai {kekuatanSerangan}, Lalu Tekan Tangkis!!", 0f);
-        PindahkanPanelKartu(posisiPanelKanan);
+        MoveCardPanel(posisiPanelKanan);
         KartuManusiaPanel.SetActive(true);
         SetPlayerHandInteractable(true);
         UpdateSelectedParryTotal(0, kekuatanSerangan);
     }
 
-    public void SembunyikanTombolKonfirmasiTangkis()
+    public void HideConfirmTangkisbtn()
     {
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
     }
 
-    public void SembunyikanPanelKartu()
+    public void HideCardPanel()
     {
         if (KartuManusiaPanel != null) KartuManusiaPanel.SetActive(false);
     }
 
-    public void TampilkanInfoGiliranAI()
+    public void ShowInfo_AITurn()
     {
         if (InfoPanel != null) InfoPanel.SetActive(true);
         ShowMessage("Giliran AI...", 0f);
