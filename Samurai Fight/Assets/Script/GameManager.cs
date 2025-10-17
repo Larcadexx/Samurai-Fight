@@ -129,8 +129,8 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShowPlayerTurnMessage()
     {
         uiManager.InfoPanel.SetActive(true);
-        uiManager.ShowMessage("Giliran anda!!", 1.5f);
-        yield return new WaitForSeconds(1.5f);
+        uiManager.ShowMessage("Giliran anda!!", 2.5f);
+        yield return new WaitForSeconds(3.0f);
         CheckAvailablePlayerActions();
     }
 
@@ -445,7 +445,7 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position - card.value > manusia.position).ToList();
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position -= chosenCard.value;
-            uiManager.ShowMessage("AI melangkah maju.", 2.5f);
+            uiManager.ShowMessage("AI melangkah maju.", 3.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
             yield return new WaitForSeconds(2.5f);
@@ -456,7 +456,7 @@ public class GameManager : MonoBehaviour
             var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
             Card chosenCard = validCards[Random.Range(0, validCards.Count)];
             ai.position += chosenCard.value;
-            uiManager.ShowMessage("AI melangkah mundur.", 2.5f);
+            uiManager.ShowMessage("AI melangkah mundur.", 3.5f);
             MovePawnVisual(ai, ai.position);
             ai.hand.Remove(chosenCard);
             yield return new WaitForSeconds(2.5f);
@@ -535,10 +535,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator RoundOverCoroutine(Player winner)
     {
         uiManager.HideAllUIsForRoundEnd();
-        uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.5f);
+        uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 4.5f);
         winner.score++;
         uiManager.UpdateScoreUI(winner);
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(4.5f);
 
         if (winner.score >= 5)
         {

@@ -218,7 +218,7 @@ public class UIManager : MonoBehaviour
                 break;
             case "serangbalik":
                 message = "Pilih satu kartu untuk melakukan Serang Balik!!";
-                targetPosisi = posisiPanelDefault;
+                targetPosisi = posisiPanelBawah;
                 break;
         }
 
