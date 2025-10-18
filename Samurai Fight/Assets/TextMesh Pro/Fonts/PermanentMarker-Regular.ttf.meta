@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 08733cdc314fe4c1fa4d248c55f84465
+guid: 5bb7b8d124e7b4de78394c4fc47b912a
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - JANSINA
+  - Permanent Marker
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

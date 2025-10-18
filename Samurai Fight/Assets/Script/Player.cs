@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 
-[System.Serializable] 
+
+[System.Serializable]
 public class Player
 {
-    public string playerName;
-    public int position;
-    public int score;
-    public List<Card> hand = new List<Card>();
-    public bool isAI;
+    public string playerName;      
+    public int position;            
+    public int score;               
+    public List<Card> hand = new(); 
+    public bool isAI;               
+
     public Player(string name, int startPos, bool isAI = false)
     {
         this.playerName = name;

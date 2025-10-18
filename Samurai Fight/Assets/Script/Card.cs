@@ -1,3 +1,5 @@
+using System;
+
 [System.Serializable]
 public class Card
 {
@@ -8,5 +10,6 @@ public class Card
     {
 
         this.value = val;
+
     }
 }
