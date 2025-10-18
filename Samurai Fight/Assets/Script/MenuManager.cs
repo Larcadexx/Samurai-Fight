@@ -56,21 +56,16 @@ public class MenuManager : MonoBehaviour
         UpdatePageDisplay();
     }
     
-    // --- FUNGSI-FUNGSI DI BAWAH INI TETAP SAMA ---
     public void PlayGame() { SceneManager.LoadScene("Gameplay"); }
     public void ShowCreditPanel() { if (creditPanel != null) creditPanel.SetActive(true); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false); }
     public void HideCreditPanel() { if (creditPanel != null) creditPanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
     public void HideGameRulePanel() { if (gamerulePanel != null) gamerulePanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
 
 
-    // --- FUNGSI PAGINASI (YANG DIUBAH) ---
 
     void GoToNextPage()
     {
-        // Pindah ke halaman selanjutnya
         currentPageIndex++;
-        
-        // JIKA sudah melewati halaman terakhir, KEMBALI ke halaman pertama (index 0)
         if (currentPageIndex >= rulePages.Count)
         {
             currentPageIndex = 0;
@@ -81,10 +76,8 @@ public class MenuManager : MonoBehaviour
 
     void GoToPrevPage()
     {
-        // Pindah ke halaman sebelumnya
         currentPageIndex--;
 
-        // JIKA sudah melewati halaman pertama, LOMPAT ke halaman terakhir
         if (currentPageIndex < 0)
         {
             currentPageIndex = rulePages.Count - 1;
@@ -95,16 +88,11 @@ public class MenuManager : MonoBehaviour
 
     void UpdatePageDisplay()
     {
-        // Pastikan ada halaman yang terdaftar untuk menghindari error
         if (rulePages.Count == 0) return;
 
-        // Loop untuk menyalakan halaman yang aktif dan mematikan yang lain
         for (int i = 0; i < rulePages.Count; i++)
         {
             rulePages[i].SetActive(i == currentPageIndex);
         }
-
-        // BAGIAN UNTUK MENYEMBUNYIKAN TOMBOL DIHAPUS
-        // Sekarang tombol akan selalu terlihat.
     }
 }
