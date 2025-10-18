@@ -46,9 +46,6 @@ public class UIManager : MonoBehaviour
 
     private Coroutine messageCoroutine;
 
-    // ==============================
-    // ==== SETUP & INISIALISASI ====
-    // ==============================
     void Awake()
     {
         instance = this;
@@ -63,9 +60,6 @@ public class UIManager : MonoBehaviour
         ResetScoreUI();
     }
 
-    // ==============================
-    // ==== PANEL KEMENANGAN =========
-    // ==============================
     public void ShowKemenanganPanel(bool playerWon)
     {
         HideAllPlayerPanels();
@@ -81,9 +75,6 @@ public class UIManager : MonoBehaviour
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
     }
 
-    // ==============================
-    // ==== LAYOUT DASAR UI =========
-    // ==============================
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
@@ -101,9 +92,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== PANEL AKSI UTAMA ========
-    // ==============================
     public void ShowOpsiAwalPanel(bool show)
     {
         OpsiAwalPanel.SetActive(show);
@@ -117,9 +105,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== SISTEM SKOR ============
-    // ==============================
     public void UpdateScoreUI(Player player)
     {
         Image[] targetImages = player.isAI ? scoreAiImages : scoreManusiaImages;
@@ -137,9 +122,6 @@ public class UIManager : MonoBehaviour
             img.gameObject.SetActive(false);
     }
 
-    // ==============================
-    // ==== PANEL KARTU ============
-    // ==============================
     public void ShowHandPanelOnly(string context)
     {
         HideAllPlayerPanels();
@@ -156,9 +138,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== PANEL AKSI PILIHAN ======
-    // ==============================
     public void ShowAksiMelangkahPanel(bool show)
     {
         HideAllPlayerPanels();
@@ -203,9 +182,6 @@ public class UIManager : MonoBehaviour
         PerkuatSeranganPanel.SetActive(show);
     }
 
-    // ==============================
-    // ==== SISTEM PESAN ============
-    // ==============================
     public void ShowMessage(string message, float duration = 2f)
     {
         if (systemText == null) return;
@@ -238,9 +214,6 @@ public class UIManager : MonoBehaviour
         systemText.gameObject.SetActive(false);
     }
 
-    // ==============================
-    // ==== INFORMASI SERANGAN ======
-    // ==============================
     public void ShowAttackStrength(int strength)
     {
         if (nilaiSerangText == null) return;
@@ -261,16 +234,11 @@ public class UIManager : MonoBehaviour
         nilaiSerangText.gameObject.SetActive(false);
     }
 
-    // ==============================
-    // ==== KARTU DI TANGAN PLAYER ===
-    // ==============================
     public void UpdatePlayerHandUI(Player player)
     {
-        // Hapus kartu lama
         foreach (Transform child in KartuManusiaPanel)
             Destroy(child.gameObject);
 
-        // Buat ulang kartu berdasarkan hand
         foreach (Card card in player.hand)
         {
             GameObject cardGO = Instantiate(cardPrefab, KartuManusiaPanel);
@@ -286,9 +254,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== BUTTON STATE CONTROL ====
-    // ==============================
     public void UpdateActionButtons(bool canMove, bool canAttack)
     {
         MelangkahButton.interactable = canMove;
@@ -301,9 +266,6 @@ public class UIManager : MonoBehaviour
         MundurButton.interactable = canMoveBackward;
     }
 
-    // ==============================
-    // ==== PANEL UTILITAS ==========
-    // ==============================
     public void HideAllPlayerPanels()
     {
         OpsiAwalPanel.SetActive(false);

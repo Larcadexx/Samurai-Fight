@@ -23,14 +23,12 @@ public class GameManager : MonoBehaviour
     private Player activePlayer;
     private bool isGameOver = false;
 
-    // Status aksi pemain
     private bool isPlayerMelangkah = false;
     private bool isPlayerMenyerang = false;
     private bool isPlayerInSergapMode = false;
     private bool isPlayerStrengtheningAttack = false;
     private int arahLangkah = 0;
 
-    // Data serangan
     private enum AttackPhase { None, AwaitingTangkis, AwaitingSerangBalik, AwaitingTangkisPlayer, PlayerSelectingParryCards }
     private AttackPhase currentAttackPhase = AttackPhase.None;
 
@@ -51,9 +49,6 @@ public class GameManager : MonoBehaviour
         StartRound();
     }
 
-    // ==============================
-    // ==== SETUP & INIT GAME =======
-    // ==============================
     void SetupGame()
     {
         manusia = new Player("Manusia", 1);
@@ -72,13 +67,11 @@ public class GameManager : MonoBehaviour
         isPlayerStrengtheningAttack = false;
         isGameOver = false;
 
-        // Posisi awal pion
         manusia.position = 1;
         ai.position = 23;
         MovePawnVisual(manusia, manusia.position);
         MovePawnVisual(ai, ai.position);
 
-        // Setup kartu
         CreateDeck();
         ShuffleDeck();
 
@@ -96,13 +89,10 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("--- RONDE BARU DIMULAI ---");
 
-        activePlayer = ai; // AI mulai duluan
+        activePlayer = ai;
         StartTurn();
     }
 
-    // ==============================
-    // ==== SISTEM GILIRAN ==========
-    // ==============================
     private void StartTurn()
     {
         if (isGameOver) return;
@@ -150,9 +140,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    // ==============================
-    // ==== PEMERIKSAAN AKSI PLAYER ==
-    // ==============================
     private void CheckAvailablePlayerActions()
     {
         bool canMove = false;
@@ -173,9 +160,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== LOGIKA TURN AI ==========
-    // ==============================
     private IEnumerator ExecuteAITurnCoroutine()
     {
         uiManager.ShowMessage("Giliran AI...", 0f);
@@ -231,9 +215,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== AKSI PEMAIN MANUSIA =====
-    // ==============================
     public void OnMelangkahButtonPressed()
     {
         if (activePlayer != manusia) return;
@@ -282,14 +263,10 @@ public class GameManager : MonoBehaviour
         uiManager.SetPlayerHandInteractable(true);
     }
 
-    // ==============================
-    // ==== KETIKA KARTU DIKLIK =====
-    // ==============================
     public void OnCardInHandClicked(Card clickedCard, CardController cardController)
     {
         if (activePlayer != manusia) return;
 
-        // Mode tangkis
         if (currentAttackPhase == AttackPhase.PlayerSelectingParryCards)
         {
             var cardEntry = new KeyValuePair<Card, CardController>(clickedCard, cardController);
@@ -318,10 +295,8 @@ public class GameManager : MonoBehaviour
         HandleCardAction(clickedCard);
     }
 
-    // ==== Fungsi bantu untuk aksi kartu ====
     private void HandleCardAction(Card clickedCard)
     {
-        // Mode serang
         if (isPlayerMenyerang)
         {
             int distance = ai.position - manusia.position;
@@ -371,9 +346,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-        // ==============================
-    // ==== AKSI MELANGKAH & SERGAP ===
-    // ==============================
     private void HandleMove(Card clickedCard)
     {
         int newPosition = manusia.position + (clickedCard.value * arahLangkah);
@@ -406,7 +378,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Langkah tidak valid
             isPlayerMelangkah = false;
             arahLangkah = 0;
             uiManager.SetPlayerHandInteractable(false);
@@ -463,9 +434,6 @@ public class GameManager : MonoBehaviour
         EndTurn();
     }
 
-    // ==============================
-    // ==== SISTEM SERANG & TANGKIS ===
-    // ==============================
     private void InitiateAttack(Player currentAttacker, Player currentDefender, int value)
     {
         attacker = currentAttacker;
@@ -556,9 +524,6 @@ public class GameManager : MonoBehaviour
         InitiateAttack(ai, manusia, counterCard.value);
     }
 
-    // ==============================
-    // ==== TANGKIS PLAYER ===========
-    // ==============================
     public void OnPlayerTangkisYes()
     {
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
@@ -635,9 +600,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ==============================
-    // ==== RONDE & HASIL ============
-    // ==============================
     private IEnumerator RoundOverCoroutine(Player winner)
     {
         Debug.Log($"--- RONDE BERAKHIR! Pemenang: {winner.playerName} ---");
@@ -696,14 +658,11 @@ public class GameManager : MonoBehaviour
         StartCoroutine(RoundOverCoroutine(winner));
     }
 
-    // ==============================
-    // ==== DECK & UTILITAS =========
-    // ==============================
     private void MovePawnVisual(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;
         Transform targetPetak = petakPapan[targetPosition - 1];
-        pawn.transform.position = targetPetak.position + new Vector3(0, 75f, 0); // sedikit diangkat biar kelihatan
+        pawn.transform.position = targetPetak.position + new Vector3(0, 75f, 0); 
     }
 
     private void RefillHand(Player player)
