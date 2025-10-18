@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Cinemachine; // Menggunakan namespace Cinemachine
+using Unity.Cinemachine; 
 
 public class CameraManager : MonoBehaviour
 {
