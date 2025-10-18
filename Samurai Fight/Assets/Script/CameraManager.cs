@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Cinemachine; 
+using Unity.Cinemachine;  //Cinemachine namespcae
 
 public class CameraManager : MonoBehaviour
 {
