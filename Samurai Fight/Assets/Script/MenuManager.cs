@@ -92,5 +92,6 @@ public class MenuManager : MonoBehaviour
         {
             rulePages[i].SetActive(i == currentPageIndex);
         }
+
     }
 }
