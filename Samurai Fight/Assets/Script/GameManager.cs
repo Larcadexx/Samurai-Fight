@@ -143,10 +143,7 @@ public class GameManager : MonoBehaviour
         isPlayerMelangkah = true;
         if (uiManager != null) uiManager.ShowMessage("Pilih arah tujuan Anda.", 0f);
         if (uiManager != null && uiManager.OpsiAwalPanel != null) uiManager.OpsiAwalPanel.SetActive(false);
-
-        // sembunyikan panel kartu
         if (uiManager != null && uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
-
         if (uiManager != null && uiManager.AksiMelangkahPanel != null) uiManager.AksiMelangkahPanel.SetActive(true);
         CheckAvailableMoveDirections();
     }
@@ -184,14 +181,11 @@ public class GameManager : MonoBehaviour
 
     public void OnCardSlotClicked(Card clickedCard, SistemKartu slotController)
     {
-        // BLOK 1: prioritas saat memilih kartu tangkisan
         if (currentAttackPhase == AttackPhase.PlayerSelectingParryCards)
         {
             HandleParrySelection(clickedCard, slotController);
             return;
         }
-
-        // BLOK 2: aksi normal / reaktif
         if (activePlayer != manusia && !isPlayerInSerangBalikMode) return;
         if (!isPlayerMenyerang && !isPlayerMelangkah && !isPlayerInSergapMode && !isPlayerStrengtheningAttack && !isPlayerInSerangBalikMode)
             return;
@@ -215,7 +209,6 @@ public class GameManager : MonoBehaviour
 
                 if (manusia.hand.Count > 0)
                 {
-                    // sembunyikan panel kartu sebelum menampilkan pilihan
                     if (uiManager != null && uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
                     if (uiManager != null && uiManager.PerkuatSeranganPanel != null) uiManager.PerkuatSeranganPanel.SetActive(true);
                     if (uiManager != null) uiManager.ShowMessage("Serangan awal siap. Ingin perkuat dengan kartu tambahan?", 0f);
@@ -322,8 +315,6 @@ public class GameManager : MonoBehaviour
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
             string message = isCounter ? $"AI melakukan Serang Balik dengan kekuatan {value}! Tangkis serangan ini?" : $"Anda diserang dengan kekuatan {value}! Tangkis serangan ini?";
             if (uiManager != null) uiManager.ShowMessage(message, 0f);
-
-            // sembunyikan panel kartu dan info serangan saat pilihan muncul
             if (uiManager != null && uiManager.KartuManusiaPanel != null) uiManager.KartuManusiaPanel.SetActive(false);
             if (uiManager != null) uiManager.HideAttackStrength();
             if (uiManager != null && uiManager.AksiTangkisPanel != null) uiManager.AksiTangkisPanel.SetActive(true);
@@ -582,7 +573,7 @@ public class GameManager : MonoBehaviour
 
         Player winner = null;
         if (totalManusia > totalAI) winner = manusia;
-        else if (totalAI > totalManusia) winner = ai; // fixed logical comparison (was bug in original)
+        else if (totalAI > totalManusia) winner = ai; 
 
         if (winner != null)
         {

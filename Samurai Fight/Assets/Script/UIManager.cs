@@ -3,10 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-/// <summary>
-/// UIManager: bertanggung jawab atas tampilan UI.
-/// Saya pertahankan semua public field & method yang ada di kode awal.
-/// </summary>
 public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
@@ -114,7 +110,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Mengatur interaktivitas slot kartu (menggunakan Button pada slot)
     public void SetPlayerHandInteractable(bool isInteractable)
     {
         if (cardSlots == null) return;

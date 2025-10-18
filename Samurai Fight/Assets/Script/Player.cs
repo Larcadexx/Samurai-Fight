@@ -4,13 +4,11 @@ using System.Collections.Generic;
 [Serializable]
 public class Player
 {
-    public string playerName;       // Nama pemain
-    public int position;            // Posisi pion di papan
-    public int score;               // Skor total
-    public List<Card> hand = new List<Card>(); // Kartu di tangan
-    public bool isAI;               // True kalau pemain ini AI
-
-    // Constructor
+    public string playerName;  
+    public int position;          
+    public int score;              
+    public List<Card> hand = new List<Card>(); 
+    public bool isAI;               
     public Player(string name, int startPos, bool isAI = false)
     {
         this.playerName = name;
