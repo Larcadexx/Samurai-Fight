@@ -62,15 +62,7 @@ public class MenuManager : MonoBehaviour
         currentPageIndex = 0;
         UpdatePageDisplay();
     }
-<<<<<<< Updated upstream
     
-    // --- FUNGSI-FUNGSI DI BAWAH INI TETAP SAMA ---
-    public void PlayGame() { SceneManager.LoadScene("Game"); }
-    public void ShowCreditPanel() { if (creditPanel != null) creditPanel.SetActive(true); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false); }
-    public void HideCreditPanel() { if (creditPanel != null) creditPanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
-    public void HideGameRulePanel() { if (gamerulePanel != null) gamerulePanel.SetActive(false); if (mainButtonsPanel != null) mainButtonsPanel.SetActive(true); }
-=======
->>>>>>> Stashed changes
 
     public void HideGameRules()
     {
