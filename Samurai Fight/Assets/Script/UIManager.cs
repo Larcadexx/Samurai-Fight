@@ -291,7 +291,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            sisaKartuDeckText.text = "Deck Habis!";
+            sisaKartuDeckText.text = "Deck Habis!!";
         }
     }
 }
