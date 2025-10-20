@@ -72,6 +72,20 @@ public class UIManager : MonoBehaviour
             RoundPanel.SetActive(false);
         }
     }
+    public IEnumerator ShowGameWinRoundText(string winnerName, float duration)
+    {
+        if (RoundPanel != null && RoundText != null)
+        {
+            RoundPanel.SetActive(true);
+            RoundText.text = $"{winnerName} memenangkan Game!";
+            yield return new WaitForSeconds(duration);
+            RoundPanel.SetActive(false);
+        }
+    }
+
+    
+    
+
     public void UpdatePlayerHandUI(Player player)
     {
         foreach (var slot in cardSlots) slot.HideSlot();
@@ -302,6 +316,9 @@ public class UIManager : MonoBehaviour
         HideMessage();
     }
 
+    
+
+
     public void HideAllPlayerPanels()
     {
         KemenanganPanel.SetActive(false);
@@ -313,6 +330,6 @@ public class UIManager : MonoBehaviour
         if (InfoPanel != null) InfoPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         KartuManusiaPanel.SetActive(false);
-        if (RoundPanel != null) RoundPanel.SetActive(false);
+        //if (RoundPanel != null) RoundPanel.SetActive(false);
     }
 }

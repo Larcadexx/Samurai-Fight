@@ -427,15 +427,28 @@ public class GameManager : MonoBehaviour
     public IEnumerator RoundOverDelay(Player winner)
     {
         uiManager.HideAllUIsForRoundEnd();
-        uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 4.5f);
+
+        if (winner.score < 4)
+        {
+            uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.0f);
+        }
+
         winner.score++;
         uiManager.UpdateScoreUI(winner);
-        yield return new WaitForSeconds(4.5f);
+        yield return new WaitForSeconds(3.0f); // ⏱️ lebih cepat dari 4.5 detik
 
         if (winner.score >= 5)
         {
             isGameOver = true;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.3f); // ⏱️ transisi ringan
+
+            // Tentukan nama pemenang
+            string winnerName = winner.isAI ? "AI" : "Pemain";
+
+            // Tampilkan teks kemenangan di RoundPanel selama 2 detik (lebih cepat)
+            yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
+
+            // Setelah RoundPanel hilang, langsung tampilkan panel kemenangan
             uiManager.ShowKemenanganPanel(winner == player);
         }
         else
@@ -443,6 +456,9 @@ public class GameManager : MonoBehaviour
             StartRound();
         }
     }
+
+
+
 
     public IEnumerator ExecuteTieBreakerDelay(TieBreakerReason reason)
     {
