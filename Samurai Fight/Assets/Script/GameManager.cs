@@ -214,7 +214,7 @@ public class GameManager : MonoBehaviour
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
 
-        StartCoroutine(HandleCardActionCoroutine(clickedCard, slotController));  
+        StartCoroutine(HandleCardActionCoroutine(clickedCard, slotController));
     }
 
     private IEnumerator HandleCardActionCoroutine(Card clickedCard, SistemKartu slotController) 
@@ -230,7 +230,7 @@ public class GameManager : MonoBehaviour
                 {
                     initialAttackCard = clickedCard;
                     player.hand.Remove(clickedCard);
-                    slotController.HideSlot();  
+                    slotController.HideSlot(); 
                     if (player.hand.Count > 0)
                     {
                         uiManager.ShowPerkuatSerangan();
@@ -259,6 +259,7 @@ public class GameManager : MonoBehaviour
 
             case PlayerTurnState.SelectingSergapCard:
                 HandleSergap(clickedCard, slotController); 
+                break;
 
             case PlayerTurnState.SelectingCounterCard:
                 player.hand.Remove(clickedCard);
@@ -305,7 +306,7 @@ public class GameManager : MonoBehaviour
         if (clickedCard.value == distance)
         {
             player.hand.Remove(clickedCard);
-            slotController.HideSlot();
+            slotController.HideSlot(); 
             InitiateAttack(player, ai, clickedCard.value, false, false);
         }
         else
@@ -391,7 +392,7 @@ public class GameManager : MonoBehaviour
                 foreach (var entry in selectedTangkis)
                 {
                     player.hand.Remove(entry.Key);
-                    entry.Value.HideSlot(); 
+                    entry.Value.HideSlot();
                 }
                 EndTurn();
             }
@@ -401,7 +402,7 @@ public class GameManager : MonoBehaviour
                 foreach (var entry in selectedTangkis)
                 {
                     player.hand.Remove(entry.Key);
-                    entry.Value.HideSlot(); 
+                    entry.Value.HideSlot();
                 }
                 StartCoroutine(ExecutePlayerSerangBalikCoroutine());
             }
@@ -458,9 +459,6 @@ public class GameManager : MonoBehaviour
             StartRound();
         }
     }
-
-
-
 
     public IEnumerator ExecuteTieBreakerDelay(TieBreakerReason reason)
     {
@@ -561,7 +559,7 @@ public class GameManager : MonoBehaviour
             while (player.hand.Count < 5)
             {
                 Card newCard = DrawCardFromDeck();
-                if (newCard == null) return; 
+                if (newCard == null) return;
                 player.hand.Add(newCard);
             }
         }
@@ -573,6 +571,7 @@ public class GameManager : MonoBehaviour
                 {
                     break; 
                 }
+
                 if (!slot.gameObject.activeSelf)
                 {
                     Card newCard = DrawCardFromDeck();
@@ -580,6 +579,7 @@ public class GameManager : MonoBehaviour
                     {
                         break; 
                     }
+
                     player.hand.Add(newCard);
                     slot.Initialize(newCard);
                 }
@@ -588,6 +588,7 @@ public class GameManager : MonoBehaviour
 
         uiManager.UpdateMainDeckUI(deck.Count);
     }
+
     private void CreateDeck()
     {
         deck.Clear();
