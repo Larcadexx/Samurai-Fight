@@ -545,7 +545,7 @@ public class GameManager : MonoBehaviour
         if (targetPosition > 0 && targetPosition <= petakPapan.Length)
         {
             Transform targetPetak = petakPapan[targetPosition - 1];
-            pawn.transform.position = targetPetak.position + new Vector3(0, 100f, 0);
+            pawn.transform.position = targetPetak.position + new Vector3(0, 105f, 0);
         }
     }
 
