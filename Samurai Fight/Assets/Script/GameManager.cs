@@ -435,20 +435,17 @@ public class GameManager : MonoBehaviour
 
         winner.score++;
         uiManager.UpdateScoreUI(winner);
-        yield return new WaitForSeconds(3.0f); // ⏱️ lebih cepat dari 4.5 detik
+        yield return new WaitForSeconds(3.0f); 
 
         if (winner.score >= 5)
         {
             isGameOver = true;
-            yield return new WaitForSeconds(0.3f); // ⏱️ transisi ringan
+            yield return new WaitForSeconds(0.3f); 
 
-            // Tentukan nama pemenang
             string winnerName = winner.isAI ? "AI" : "Pemain";
 
-            // Tampilkan teks kemenangan di RoundPanel selama 2 detik (lebih cepat)
             yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
 
-            // Setelah RoundPanel hilang, langsung tampilkan panel kemenangan
             uiManager.ShowKemenanganPanel(winner == player);
         }
         else

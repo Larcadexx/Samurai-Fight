@@ -330,6 +330,5 @@ public class UIManager : MonoBehaviour
         if (InfoPanel != null) InfoPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         KartuManusiaPanel.SetActive(false);
-        //if (RoundPanel != null) RoundPanel.SetActive(false);
     }
 }
