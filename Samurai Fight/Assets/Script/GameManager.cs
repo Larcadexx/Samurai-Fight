@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public UIManager uiManager;
-    public AIController aiController; // Referensi ke AI Controller
+    public AIController aiController; 
 
     [Header("Referensi Objek di Scene")]
     public GameObject pionManusia;
@@ -58,7 +58,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Inisialisasi AI Controller
         if (aiController == null)
         {
             Debug.LogError("AIController belum di-assign di Inspector GameManager!");
@@ -110,16 +109,13 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ShowRoundStartMessageAndBeginTurn());
     }
 
-    // --- FUNGSI YANG BARU DIMODIFIKASI ---
+   
     private IEnumerator ShowRoundStartMessageAndBeginTurn()
     {
-        // Mengganti uiManager.ShowMessage() dengan panel ronde yang baru
-        // Durasi 2.0f diambil dari yield return Anda sebelumnya, agar timing game tetap sama.
         yield return StartCoroutine(uiManager.ShowRoundStartPanel(roundNumber, 2.0f));
         
         StartTurn();
     }
-    // ------------------------------------
 
     private void StartTurn()
     {
@@ -130,7 +126,6 @@ public class GameManager : MonoBehaviour
 
         if (activePlayer.isAI)
         {
-            // Panggil AI Controller
             StartCoroutine(aiController.ExecuteTurn(ai, player));
         }
         else
@@ -147,7 +142,6 @@ public class GameManager : MonoBehaviour
         CheckAvailablePlayerActions();
     }
 
-    // Dibuat public agar bisa dipanggil AIController
     public void EndTurn()
     {
         if (isGameOver) return;
@@ -322,7 +316,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Dibuat public agar bisa dipanggil AIController
     public void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter, bool showAttackValueUI = true)
     {
         attacker = currentAttacker;
@@ -338,7 +331,6 @@ public class GameManager : MonoBehaviour
         if (defender.isAI)
         {
             currentAttackPhase = AttackPhase.AwaitingTangkis;
-            // Panggil AI Controller
             aiController.HandleAIAttacked(ai, player, attackValue, isCounter);
         }
         else
@@ -432,10 +424,6 @@ public class GameManager : MonoBehaviour
         uiManager.ShowPilihKartuAksi("serangbalik");
     }
 
-    // --- SEMUA FUNGSI LOGIKA AI SUDAH DIPINDAH KE AICONTROLLER.CS ---
-
-
-    // Dibuat public agar bisa dipanggil AIController
     public IEnumerator RoundOverDelay(Player winner)
     {
         uiManager.HideAllUIsForRoundEnd();
@@ -456,7 +444,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Dibuat public agar bisa dipanggil AIController
     public IEnumerator ExecuteTieBreakerDelay(TieBreakerReason reason)
     {
         uiManager.HideAllUIsForRoundEnd();
@@ -539,7 +526,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(uiManager.ShowArahLangkah(canMoveForward, canMoveBackward));
     }
 
-    // Dibuat public agar bisa dipanggil AIController
     public void MovePionVisual(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;

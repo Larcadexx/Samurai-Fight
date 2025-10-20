@@ -72,8 +72,6 @@ public class UIManager : MonoBehaviour
             RoundPanel.SetActive(false);
         }
     }
-    // ------------------
-
     public void UpdatePlayerHandUI(Player player)
     {
         foreach (var slot in cardSlots) slot.HideSlot();
@@ -306,6 +304,7 @@ public class UIManager : MonoBehaviour
 
     public void HideAllPlayerPanels()
     {
+        KemenanganPanel.SetActive(false);
         OpsiAwalPanel.SetActive(false);
         AksiMelangkahPanel.SetActive(false);
         AksiTangkisPanel.SetActive(false);
