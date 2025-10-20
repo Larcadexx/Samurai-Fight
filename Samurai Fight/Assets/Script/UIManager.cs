@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI systemText;
     public TextMeshProUGUI KemenanganText;
     public TextMeshProUGUI sisaKartuDeckText;
+    public TextMeshProUGUI RoundText; 
 
     [Header("Panels")]
     public GameObject KartuManusiaPanel;
@@ -32,6 +33,7 @@ public class UIManager : MonoBehaviour
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
+    public GameObject RoundPanel; 
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -50,7 +52,27 @@ public class UIManager : MonoBehaviour
         if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
         if (InfoPanel != null) InfoPanel.SetActive(false);
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        if (RoundPanel != null) RoundPanel.SetActive(false); 
     }
+
+    public IEnumerator ShowRoundStartPanel(int roundNumber, float duration)
+    {
+        HideAllUIsForRoundEnd(); 
+        
+        if (RoundPanel != null && RoundText != null)
+        {
+            RoundText.text = $"Ronde Ke-{roundNumber}";
+            RoundPanel.SetActive(true);
+        }
+        
+        yield return new WaitForSeconds(duration);
+        
+        if (RoundPanel != null)
+        {
+            RoundPanel.SetActive(false);
+        }
+    }
+    // ------------------
 
     public void UpdatePlayerHandUI(Player player)
     {
@@ -292,5 +314,6 @@ public class UIManager : MonoBehaviour
         if (InfoPanel != null) InfoPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(false);
         KartuManusiaPanel.SetActive(false);
+        if (RoundPanel != null) RoundPanel.SetActive(false);
     }
 }

@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public UIManager uiManager;
+    public AIController aiController; // Referensi ke AI Controller
 
     [Header("Referensi Objek di Scene")]
     public GameObject pionManusia;
@@ -57,6 +58,16 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Inisialisasi AI Controller
+        if (aiController == null)
+        {
+            Debug.LogError("AIController belum di-assign di Inspector GameManager!");
+        }
+        else
+        {
+            aiController.Initialize(this, uiManager);
+        }
+
         SetupGame();
         StartRound();
     }
@@ -99,13 +110,16 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ShowRoundStartMessageAndBeginTurn());
     }
 
+    // --- FUNGSI YANG BARU DIMODIFIKASI ---
     private IEnumerator ShowRoundStartMessageAndBeginTurn()
     {
-        uiManager.HideAllPlayerPanels();
-        uiManager.ShowMessage($"Ronde Ke-{roundNumber}", 3.5f);
-        yield return new WaitForSeconds(2.0f);
+        // Mengganti uiManager.ShowMessage() dengan panel ronde yang baru
+        // Durasi 2.0f diambil dari yield return Anda sebelumnya, agar timing game tetap sama.
+        yield return StartCoroutine(uiManager.ShowRoundStartPanel(roundNumber, 2.0f));
+        
         StartTurn();
     }
+    // ------------------------------------
 
     private void StartTurn()
     {
@@ -116,7 +130,8 @@ public class GameManager : MonoBehaviour
 
         if (activePlayer.isAI)
         {
-            StartCoroutine(ExecuteAITurnCoroutine());
+            // Panggil AI Controller
+            StartCoroutine(aiController.ExecuteTurn(ai, player));
         }
         else
         {
@@ -132,7 +147,8 @@ public class GameManager : MonoBehaviour
         CheckAvailablePlayerActions();
     }
 
-    private void EndTurn()
+    // Dibuat public agar bisa dipanggil AIController
+    public void EndTurn()
     {
         if (isGameOver) return;
 
@@ -306,7 +322,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter, bool showAttackValueUI = true)
+    // Dibuat public agar bisa dipanggil AIController
+    public void InitiateAttack(Player currentAttacker, Player currentDefender, int value, bool isCounter, bool showAttackValueUI = true)
     {
         attacker = currentAttacker;
         defender = currentDefender;
@@ -321,7 +338,8 @@ public class GameManager : MonoBehaviour
         if (defender.isAI)
         {
             currentAttackPhase = AttackPhase.AwaitingTangkis;
-            StartCoroutine(DecideAITangkisCoroutine());
+            // Panggil AI Controller
+            aiController.HandleAIAttacked(ai, player, attackValue, isCounter);
         }
         else
         {
@@ -414,119 +432,11 @@ public class GameManager : MonoBehaviour
         uiManager.ShowPilihKartuAksi("serangbalik");
     }
 
-    private IEnumerator ExecuteAITurnCoroutine()
-    {
-        uiManager.ShowInfo_AITurn();
-        yield return new WaitForSeconds(2.0f);
+    // --- SEMUA FUNGSI LOGIKA AI SUDAH DIPINDAH KE AICONTROLLER.CS ---
 
-        if (ai.hand.Count == 0) { EndTurn(); yield break; }
 
-        int distance = ai.position - player.position;
-        bool canAttack = ai.hand.Any(card => card.value == distance);
-        bool canMoveForward = ai.hand.Any(card => ai.position - card.value > player.position);
-        bool canMoveBackward = ai.hand.Any(card => ai.position + card.value <= 23);
-
-        if (canAttack)
-        {
-            Card attackCard = ai.hand.First(card => card.value == distance);
-            uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
-            yield return new WaitForSeconds(2.0f);
-            ai.hand.Remove(attackCard);
-            InitiateAttack(ai, player, attackCard.value, isCounter: false);
-        }
-        else if (canMoveForward)
-        {
-            var validCards = ai.hand.Where(card => ai.position - card.value > player.position).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-            ai.position -= chosenCard.value;
-            uiManager.ShowMessage("AI melangkah maju.", 2.5f);
-            MovePionVisual(ai, ai.position);
-            ai.hand.Remove(chosenCard);
-            yield return new WaitForSeconds(2.5f);
-            EndTurn();
-        }
-        else if (canMoveBackward)
-        {
-            var validCards = ai.hand.Where(card => ai.position + card.value <= 23).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-            ai.position += chosenCard.value;
-            uiManager.ShowMessage("AI melangkah mundur.", 2.5f);
-            MovePionVisual(ai, ai.position);
-            ai.hand.Remove(chosenCard);
-            yield return new WaitForSeconds(2.5f);
-            EndTurn();
-        }
-        else
-        {
-            StartCoroutine(ExecuteTieBreakerDelay(TieBreakerReason.PlayerCornered));
-        }
-    }
-
-    private IEnumerator DecideAITangkisCoroutine()
-    {
-        yield return new WaitForSeconds(2.5f);
-        List<Card> parryCombination = KombinasiTangkisan(attackValue, ai.hand, !isCurrentAttackACounter);
-
-        if (parryCombination != null)
-        {
-            uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
-            yield return new WaitForSeconds(3.0f);
-            foreach (var card in parryCombination) ai.hand.Remove(card);
-
-            if (isCurrentAttackACounter)
-            {
-                EndTurn();
-            }
-            else
-            {
-                currentAttackPhase = AttackPhase.AwaitingSerangBalik;
-                StartCoroutine(ExecuteAISerangBalikCoroutine());
-            }
-        }
-        else
-        {
-            uiManager.ShowMessage($"AI gagal menangkis serangan Anda.", 2.5f);
-            yield return new WaitForSeconds(2.5f);
-            StartCoroutine(RoundOverDelay(attacker));
-        }
-    }
-
-    private IEnumerator ExecuteAISerangBalikCoroutine()
-    {
-        if (ai.hand.Count == 0)
-        {
-            EndTurn();
-            yield break;
-        }
-        Card counterCard = ai.hand[Random.Range(0, ai.hand.Count)];
-        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {counterCard.value}!", 2.5f);
-        yield return new WaitForSeconds(2.5f);
-        ai.hand.Remove(counterCard);
-        InitiateAttack(ai, player, counterCard.value, true);
-    }
-
-    private List<Card> KombinasiTangkisan(int target, List<Card> hand, bool mustHaveCardLeft)
-    {
-        List<Card> FindSubsetSum(int currentTarget, List<Card> currentHand, List<Card> currentCombination)
-        {
-            if (currentTarget == 0)
-            {
-                if (mustHaveCardLeft && hand.Count - currentCombination.Count < 1) return null;
-                return currentCombination;
-            }
-            if (currentTarget < 0 || currentHand.Count == 0) return null;
-            Card head = currentHand[0];
-            List<Card> tail = currentHand.GetRange(1, currentHand.Count - 1);
-            var withHead = new List<Card>(currentCombination) { head };
-            var resultWith = FindSubsetSum(currentTarget - head.value, tail, withHead);
-            if (resultWith != null) return resultWith;
-            var resultWithout = FindSubsetSum(currentTarget, tail, currentCombination);
-            return resultWithout;
-        }
-        return FindSubsetSum(target, new List<Card>(hand), new List<Card>());
-    }
-
-    private IEnumerator RoundOverDelay(Player winner)
+    // Dibuat public agar bisa dipanggil AIController
+    public IEnumerator RoundOverDelay(Player winner)
     {
         uiManager.HideAllUIsForRoundEnd();
         uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 4.5f);
@@ -546,7 +456,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ExecuteTieBreakerDelay(TieBreakerReason reason)
+    // Dibuat public agar bisa dipanggil AIController
+    public IEnumerator ExecuteTieBreakerDelay(TieBreakerReason reason)
     {
         uiManager.HideAllUIsForRoundEnd();
 
@@ -628,7 +539,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(uiManager.ShowArahLangkah(canMoveForward, canMoveBackward));
     }
 
-    private void MovePionVisual(Player player, int targetPosition)
+    // Dibuat public agar bisa dipanggil AIController
+    public void MovePionVisual(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;
         if (targetPosition > 0 && targetPosition <= petakPapan.Length)
