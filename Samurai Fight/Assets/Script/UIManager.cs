@@ -181,7 +181,7 @@ public class UIManager : MonoBehaviour
     public void UpdateMainDeckUI(int cardCount)
     {
         if (sisaKartuDeckText == null) return;
-        sisaKartuDeckText.text = cardCount > 0 ? "Sisa: " + cardCount : "Deck Habis!";
+        sisaKartuDeckText.text = cardCount > 0 ? "Sisa Dideck: " + cardCount : "Deck Habis!";
     }
 
     public void MoveCardPanel(Transform targetPosisi)

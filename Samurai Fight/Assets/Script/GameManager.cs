@@ -214,10 +214,10 @@ public class GameManager : MonoBehaviour
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
 
-        StartCoroutine(HandleCardActionCoroutine(clickedCard));
+        StartCoroutine(HandleCardActionCoroutine(clickedCard, slotController));  
     }
 
-    private IEnumerator HandleCardActionCoroutine(Card clickedCard)
+    private IEnumerator HandleCardActionCoroutine(Card clickedCard, SistemKartu slotController) 
     {
         PlayerTurnState stateSaatIni = playerState;
         playerState = PlayerTurnState.None;
@@ -230,7 +230,7 @@ public class GameManager : MonoBehaviour
                 {
                     initialAttackCard = clickedCard;
                     player.hand.Remove(clickedCard);
-                    uiManager.UpdatePlayerHandUI(player);
+                    slotController.HideSlot();  
                     if (player.hand.Count > 0)
                     {
                         uiManager.ShowPerkuatSerangan();
@@ -249,27 +249,26 @@ public class GameManager : MonoBehaviour
             case PlayerTurnState.StrengtheningAttack:
                 int totalAttackValue = initialAttackCard.value + clickedCard.value;
                 player.hand.Remove(clickedCard);
-                uiManager.UpdatePlayerHandUI(player);
+                slotController.HideSlot(); 
                 InitiateAttack(player, ai, totalAttackValue, false);
                 break;
 
             case PlayerTurnState.SelectingMoveCard:
-                yield return StartCoroutine(HandleMoveCoroutine(clickedCard));
+                yield return StartCoroutine(HandleMoveCoroutine(clickedCard, slotController)); 
                 break;
 
             case PlayerTurnState.SelectingSergapCard:
-                HandleSergap(clickedCard);
-                break;
+                HandleSergap(clickedCard, slotController); 
 
             case PlayerTurnState.SelectingCounterCard:
                 player.hand.Remove(clickedCard);
-                uiManager.UpdatePlayerHandUI(player);
+                slotController.HideSlot(); 
                 InitiateAttack(player, ai, clickedCard.value, true);
                 break;
         }
     }
 
-    private IEnumerator HandleMoveCoroutine(Card clickedCard)
+    private IEnumerator HandleMoveCoroutine(Card clickedCard, SistemKartu slotController)
     {
         int newPosition = player.position + (clickedCard.value * arahLangkah);
         bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
@@ -279,7 +278,7 @@ public class GameManager : MonoBehaviour
             player.position = newPosition;
             MovePionVisual(player, player.position);
             player.hand.Remove(clickedCard);
-            uiManager.UpdatePlayerHandUI(player);
+            slotController.HideSlot(); 
 
             yield return new WaitForSeconds(2.5f);
 
@@ -300,13 +299,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleSergap(Card clickedCard)
+    private void HandleSergap(Card clickedCard, SistemKartu slotController)
     {
         int distance = ai.position - player.position;
         if (clickedCard.value == distance)
         {
             player.hand.Remove(clickedCard);
-            uiManager.UpdatePlayerHandUI(player);
+            slotController.HideSlot();
             InitiateAttack(player, ai, clickedCard.value, false, false);
         }
         else
@@ -389,15 +388,21 @@ public class GameManager : MonoBehaviour
             if (isCurrentAttackACounter)
             {
                 uiManager.ShowMessage("Serang balik berhasil ditangkis!", 3.0f);
-                foreach (var entry in selectedTangkis) player.hand.Remove(entry.Key);
-                uiManager.UpdatePlayerHandUI(player);
+                foreach (var entry in selectedTangkis)
+                {
+                    player.hand.Remove(entry.Key);
+                    entry.Value.HideSlot(); 
+                }
                 EndTurn();
             }
             else if (hasCardLeftForCounter)
             {
                 uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 2.5f);
-                foreach (var entry in selectedTangkis) player.hand.Remove(entry.Key);
-                uiManager.UpdatePlayerHandUI(player);
+                foreach (var entry in selectedTangkis)
+                {
+                    player.hand.Remove(entry.Key);
+                    entry.Value.HideSlot(); 
+                }
                 StartCoroutine(ExecutePlayerSerangBalikCoroutine());
             }
             else
@@ -551,16 +556,38 @@ public class GameManager : MonoBehaviour
 
     private void RefillHand(Player player)
     {
-        while (player.hand.Count < 5)
+        if (player.isAI)
         {
-            Card newCard = DrawCardFromDeck();
-            if (newCard == null) return;
-            player.hand.Add(newCard);
+            while (player.hand.Count < 5)
+            {
+                Card newCard = DrawCardFromDeck();
+                if (newCard == null) return; 
+                player.hand.Add(newCard);
+            }
         }
-        if (!player.isAI) uiManager.UpdatePlayerHandUI(player);
+        else
+        {
+            foreach (SistemKartu slot in uiManager.cardSlots)
+            {
+                if (player.hand.Count >= 5)
+                {
+                    break; 
+                }
+                if (!slot.gameObject.activeSelf)
+                {
+                    Card newCard = DrawCardFromDeck();
+                    if (newCard == null)
+                    {
+                        break; 
+                    }
+                    player.hand.Add(newCard);
+                    slot.Initialize(newCard);
+                }
+            }
+        }
+
         uiManager.UpdateMainDeckUI(deck.Count);
     }
-
     private void CreateDeck()
     {
         deck.Clear();
