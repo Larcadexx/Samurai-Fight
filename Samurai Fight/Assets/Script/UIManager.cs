@@ -61,7 +61,7 @@ public class UIManager : MonoBehaviour
         
         if (RoundPanel != null && RoundText != null)
         {
-            RoundText.text = $"Ronde Ke-{roundNumber}";
+            RoundText.text = $"Ronde {roundNumber}";
             RoundPanel.SetActive(true);
         }
         
