@@ -282,7 +282,7 @@ public class UIManager : MonoBehaviour
         if (RoundPanel != null && RoundText != null)
         {
             RoundPanel.SetActive(true);
-            RoundText.text = $"{winnerName} memenangkan Game!";
+            RoundText.text = $"{winnerName} Menang!";
             yield return new WaitForSeconds(duration);
             RoundPanel.SetActive(false);
         }
