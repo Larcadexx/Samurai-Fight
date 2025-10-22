@@ -25,19 +25,19 @@ public class GameManager : MonoBehaviour
         SelectingCounterCard
     }
 
-    private enum AttackPhase 
-    { 
-        None, 
-        AwaitingTangkis, 
-        AwaitingSerangBalik, 
-        AwaitingTangkisPlayer, 
-        PlayerSelectingTangkisCards 
+    private enum AttackPhase
+    {
+        None,
+        AwaitingTangkis,
+        AwaitingSerangBalik,
+        AwaitingTangkisPlayer,
+        PlayerSelectingTangkisCards
     }
 
-    public enum TieBreakerReason 
-    { 
-        PlayerCornered, 
-        DeckEmpty 
+    public enum TieBreakerReason
+    {
+        PlayerCornered,
+        DeckEmpty
     }
 
     private PlayerTurnState playerState;
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
     private int attackValue;
     private Card initialAttackCard;
     private List<KeyValuePair<Card, SistemKartu>> selectedTangkis = new List<KeyValuePair<Card, SistemKartu>>();
-    
+
     private bool isCurrentAttackACounter = false;
     private const float BUTTON_PRESS_DELAY = 0.3f;
 
@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
+        CameraManager.Instance.SwitchToDefault();
+
         currentAttackPhase = AttackPhase.None;
         playerState = PlayerTurnState.None;
         isCurrentAttackACounter = false;
@@ -119,7 +121,7 @@ public class GameManager : MonoBehaviour
         activePlayer = ai;
         StartCoroutine(ShowRoundStartMessageAndBeginTurn());
     }
-    
+
     private void StartTurn()
     {
         if (isGameOver) return;
@@ -156,6 +158,7 @@ public class GameManager : MonoBehaviour
 
     public void btnMelangkahPressed()
     {
+        CameraManager.Instance.SwitchToMelangkah(); 
         StartCoroutine(btnMelangkahPressedCoroutine());
     }
 
@@ -183,6 +186,7 @@ public class GameManager : MonoBehaviour
 
     public void btnSergapYes()
     {
+        CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.SelectingSergapCard;
         uiManager.ShowPilihKartuAksi("sergap");
     }
@@ -283,6 +287,9 @@ public class GameManager : MonoBehaviour
         {
             player.hand.Remove(clickedCard);
             slotController.HideSlot();
+
+            CameraManager.Instance.SwitchToAttack();
+
             InitiateAttack(player, ai, clickedCard.value, false, false);
         }
         else
@@ -311,6 +318,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            CameraManager.Instance.SwitchToTangkis();
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
             StartCoroutine(uiManager.ShowTangkis(value, isCounter));
         }
@@ -348,18 +356,12 @@ public class GameManager : MonoBehaviour
         {
             foreach (SistemKartu slot in uiManager.cardSlots)
             {
-                if (player.hand.Count >= 5)
-                {
-                    break;
-                }
+                if (player.hand.Count >= 5) break;
 
                 if (!slot.gameObject.activeSelf)
                 {
                     Card newCard = DrawCardFromDeck();
-                    if (newCard == null)
-                    {
-                        break;
-                    }
+                    if (newCard == null) break;
 
                     player.hand.Add(newCard);
                     slot.Initialize(newCard);
@@ -449,7 +451,6 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShowRoundStartMessageAndBeginTurn()
     {
         yield return StartCoroutine(uiManager.ShowRoundStartPanel(roundNumber, 2.0f));
-
         StartTurn();
     }
 
@@ -476,6 +477,8 @@ public class GameManager : MonoBehaviour
         arahLangkah = isMaju ? 1 : -1;
         playerState = PlayerTurnState.SelectingMoveCard;
         uiManager.ShowPilihKartuAksi("melangkah");
+
+        CameraManager.Instance.SwitchToBergerak();
     }
 
     private IEnumerator btnSerangPressedCoroutine()
@@ -485,6 +488,7 @@ public class GameManager : MonoBehaviour
 
         playerState = PlayerTurnState.SelectingAttackCard;
         uiManager.ShowPilihKartuAksi("serang");
+        CameraManager.Instance.SwitchToAttack(); 
     }
 
     private IEnumerator HandleCardActionCoroutine(Card clickedCard, SistemKartu slotController)
@@ -553,10 +557,13 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(2.5f);
 
+            CameraManager.Instance.SwitchToDefault();
+
             int newDistance = ai.position - newPosition;
             bool canSergap = player.hand.Any(card => card.value == newDistance);
             if (canSergap)
             {
+                CameraManager.Instance.SwitchToMelangkah();
                 StartCoroutine(uiManager.ShowSergap());
             }
             else
@@ -579,6 +586,7 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator RoundOverDelay(Player winner)
     {
+        CameraManager.Instance.SwitchToDefault();
         uiManager.HideAllUIsForRoundEnd();
 
         if (winner.score < 4)
@@ -596,7 +604,6 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.3f);
 
             string winnerName = winner.isAI ? "AI" : "Pemain";
-
             yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
 
             uiManager.ShowKemenanganPanel(winner == player);
@@ -635,11 +642,18 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(RoundOverDelay(winner));
         }
-        else
+                else
         {
             uiManager.ShowMessage("Hasil Tie Breaker seri!", 3.0f);
             yield return new WaitForSeconds(3.0f);
             StartRound();
         }
     }
+
+    // Fungsi-fungsi event kamera dihapus karena sudah tidak digunakan
+    // void OnPlayerTurnStart() => CameraManager.Instance.SwitchToMelangkah();
+    // void OnPlayerMove() => CameraManager.Instance.SwitchToBergerak();
+    // void OnPlayerAttack() => CameraManager.Instance.SwitchToTangkis();
+    // void OnEnemyParry() => CameraManager.Instance.SwitchToAttack();
+    // void OnRoundEnd() => CameraManager.Instance.SwitchToDefault();
 }
