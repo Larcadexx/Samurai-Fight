@@ -126,6 +126,7 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
 
+        CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.None;
         uiManager.RestoreDefaultLayout();
 
@@ -478,7 +479,6 @@ public class GameManager : MonoBehaviour
         playerState = PlayerTurnState.SelectingMoveCard;
         uiManager.ShowPilihKartuAksi("melangkah");
 
-        CameraManager.Instance.SwitchToBergerak();
     }
 
     private IEnumerator btnSerangPressedCoroutine()
@@ -550,10 +550,14 @@ public class GameManager : MonoBehaviour
 
         if (isValidMove)
         {
-            player.position = newPosition;
-            MovePionVisual(player, player.position);
+            CameraManager.Instance.SwitchToBergerak();
             player.hand.Remove(clickedCard);
             slotController.HideSlot();
+            yield return new WaitForSeconds(2.5f);
+
+
+            player.position = newPosition;
+            MovePionVisual(player, player.position);            
 
             yield return new WaitForSeconds(2.5f);
 
@@ -580,6 +584,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
         yield return new WaitForSeconds(2.5f);
+        CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.SelectingCounterCard;
         uiManager.ShowPilihKartuAksi("serangbalik");
     }
@@ -649,11 +654,4 @@ public class GameManager : MonoBehaviour
             StartRound();
         }
     }
-
-    // Fungsi-fungsi event kamera dihapus karena sudah tidak digunakan
-    // void OnPlayerTurnStart() => CameraManager.Instance.SwitchToMelangkah();
-    // void OnPlayerMove() => CameraManager.Instance.SwitchToBergerak();
-    // void OnPlayerAttack() => CameraManager.Instance.SwitchToTangkis();
-    // void OnEnemyParry() => CameraManager.Instance.SwitchToAttack();
-    // void OnRoundEnd() => CameraManager.Instance.SwitchToDefault();
 }

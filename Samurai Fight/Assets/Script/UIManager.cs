@@ -231,6 +231,7 @@ public class UIManager : MonoBehaviour
                 targetPosisi = posisiPanelBawah;
                 break;
             case "serangbalik":
+                HideAttackStrength();
                 message = "Pilih satu kartu untuk melakukan Serang Balik!!";
                 targetPosisi = posisiPanelBawah;
                 break;
@@ -252,7 +253,7 @@ public class UIManager : MonoBehaviour
     {
         AksiTangkisPanel.SetActive(false);
         KonfirmasiTangkisButton.gameObject.SetActive(true);
-        ShowMessage($"Pilih Kartu Dengan Total Nilai {kekuatanSerangan}, Lalu Tekan Tangkis!!", 0f);
+        ShowMessage($"Pilih Kartu Dengan Nilai {kekuatanSerangan}, Lalu Tekan Tangkis!!", 0f);
         MoveCardPanel(posisiPanelKanan);
         KartuManusiaPanel.SetActive(true);
         SetPlayerHandInteractable(true);
@@ -321,7 +322,7 @@ public class UIManager : MonoBehaviour
         HideAllPlayerPanels();
         yield return new WaitForSeconds(1.5f);
         HideAttackStrength();
-        string message = isSerangBalik ? "AI melakukan serang balik. Tangkis Serangan Balik??" : $"Anda diserang dengan kekuatan {kekuatan}! Tangkis serangan ini?";
+        string message = isSerangBalik ? "AI melakukan serang balik. Tangkis Serangan Balik??" : $"Anda diserang! Tangkis serangan ini?";
         ShowMessage(message, 0f);
         AksiTangkisPanel.SetActive(true);
     }

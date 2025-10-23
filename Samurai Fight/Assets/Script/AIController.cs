@@ -22,7 +22,7 @@ public class AIController : MonoBehaviour
         this.humanPlayer = player;
 
         uiManager.ShowInfo_AITurn();
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(4.0f);
 
         if (aiPlayer.hand.Count == 0) 
         { 

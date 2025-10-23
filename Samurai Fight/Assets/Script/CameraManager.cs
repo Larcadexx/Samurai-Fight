@@ -22,7 +22,6 @@ public class CameraManager : MonoBehaviour
         SwitchToDefault();
     }
 
-    // Fungsi utama ganti kamera
     private void SetActiveCamera(CinemachineCamera activeCam)
     {
         CinemachineCamera[] cams =
@@ -30,17 +29,14 @@ public class CameraManager : MonoBehaviour
 
         foreach (var cam in cams)
         {
-#if CINEMACHINE_3_0_OR_NEWER
+            #if CINEMACHINE_3_0_OR_NEWER
             cam.Priority.Value = (cam == activeCam) ? 10 : 0;
-#else
+            #else
             cam.Priority = (cam == activeCam) ? 10 : 0;
-#endif
+            #endif
         }
-
-        Debug.Log("Camera switched to: " + activeCam.name);
     }
 
-    // Fungsi panggilan publik
     public void SwitchToDefault() => SetActiveCamera(Cam_Default);
     public void SwitchToMelangkah() => SetActiveCamera(Cam_Melangkah);
     public void SwitchToBergerak() => SetActiveCamera(Cam_Bergerak);
