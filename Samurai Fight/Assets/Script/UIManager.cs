@@ -34,6 +34,7 @@ public class UIManager : MonoBehaviour
     public GameObject PerkuatSeranganPanel;
     public GameObject KemenanganPanel;
     public GameObject RoundPanel;
+    public GameObject PausePanel; 
 
     [Header("Action Buttons")]
     public Button MelangkahButton;
@@ -52,6 +53,7 @@ public class UIManager : MonoBehaviour
         if (InfoPanel != null) InfoPanel.SetActive(false);
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
         if (RoundPanel != null) RoundPanel.SetActive(false);
+        if (PausePanel != null) PausePanel.SetActive(false); 
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -160,6 +162,22 @@ public class UIManager : MonoBehaviour
         HideAllPlayerPanels();
         KemenanganPanel.SetActive(true);
         KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
+    }
+
+    public void ShowPausePanel()
+    {
+        if (PausePanel != null)
+        {
+            PausePanel.SetActive(true);
+        }
+    }
+
+    public void HidePausePanel()
+    {
+        if (PausePanel != null)
+        {
+            PausePanel.SetActive(false);
+        }
     }
 
     public void HideConfirmTangkisbtn()

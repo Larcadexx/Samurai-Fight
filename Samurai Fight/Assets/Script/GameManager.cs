@@ -59,12 +59,16 @@ public class GameManager : MonoBehaviour
     private List<KeyValuePair<Card, SistemKartu>> selectedTangkis = new List<KeyValuePair<Card, SistemKartu>>();
 
     private bool isCurrentAttackACounter = false;
+    private bool isPaused = false;
+    private AudioSource bgMusic; 
     private const float BUTTON_PRESS_DELAY = 0.3f;
 
     void Awake()
     {
         if (instance == null) { instance = this; }
         else { Destroy(gameObject); }
+
+        bgMusic = GetComponent<AudioSource>(); 
     }
 
     void Start()
@@ -156,37 +160,79 @@ public class GameManager : MonoBehaviour
         activePlayer = (activePlayer == player) ? ai : player;
         StartTurn();
     }
+    
+    public void PauseGame()
+    {
+        if (isGameOver || isPaused) return;
+
+        isPaused = true;
+        Time.timeScale = 0f; 
+        uiManager.ShowPausePanel();
+        uiManager.SetPlayerHandInteractable(false);
+
+        if (bgMusic != null) 
+        {
+            bgMusic.Pause(); 
+        }
+    }
+
+    public void ResumeGame()
+    {
+        if (!isPaused) return;
+
+        isPaused = false;
+        Time.timeScale = 1f;
+        uiManager.HidePausePanel();
+        
+        if (bgMusic != null) 
+        {
+            bgMusic.UnPause(); 
+        }
+
+        bool shouldBeInteractable = 
+            playerState != PlayerTurnState.None || 
+            currentAttackPhase == AttackPhase.PlayerSelectingTangkisCards;
+            
+        uiManager.SetPlayerHandInteractable(shouldBeInteractable);
+    }
+
 
     public void btnMelangkahPressed()
     {
+        if (isPaused) return; 
         CameraManager.Instance.SwitchToMelangkah(); 
         StartCoroutine(btnMelangkahPressedCoroutine());
     }
 
     public void btnArahLangkahPressed(bool isMaju)
     {
+        if (isPaused) return; 
         StartCoroutine(btnArahLangkahPressedCoroutine(isMaju));
     }
 
     public void btnSerangPressed()
     {
+        if (isPaused) return; 
         StartCoroutine(btnSerangPressedCoroutine());
     }
 
     public void btnPerkuatSeranganYes()
     {
+        if (isPaused) return; 
         playerState = PlayerTurnState.StrengtheningAttack;
         uiManager.ShowPilihKartuAksi("perkuat");
     }
 
     public void btnPerkuatSeranganNo()
     {
+        if (isPaused) return; 
         uiManager.HideAllPlayerPanels();
         InitiateAttack(player, ai, initialAttackCard.value, false);
     }
 
     public void btnSergapYes()
     {
+        if (isPaused) return; 
         CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.SelectingSergapCard;
         uiManager.ShowPilihKartuAksi("sergap");
@@ -194,12 +240,14 @@ public class GameManager : MonoBehaviour
 
     public void btnSergapNo()
     {
+        if (isPaused) return; 
         uiManager.HideAllPlayerPanels();
         EndTurn();
     }
 
     public void btnTangkisYes()
     {
+        if (isPaused) return; 
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         currentAttackPhase = AttackPhase.PlayerSelectingTangkisCards;
         uiManager.ShowPilihKartuTangkis(attackValue);
@@ -209,6 +257,7 @@ public class GameManager : MonoBehaviour
 
     public void btnTangkisNo()
     {
+        if (isPaused) return; 
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         uiManager.HideAllPlayerPanels();
         currentAttackPhase = AttackPhase.None;
@@ -217,6 +266,7 @@ public class GameManager : MonoBehaviour
 
     public void btnConfirmTangkis()
     {
+        if (isPaused) return; 
         uiManager.HideConfirmTangkisbtn();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
@@ -266,6 +316,8 @@ public class GameManager : MonoBehaviour
 
     public void CardSlotClicked(Card clickedCard, SistemKartu slotController)
     {
+        if (isPaused) return; 
+
         if (currentAttackPhase == AttackPhase.PlayerSelectingTangkisCards)
         {
             HandleTangkisSelection(clickedCard, slotController);
@@ -426,6 +478,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(uiManager.ShowArahLangkah(canMoveForward, canMoveBackward));
     }
 
+
+
     public void MovePionVisual(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;
@@ -438,6 +492,14 @@ public class GameManager : MonoBehaviour
 
     public void PlayAgain()
     {
+        Time.timeScale = 1f; 
+        isPaused = false;    
+        
+        if (uiManager != null) 
+        {
+            uiManager.HidePausePanel(); 
+        }
+
         player.score = 0;
         ai.score = 0;
         roundNumber = 0;
@@ -446,6 +508,8 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        Time.timeScale = 1f; 
+        isPaused = false;    
         SceneManager.LoadScene("MainMenu");
     }
 
