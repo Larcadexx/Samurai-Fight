@@ -494,16 +494,7 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f; 
         isPaused = false;    
-        
-        if (uiManager != null) 
-        {
-            uiManager.HidePausePanel(); 
-        }
-
-        player.score = 0;
-        ai.score = 0;
-        roundNumber = 0;
-        Start();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GoToMainMenu()
