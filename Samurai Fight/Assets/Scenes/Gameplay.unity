@@ -8644,7 +8644,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305546819}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0055940226, y: -0.64922565, z: 0.00477506, w: 0.76056033}
+  m_LocalRotation: {x: 0.0055947197, y: -0.6491883, z: 0.0047752606, w: 0.76059216}
   m_LocalPosition: {x: 802.55725, y: -226.50311, z: 769.4181}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13560,14 +13560,14 @@ RectTransform:
   m_GameObject: {fileID: 1730227768}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -1210.3685}
-  m_LocalScale: {x: 1.5834, y: 1.5834, z: 1.5834}
+  m_LocalScale: {x: 1.201088, y: 1.201088, z: 1.201088}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 969425938}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1110.3054, y: 1422.3002}
+  m_AnchoredPosition: {x: 1110.3054, y: 1433}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1730227770
@@ -13590,7 +13590,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a159b6a5144c7475bae92d3ddcd845f0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 15e7ee91a7cbe4972a7dd25c993628e8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13741,7 +13741,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -13751,8 +13751,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: 21300000, guid: 740e5737dcd4e4292ac75d3551e969aa, type: 3}
+    m_PressedSprite: {fileID: 21300000, guid: 1ae105eecb160450887f1e94e76e35eb, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
