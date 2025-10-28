@@ -8,13 +8,13 @@ public class MenuManager : MonoBehaviour
     public GameObject playButton;
     public GameObject gameRuleButton;
     public GameObject creditButton;
-    public GameObject closeAppButton;     
-    public GameObject volumeButton;        
+    public GameObject closeAppButton;
+    public GameObject volumeButton;
 
     [Header("Panel")]
     public GameObject CreditPanel;
     public GameObject GameRulePanel;
-    public GameObject VolumePanel;        
+    public GameObject VolumePanel;
 
     [Header("Pages")]
     public List<GameObject> Pages;
@@ -43,6 +43,11 @@ public class MenuManager : MonoBehaviour
     {
         ToggleMainButtons(false);
         CreditPanel.SetActive(true);
+        if (isVolumePanelVisible)
+        {
+            isVolumePanelVisible = false;
+            VolumePanel.SetActive(false);
+        }
     }
 
     public void HideCredits()
@@ -55,6 +60,12 @@ public class MenuManager : MonoBehaviour
     {
         ToggleMainButtons(false);
         GameRulePanel.SetActive(true);
+        if (isVolumePanelVisible)
+        {
+            isVolumePanelVisible = false;
+            VolumePanel.SetActive(false);
+        }
+
         currentPageIndex = 0;
         UpdatePageDisplay();
     }
@@ -91,9 +102,9 @@ public class MenuManager : MonoBehaviour
     {
         Debug.Log("Menutup aplikasi...");
         #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;  
+        UnityEditor.EditorApplication.isPlaying = false;
         #else
-        Application.Quit();  
+        Application.Quit();
         #endif
     }
 

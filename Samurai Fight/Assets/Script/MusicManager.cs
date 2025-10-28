@@ -23,8 +23,7 @@ public class MusicManager : MonoBehaviour
                 audioSource = gameObject.AddComponent<AudioSource>();
             }
 
-            audioSource.volume = 1f; // Set default volume to max
-            // DontDestroyOnLoad(gameObject); // Uncomment jika ingin persist antar scene
+            audioSource.volume = 1f; 
         }
         else
         {
@@ -46,17 +45,14 @@ public class MusicManager : MonoBehaviour
 
         if (musicSlider != null)
         {
-            // Dengarkan perubahan slider
             musicSlider.onValueChanged.AddListener(delegate { SetVolume(musicSlider.value); });
 
-            // Jika slider belum diatur di Inspector, kita set dari volume saat ini
             if (musicSlider.value == 0)
             {
                 musicSlider.value = audioSource.volume;
             }
             else
             {
-                // Jika slider sudah diset, kita pakai nilainya
                 SetVolume(musicSlider.value);
             }
         }
