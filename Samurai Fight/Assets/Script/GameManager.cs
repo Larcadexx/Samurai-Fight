@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
         DeckEmpty
     }
 
+    private Animator pionManusiaAnimator;
+
+
     private PlayerTurnState playerState;
     private AttackPhase currentAttackPhase = AttackPhase.None;
 
@@ -73,6 +76,15 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (pionManusiaAnimator != null)
+{
+    pionManusiaAnimator.Rebind();
+    pionManusiaAnimator.Update(0f);
+    pionManusiaAnimator.SetBool("isWalking", false);
+}
+
+        pionManusiaAnimator = pionManusia.GetComponent<Animator>();
+
         if (aiController == null)
         {
             Debug.LogError("AIController belum di-assign di Inspector GameManager!");
@@ -83,6 +95,17 @@ public class GameManager : MonoBehaviour
         }
 
         SetupGame();
+        if (pionManusiaAnimator == null)
+{
+    pionManusiaAnimator = pionManusia.GetComponent<Animator>();
+}
+
+// Pastikan animasi dalam keadaan Idle saat game mulai
+if (pionManusiaAnimator != null)
+{
+    pionManusiaAnimator.SetBool("isWalking", false);
+}
+
         StartRound();
     }
 
@@ -127,22 +150,29 @@ public class GameManager : MonoBehaviour
     }
 
     private void StartTurn()
+{
+    if (isGameOver) return;
+
+    CameraManager.Instance.SwitchToDefault();
+    playerState = PlayerTurnState.None;
+    uiManager.RestoreDefaultLayout();
+
+    // Jika giliran AI, pastikan karakter manusia Idle
+    if (pionManusiaAnimator != null)
     {
-        if (isGameOver) return;
-
-        CameraManager.Instance.SwitchToDefault();
-        playerState = PlayerTurnState.None;
-        uiManager.RestoreDefaultLayout();
-
-        if (activePlayer.isAI)
-        {
-            StartCoroutine(aiController.ExecuteTurn(ai, player));
-        }
-        else
-        {
-            StartCoroutine(ShowPlayerTurnMessage());
-        }
+        pionManusiaAnimator.SetBool("isWalking", false);
     }
+
+    if (activePlayer.isAI)
+    {
+        StartCoroutine(aiController.ExecuteTurn(ai, player));
+    }
+    else
+    {
+        StartCoroutine(ShowPlayerTurnMessage());
+    }
+}
+
 
     public void EndTurn()
     {
@@ -481,14 +511,73 @@ public class GameManager : MonoBehaviour
 
 
     public void MovePionVisual(Player player, int targetPosition)
+{
+    GameObject pawn = player.isAI ? pionAI : pionManusia;
+    if (targetPosition > 0 && targetPosition <= petakPapan.Length)
     {
-        GameObject pawn = player.isAI ? pionAI : pionManusia;
-        if (targetPosition > 0 && targetPosition <= petakPapan.Length)
+        Transform targetPetak = petakPapan[targetPosition - 1];
+        pawn.transform.position = targetPetak.position + new Vector3(0, 5f, 0);
+    }
+}
+
+
+private IEnumerator MovePionStepByStep(Player player, int targetPosition)
+{
+    GameObject pawn = player.isAI ? pionAI : pionManusia;
+    int currentPos = player.position;
+    int step = (targetPosition > currentPos) ? 1 : -1;
+
+    // Aktifkan animasi jalan untuk pion manusia
+    if (!player.isAI && pionManusiaAnimator != null)
+    {
+        pionManusiaAnimator.SetBool("isWalking", true);
+    }
+
+    // --- PERUBAHAN DI SINI ---
+
+    // 1. Durasi 1 petak = durasi 1 siklus animasi "Walk"
+    //    (155 - 120) / 24 = 35 / 24 = ~1.458 detik
+    const float moveDuration = 35f / 24f; // Menghasilkan ~1.458f
+
+    // 2. Hitung 'speed' berdasarkan 'moveDuration'
+    //    Rumus: speed = 1.0f / durasi_yang_diinginkan
+    float speed = 1.0f / moveDuration; // Ini akan menjadi 1.0f / 1.458f ≈ 0.6857f
+
+    // --- SELESAI PERUBAHAN ---
+
+
+    // Gerak per petak
+    for (int pos = currentPos; pos != targetPosition; pos += step)
+    {
+        int nextPos = pos + step;
+
+        if (nextPos > 0 && nextPos <= petakPapan.Length)
         {
-            Transform targetPetak = petakPapan[targetPosition - 1];
-            pawn.transform.position = targetPetak.position + new Vector3(0, 105f, 0);
+            Vector3 startPos = petakPapan[pos - 1].position + new Vector3(0, 5f, 0);
+            Vector3 endPos = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
+            float t = 0f;
+            
+            while (t < 1f)
+            {
+                // 't' akan bertambah dari 0 ke 1 selama 1.458 detik
+                t += Time.deltaTime * speed; 
+                pawn.transform.position = Vector3.Lerp(startPos, endPos, t);
+                yield return null;
+            }
+
+            pawn.transform.position = endPos; 
         }
     }
+
+    player.position = targetPosition;
+
+    // Matikan animasi jalan
+    if (!player.isAI && pionManusiaAnimator != null)
+    {
+        pionManusiaAnimator.SetBool("isWalking", false);
+    }
+}
+
 
     public void PlayAgain()
     {
@@ -599,42 +688,44 @@ public class GameManager : MonoBehaviour
     }
 
     private IEnumerator HandleMoveCoroutine(Card clickedCard, SistemKartu slotController)
+{
+    int newPosition = player.position + (clickedCard.value * arahLangkah);
+    bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
+
+    if (isValidMove)
     {
-        int newPosition = player.position + (clickedCard.value * arahLangkah);
-        bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
+        // Hapus kartu dari tangan lebih awal
+        player.hand.Remove(clickedCard);
+        slotController.HideSlot();
 
-        if (isValidMove)
+        // Aktifkan kamera bergerak
+        CameraManager.Instance.SwitchToBergerak();
+
+        // Jalankan animasi per-petak + animasi jalan
+        yield return StartCoroutine(MovePionStepByStep(player, newPosition));
+
+        // Setelah animasi selesai, pastikan kamera kembali ke default
+        CameraManager.Instance.SwitchToDefault();
+
+        // Hitung ulang jarak dan periksa peluang sergap
+        int newDistance = ai.position - player.position;
+        bool canSergap = player.hand.Any(card => card.value == newDistance);
+        if (canSergap)
         {
-            CameraManager.Instance.SwitchToBergerak();
-            player.hand.Remove(clickedCard);
-            slotController.HideSlot();
-            yield return new WaitForSeconds(2.5f);
-
-
-            player.position = newPosition;
-            MovePionVisual(player, player.position);            
-
-            yield return new WaitForSeconds(2.5f);
-
-            CameraManager.Instance.SwitchToDefault();
-
-            int newDistance = ai.position - newPosition;
-            bool canSergap = player.hand.Any(card => card.value == newDistance);
-            if (canSergap)
-            {
-                CameraManager.Instance.SwitchToMelangkah();
-                StartCoroutine(uiManager.ShowSergap());
-            }
-            else
-            {
-                EndTurn();
-            }
+            CameraManager.Instance.SwitchToMelangkah();
+            StartCoroutine(uiManager.ShowSergap());
         }
         else
         {
-            StartTurn();
+            EndTurn();
         }
     }
+    else
+    {
+        StartTurn();
+    }
+}
+
 
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
