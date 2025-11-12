@@ -93,7 +93,7 @@ public class UIManager : MonoBehaviour
     public void UpdateMainDeckUI(int cardCount)
     {
         if (sisaKartuDeckText == null) return;
-        sisaKartuDeckText.text = cardCount > 0 ? "Sisa Dideck: " + cardCount : "Deck Habis!";
+        sisaKartuDeckText.text = cardCount.ToString();
     }
 
     public void ShowMessage(string message, float duration = 2f)
