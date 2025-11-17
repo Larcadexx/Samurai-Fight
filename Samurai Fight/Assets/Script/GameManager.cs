@@ -63,7 +63,6 @@ public class GameManager : MonoBehaviour
 
     private bool isCurrentAttackACounter = false;
     private bool isPaused = false;
-    private AudioSource bgMusic; 
     private const float BUTTON_PRESS_DELAY = 0.3f;
 
     void Awake()
@@ -71,7 +70,6 @@ public class GameManager : MonoBehaviour
         if (instance == null) { instance = this; }
         else { Destroy(gameObject); }
 
-        bgMusic = GetComponent<AudioSource>(); 
     }
 
     void Start()
@@ -198,9 +196,9 @@ if (pionManusiaAnimator != null)
         uiManager.ShowPausePanel();
         uiManager.SetPlayerHandInteractable(false);
 
-        if (bgMusic != null) 
+        if (MusicManager.Instance != null)
         {
-            bgMusic.Pause(); 
+            MusicManager.Instance.PauseBackgroundMusic();
         }
     }
 
@@ -212,9 +210,9 @@ if (pionManusiaAnimator != null)
         Time.timeScale = 1f;
         uiManager.HidePausePanel();
         
-        if (bgMusic != null) 
+        if (MusicManager.Instance != null)
         {
-            bgMusic.UnPause(); 
+            MusicManager.Instance.PlayBackgroundMusic(false);
         }
 
         bool shouldBeInteractable = 

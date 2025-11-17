@@ -1943,6 +1943,9 @@ MonoBehaviour:
   MajuButton: {fileID: 668226391}
   MundurButton: {fileID: 393232854}
   KonfirmasiTangkisButton: {fileID: 1448948509}
+  volumeButton: {fileID: 1501956374}
+  volumeOnSprite: {fileID: 21300000, guid: cad106aefb93b41278578be7dcee78d0, type: 3}
+  volumeOffSprite: {fileID: 21300000, guid: ab48b56589c03488b844c308fc000994, type: 3}
 --- !u!4 &461529152
 Transform:
   m_ObjectHideFlags: 0

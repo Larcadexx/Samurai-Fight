@@ -48,6 +48,11 @@ public class UIManager : MonoBehaviour
     private Coroutine messageCoroutine;
     private CanvasGroup roundPanelCanvasGroup;
 
+    [Header("Pause Panel Elements")]
+    public Button volumeButton;
+    public Sprite volumeOnSprite;
+    public Sprite volumeOffSprite;
+
     void Awake()
     {
     instance = this;
@@ -67,6 +72,10 @@ public class UIManager : MonoBehaviour
     }
 
     if (PausePanel != null) PausePanel.SetActive(false); 
+    if (volumeButton != null)
+    {
+        volumeButton.onClick.AddListener(OnVolumeButtonPressed);
+    }
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -171,12 +180,17 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowPausePanel()
+{
+    if (PausePanel != null)
     {
-        if (PausePanel != null)
+        PausePanel.SetActive(true);
+
+        if (MusicManager.Instance != null)
         {
-            PausePanel.SetActive(true);
+            UpdateVolumeButtonSprite(MusicManager.Instance.IsMuted());
         }
     }
+}
 
     public void HidePausePanel()
     {
@@ -408,5 +422,29 @@ public class UIManager : MonoBehaviour
         string message = isSerangBalik ? "AI melakukan serang balik. Tangkis Serangan Balik??" : $"Anda diserang! Tangkis serangan ini?";
         ShowMessage(message, 0f);
         AksiTangkisPanel.SetActive(true);
+    }
+    void OnVolumeButtonPressed()
+    {
+        if (MusicManager.Instance == null) return;
+
+        // Panggil fungsi di MusicManager
+        bool isNowMuted = MusicManager.Instance.ToggleMute();
+
+        // Update sprite tombol
+        UpdateVolumeButtonSprite(isNowMuted);
+    }
+
+    void UpdateVolumeButtonSprite(bool isMuted)
+    {
+        if (volumeButton == null) return;
+
+        if (isMuted)
+        {
+            volumeButton.image.sprite = volumeOffSprite;
+        }
+        else
+        {
+            volumeButton.image.sprite = volumeOnSprite;
+        }
     }
 }

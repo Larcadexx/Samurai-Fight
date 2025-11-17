@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MusicManager : MonoBehaviour
 {
-    private static MusicManager Instance;
+    public static MusicManager Instance;
     private AudioSource audioSource;
 
     public AudioClip backgroundMusic;
@@ -87,5 +87,23 @@ public class MusicManager : MonoBehaviour
     public void PauseBackgroundMusic()
     {
         audioSource.Pause();
+    }
+    public bool ToggleMute()
+    {
+    if (audioSource != null)
+    {
+        audioSource.mute = !audioSource.mute;
+        return audioSource.mute;
+    }
+    return false;
+    }
+
+    public bool IsMuted()
+    {
+    if (audioSource != null)
+    {
+        return audioSource.mute;
+    }
+    return false;
     }
 }
