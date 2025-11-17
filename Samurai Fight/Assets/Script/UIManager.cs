@@ -20,7 +20,6 @@ public class UIManager : MonoBehaviour
     [Header("Text System")]
     public TextMeshProUGUI nilaiSerangText;
     public TextMeshProUGUI systemText;
-    public TextMeshProUGUI KemenanganText;
     public TextMeshProUGUI sisaKartuDeckText;
     public TextMeshProUGUI RoundText;
 
@@ -32,7 +31,6 @@ public class UIManager : MonoBehaviour
     public GameObject AksiTangkisPanel;
     public GameObject AksiSergapPanel;
     public GameObject PerkuatSeranganPanel;
-    public GameObject KemenanganPanel;
     public GameObject RoundPanel;
     public GameObject PausePanel; 
 
@@ -49,7 +47,6 @@ public class UIManager : MonoBehaviour
         instance = this;
         if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
-        if (KemenanganPanel != null) KemenanganPanel.SetActive(false);
         if (InfoPanel != null) InfoPanel.SetActive(false);
         if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
         if (RoundPanel != null) RoundPanel.SetActive(false);
@@ -157,13 +154,6 @@ public class UIManager : MonoBehaviour
         KartuManusiaPanel.SetActive(false);
     }
 
-    public void ShowKemenanganPanel(bool playerWon)
-    {
-        HideAllPlayerPanels();
-        KemenanganPanel.SetActive(true);
-        KemenanganText.text = playerWon ? "ANDA MENANG!" : "ANDA KALAH!";
-    }
-
     public void ShowPausePanel()
     {
         if (PausePanel != null)
@@ -199,7 +189,6 @@ public class UIManager : MonoBehaviour
 
     public void HideAllPlayerPanels()
     {
-        KemenanganPanel.SetActive(false);
         OpsiAwalPanel.SetActive(false);
         AksiMelangkahPanel.SetActive(false);
         AksiTangkisPanel.SetActive(false);

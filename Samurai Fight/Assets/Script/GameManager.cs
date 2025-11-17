@@ -100,7 +100,6 @@ public class GameManager : MonoBehaviour
     pionManusiaAnimator = pionManusia.GetComponent<Animator>();
 }
 
-// Pastikan animasi dalam keadaan Idle saat game mulai
 if (pionManusiaAnimator != null)
 {
     pionManusiaAnimator.SetBool("isWalking", false);
@@ -157,7 +156,6 @@ if (pionManusiaAnimator != null)
     playerState = PlayerTurnState.None;
     uiManager.RestoreDefaultLayout();
 
-    // Jika giliran AI, pastikan karakter manusia Idle
     if (pionManusiaAnimator != null)
     {
         pionManusiaAnimator.SetBool("isWalking", false);
@@ -527,26 +525,15 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
     int currentPos = player.position;
     int step = (targetPosition > currentPos) ? 1 : -1;
 
-    // Aktifkan animasi jalan untuk pion manusia
     if (!player.isAI && pionManusiaAnimator != null)
     {
         pionManusiaAnimator.SetBool("isWalking", true);
     }
 
-    // --- PERUBAHAN DI SINI ---
+    const float moveDuration = 35f / 24f; 
 
-    // 1. Durasi 1 petak = durasi 1 siklus animasi "Walk"
-    //    (155 - 120) / 24 = 35 / 24 = ~1.458 detik
-    const float moveDuration = 35f / 24f; // Menghasilkan ~1.458f
+    float speed = 1.0f / moveDuration; 
 
-    // 2. Hitung 'speed' berdasarkan 'moveDuration'
-    //    Rumus: speed = 1.0f / durasi_yang_diinginkan
-    float speed = 1.0f / moveDuration; // Ini akan menjadi 1.0f / 1.458f ≈ 0.6857f
-
-    // --- SELESAI PERUBAHAN ---
-
-
-    // Gerak per petak
     for (int pos = currentPos; pos != targetPosition; pos += step)
     {
         int nextPos = pos + step;
@@ -559,7 +546,6 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
             
             while (t < 1f)
             {
-                // 't' akan bertambah dari 0 ke 1 selama 1.458 detik
                 t += Time.deltaTime * speed; 
                 pawn.transform.position = Vector3.Lerp(startPos, endPos, t);
                 yield return null;
@@ -571,7 +557,6 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
 
     player.position = targetPosition;
 
-    // Matikan animasi jalan
     if (!player.isAI && pionManusiaAnimator != null)
     {
         pionManusiaAnimator.SetBool("isWalking", false);
@@ -694,20 +679,13 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
 
     if (isValidMove)
     {
-        // Hapus kartu dari tangan lebih awal
         player.hand.Remove(clickedCard);
         slotController.HideSlot();
-
-        // Aktifkan kamera bergerak
         CameraManager.Instance.SwitchToBergerak();
-
-        // Jalankan animasi per-petak + animasi jalan
         yield return StartCoroutine(MovePionStepByStep(player, newPosition));
 
-        // Setelah animasi selesai, pastikan kamera kembali ke default
         CameraManager.Instance.SwitchToDefault();
 
-        // Hitung ulang jarak dan periksa peluang sergap
         int newDistance = ai.position - player.position;
         bool canSergap = player.hand.Any(card => card.value == newDistance);
         if (canSergap)
@@ -757,7 +735,17 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
             string winnerName = winner.isAI ? "AI" : "Pemain";
             yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
 
-            uiManager.ShowKemenanganPanel(winner == player);
+            if (winner == player) 
+            {
+                Time.timeScale = 1f; 
+                SceneManager.LoadScene("SceneWIN");
+            }
+            else 
+            {
+                Time.timeScale = 1f;
+                SceneManager.LoadScene("SceneLOSE");
+            }
+            
         }
         else
         {
