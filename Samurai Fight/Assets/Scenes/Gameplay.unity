@@ -1918,18 +1918,17 @@ MonoBehaviour:
   sisaKartuDeckText: {fileID: 1602482384}
   roundImageDisplay: {fileID: 1965606060}
   roundNumberSprites:
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  - {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  pemainMenangSprite: {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
-  aiMenangSprite: {fileID: 21300000, guid: 2d42bbaa94e39d64ca1fec92f51225f4, type: 3}
+  - {fileID: 21300000, guid: 919048f4ea6e24944b77e3b6a102c00b, type: 3}
+  - {fileID: 21300000, guid: 32fa8500b86e14b308e79f975e9bbacd, type: 3}
+  - {fileID: 21300000, guid: 102151774abaa4fbea31c28e983a7d32, type: 3}
+  - {fileID: 21300000, guid: 924d1afd778674a83b0b6e21e6511479, type: 3}
+  - {fileID: 21300000, guid: e65c9daaa01c54c859a530e3eb055d68, type: 3}
+  - {fileID: 21300000, guid: 2b7853fb427eb47e8a1c2f6e39dd5277, type: 3}
+  - {fileID: 21300000, guid: 03e56488684874b5493c4fa0b6a46652, type: 3}
+  - {fileID: 21300000, guid: 6e95d22f1774f44d28bdb29c4b816cf8, type: 3}
+  - {fileID: 21300000, guid: 8f6430a632c8c48d7b920696dd498914, type: 3}
+  pemainMenangSprite: {fileID: 21300000, guid: cf1bfbda6d36941f3afb4ac012186522, type: 3}
+  aiMenangSprite: {fileID: 21300000, guid: 8fd38037b05f446a09a5c0b45d43c948, type: 3}
   KartuManusiaPanel: {fileID: 1623273787}
   InfoPanel: {fileID: 969425937}
   OpsiAwalPanel: {fileID: 2009240026}
@@ -5047,7 +5046,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8039216}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6157,7 +6156,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -277.2, y: 518.3, z: -23.1}
+  TargetOffset: {x: -277.2, y: -23.9, z: -23.1}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -6182,7 +6181,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 115.3, y: 6.5, z: -38.8}
+  FollowOffset: {x: 115.3, y: -8.5, z: -38.8}
 --- !u!4 &1305546823
 Transform:
   m_ObjectHideFlags: 0
@@ -6191,8 +6190,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305546819}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.104027145, y: -0.627852, z: -0.08519577, w: 0.76663023}
-  m_LocalPosition: {x: 808.6903, y: -226.50311, z: 769.4181}
+  m_LocalRotation: {x: 0.028090663, y: -0.63318807, z: 0.023005586, w: 0.7731459}
+  m_LocalPosition: {x: 808.6903, y: -241.50311, z: 769.4181}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6666,7 +6665,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -92.8, y: 96.7, z: -23.5}
+  TargetOffset: {x: -93.6, y: 49.1, z: -150.8}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -6691,7 +6690,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 181.4, y: 22, z: -61.2}
+  FollowOffset: {x: 118.3, y: 74.7, z: -10}
 --- !u!4 &1344253701
 Transform:
   m_ObjectHideFlags: 0
@@ -6700,8 +6699,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1344253697}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.12921777, y: -0.4328514, z: -0.06284932, w: 0.88993955}
-  m_LocalPosition: {x: -486.41385, y: -305.59998, z: 727.4742}
+  m_LocalRotation: {x: 0.037364986, y: -0.5471563, z: 0.024459857, w: 0.83583826}
+  m_LocalPosition: {x: -549.51385, y: -252.89998, z: 778.6742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10391,7 +10390,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1157, y: 1433}
+  m_AnchoredPosition: {x: 1135, y: 1433}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1730227770
@@ -11365,8 +11364,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0731835, y: -0.02909885, z: 0.0021361958, w: 0.9968916}
-  m_LocalPosition: {x: -612.51385, y: -288.99997, z: 442.1742}
+  m_LocalRotation: {x: 0.054668963, y: -0.034523487, z: 0.0018913242, w: 0.99790573}
+  m_LocalPosition: {x: -613.61383, y: -276.69998, z: 499.47418}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12099,7 +12098,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 26.7, y: -20.76, z: 13.7}
+  TargetOffset: {x: 27.8, y: 83.9, z: 13.7}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -12124,7 +12123,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: -123.1, y: 25.5, z: -52.8}
+  FollowOffset: {x: -87.9, y: 104.6, z: -33.2}
 --- !u!4 &1974658660
 Transform:
   m_ObjectHideFlags: 0
@@ -12133,8 +12132,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974658656}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.12457286, y: 0.63049126, z: -0.103465185, w: 0.7591162}
-  m_LocalPosition: {x: -790.9138, y: -302.09998, z: 735.8742}
+  m_LocalRotation: {x: 0.07389741, y: 0.68741596, z: -0.070648074, w: 0.7190323}
+  m_LocalPosition: {x: -755.71387, y: -222.99997, z: 755.4742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12523,7 +12522,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -61.4, y: -21.4, z: 27.2}
+  TargetOffset: {x: -50.6, y: 13.7, z: 27.2}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -12548,7 +12547,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 55.3, y: 38.6, z: -346.5}
+  FollowOffset: {x: 54.2, y: 50.9, z: -289.2}
 --- !u!4 &2062306298
 Transform:
   m_ObjectHideFlags: 0
@@ -12557,8 +12556,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2062306294}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0731835, y: -0.029098846, z: 0.0021361948, w: 0.9968917}
-  m_LocalPosition: {x: -612.51385, y: -288.99997, z: 442.1742}
+  m_LocalRotation: {x: 0.05466896, y: -0.034523483, z: 0.0018913237, w: 0.99790573}
+  m_LocalPosition: {x: -613.61383, y: -276.69998, z: 499.47418}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

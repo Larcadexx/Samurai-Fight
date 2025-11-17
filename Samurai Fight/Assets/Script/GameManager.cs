@@ -530,7 +530,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         pionManusiaAnimator.SetBool("isWalking", true);
     }
 
-    const float moveDuration = 35f / 24f; 
+    const float moveDuration = 1f;
 
     float speed = 1.0f / moveDuration; 
 
@@ -584,11 +584,11 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         StartTurn();
     }
 
-    private IEnumerator ShowPlayerTurnMessage()
+    private IEnumerator ShowPlayerTurnMessage() 
     {
         uiManager.InfoPanel.SetActive(true);
-        uiManager.ShowMessage("Giliran anda!!", 2.0f);
-        yield return new WaitForSeconds(2.0f);
+        uiManager.ShowMessage("Giliran anda!!", 1.5f);
+        yield return new WaitForSeconds(1.5f);
         CheckAvailablePlayerActions();
     }
 
@@ -682,6 +682,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         player.hand.Remove(clickedCard);
         slotController.HideSlot();
         CameraManager.Instance.SwitchToBergerak();
+        yield return new WaitForSeconds(1f);
         yield return StartCoroutine(MovePionStepByStep(player, newPosition));
 
         CameraManager.Instance.SwitchToDefault();

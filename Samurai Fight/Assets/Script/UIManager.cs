@@ -303,7 +303,7 @@ public class UIManager : MonoBehaviour
 
                 if (holdDuration > 0)
                 {
-                    yield return new WaitForSeconds( 1f);
+                    yield return new WaitForSeconds( 1.2f);
                 }
 
                 yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
@@ -351,7 +351,7 @@ public class UIManager : MonoBehaviour
 
             if (holdDuration > 0)
             {
-                yield return new WaitForSeconds(holdDuration);
+                yield return new WaitForSeconds(0.8f);
             }
 
             yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
