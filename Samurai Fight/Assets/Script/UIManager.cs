@@ -21,7 +21,12 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI nilaiSerangText;
     public TextMeshProUGUI systemText;
     public TextMeshProUGUI sisaKartuDeckText;
-    public TextMeshProUGUI RoundText;
+
+    [Header("Tampilan Ronde & Kemenangan (Sprite)")]
+    public Image roundImageDisplay; 
+    public Sprite[] roundNumberSprites;
+    public Sprite pemainMenangSprite; 
+    public Sprite aiMenangSprite; 
 
     [Header("Panels")]
     public GameObject KartuManusiaPanel;
@@ -41,16 +46,27 @@ public class UIManager : MonoBehaviour
     public Button MundurButton;
     public Button KonfirmasiTangkisButton;
     private Coroutine messageCoroutine;
+    private CanvasGroup roundPanelCanvasGroup;
 
     void Awake()
     {
-        instance = this;
-        if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
-        if (systemText != null) systemText.gameObject.SetActive(false);
-        if (InfoPanel != null) InfoPanel.SetActive(false);
-        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
-        if (RoundPanel != null) RoundPanel.SetActive(false);
-        if (PausePanel != null) PausePanel.SetActive(false); 
+    instance = this;
+    if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
+    if (systemText != null) systemText.gameObject.SetActive(false);
+    if (InfoPanel != null) InfoPanel.SetActive(false);
+    if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+
+    if (RoundPanel != null)
+    {
+        roundPanelCanvasGroup = RoundPanel.GetComponent<CanvasGroup>();
+        if (roundPanelCanvasGroup == null)
+        {
+            Debug.LogError("RoundPanel tidak memiliki komponen CanvasGroup! Harap tambahkan di Inspector.");
+        }
+        RoundPanel.SetActive(false);
+    }
+
+    if (PausePanel != null) PausePanel.SetActive(false); 
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -267,31 +283,79 @@ public class UIManager : MonoBehaviour
         UpdateSelectedTangkisTotal(0, kekuatanSerangan);
     }
 
-    public IEnumerator ShowRoundStartPanel(int roundNumber, float duration)
+    public IEnumerator ShowRoundStartPanel(int roundNumber, float totalDuration)
     {
         HideAllUIsForRoundEnd();
 
-        if (RoundPanel != null && RoundText != null)
+        float fadeDuration = 0.5f;
+        float holdDuration = totalDuration - (fadeDuration * 2);
+
+        if (RoundPanel != null && roundImageDisplay != null && roundPanelCanvasGroup != null && roundNumberSprites.Length > 0)
         {
-            RoundText.text = $"Ronde {roundNumber}";
-            RoundPanel.SetActive(true);
+            if (roundNumber >= 1 && roundNumber <= roundNumberSprites.Length)
+            {
+                roundImageDisplay.sprite = roundNumberSprites[roundNumber - 1];
+                roundImageDisplay.gameObject.SetActive(true);
+                RoundPanel.SetActive(true);
+                roundPanelCanvasGroup.alpha = 0f; 
+
+                yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
+
+                if (holdDuration > 0)
+                {
+                    yield return new WaitForSeconds( 1f);
+                }
+
+                yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
+
+                RoundPanel.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"Tidak ada sprite untuk Ronde {roundNumber}.");
+                RoundPanel.SetActive(false);
+            }
         }
-
-        yield return new WaitForSeconds(duration);
-
-        if (RoundPanel != null)
+        else
         {
-            RoundPanel.SetActive(false);
+            yield return new WaitForSeconds(totalDuration);
         }
     }
 
-    public IEnumerator ShowGameWinRoundText(string winnerName, float duration)
+    public IEnumerator ShowGameWinRoundText(string winnerName, float totalDuration)
     {
-        if (RoundPanel != null && RoundText != null)
+        float fadeDuration = 0.5f;
+        float holdDuration = totalDuration - (fadeDuration * 2);
+
+        if (RoundPanel != null && roundImageDisplay != null && roundPanelCanvasGroup != null)
         {
+            if (winnerName == "Pemain" && pemainMenangSprite != null)
+            {
+                roundImageDisplay.sprite = pemainMenangSprite;
+            }
+            else if (winnerName == "AI" && aiMenangSprite != null)
+            {
+                roundImageDisplay.sprite = aiMenangSprite;
+            }
+            else
+            {
+                Debug.LogWarning("Sprite kemenangan belum di-assign di UIManager Inspector.");
+                yield break;
+            }
+
+            roundImageDisplay.gameObject.SetActive(true);
             RoundPanel.SetActive(true);
-            RoundText.text = $"{winnerName} Menang!";
-            yield return new WaitForSeconds(duration);
+            roundPanelCanvasGroup.alpha = 0f; 
+
+            yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
+
+            if (holdDuration > 0)
+            {
+                yield return new WaitForSeconds(holdDuration);
+            }
+
+            yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
+
             RoundPanel.SetActive(false);
         }
     }
@@ -305,6 +369,18 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(duration);
             systemText.gameObject.SetActive(false);
         }
+    }
+
+    private IEnumerator FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / duration);
+            yield return null;
+        }
+        cg.alpha = endAlpha; 
     }
 
     public IEnumerator ShowArahLangkah(bool bisaMaju, bool bisaMundur)
