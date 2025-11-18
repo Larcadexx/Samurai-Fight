@@ -198,7 +198,7 @@ if (pionManusiaAnimator != null)
 
         if (MusicManager.Instance != null)
         {
-            MusicManager.Instance.PauseBackgroundMusic();
+            MusicManager.Instance.PauseBGM();
         }
     }
 
@@ -212,7 +212,7 @@ if (pionManusiaAnimator != null)
         
         if (MusicManager.Instance != null)
         {
-            MusicManager.Instance.PlayBackgroundMusic(false);
+            MusicManager.Instance.PlayBGM(false);
         }
 
         bool shouldBeInteractable = 

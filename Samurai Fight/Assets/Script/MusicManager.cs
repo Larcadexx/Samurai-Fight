@@ -33,11 +33,8 @@ public class MusicManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("MusicManager Start() Called");
-
         if (backgroundMusic != null)
         {
-            Debug.Log("Playing background music: " + backgroundMusic.name);
             audioSource.clip = backgroundMusic;
             audioSource.loop = true;
             audioSource.Play();
@@ -66,7 +63,7 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    public void PlayBackgroundMusic(bool resetSong, AudioClip audioClip = null)
+    public void PlayBGM(bool resetSong, AudioClip audioClip = null)
     {
         if (audioClip != null)
         {
@@ -84,26 +81,27 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    public void PauseBackgroundMusic()
+    public void PauseBGM()
     {
         audioSource.Pause();
     }
+
     public bool ToggleMute()
     {
-    if (audioSource != null)
-    {
-        audioSource.mute = !audioSource.mute;
-        return audioSource.mute;
-    }
-    return false;
+        if (audioSource != null)
+        {
+            audioSource.mute = !audioSource.mute;
+            return audioSource.mute;
+        }
+        return false;
     }
 
     public bool IsMuted()
     {
-    if (audioSource != null)
-    {
-        return audioSource.mute;
-    }
-    return false;
+        if (audioSource != null)
+        {
+            return audioSource.mute;
+        }
+        return false;
     }
 }

@@ -37,13 +37,14 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             Vector3 targetScale = originalScale * scaleHover;
             Vector3 targetPos = originalPosition + new Vector3(0, posisiHoverY, 0);
-            MulaiAnimasi(targetScale, targetPos);
+            
+            StartAnimasi(targetScale, targetPos);
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        MulaiAnimasi(originalScale, originalPosition);
+        StartAnimasi(originalScale, originalPosition);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -52,7 +53,9 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             Vector3 targetScale = originalScale * scaleTekan;
             Vector3 targetPos = originalPosition + new Vector3(0, posisiHoverY, 0);
-            MulaiAnimasi(targetScale, targetPos);
+            
+            StartAnimasi(targetScale, targetPos);
+            
             if (audioKlik != null)
             {
                 audioSource.PlayOneShot(audioKlik);
@@ -69,25 +72,26 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             {
                 Vector3 targetScale = originalScale * scaleHover;
                 Vector3 targetPos = originalPosition + new Vector3(0, posisiHoverY, 0);
-                MulaiAnimasi(targetScale, targetPos);
+                
+                StartAnimasi(targetScale, targetPos);
             }
             else
             {
-                MulaiAnimasi(originalScale, originalPosition);
+                StartAnimasi(originalScale, originalPosition);
             }
         }
     }
 
-    private void MulaiAnimasi(Vector3 targetScale, Vector3 targetPosition)
+    private void StartAnimasi(Vector3 targetScale, Vector3 targetPosition)
     {
         if (animasiBerjalan != null)
         {
             StopCoroutine(animasiBerjalan);
         }
-        animasiBerjalan = StartCoroutine(Animasikan(targetScale, targetPosition));
+        animasiBerjalan = StartCoroutine(Animasi(targetScale, targetPosition));
     }
 
-    private IEnumerator Animasikan(Vector3 targetScale, Vector3 targetPosition)
+    private IEnumerator Animasi(Vector3 targetScale, Vector3 targetPosition)
     {
         float waktu = 0;
         Vector3 startScale = transform.localScale;
@@ -96,6 +100,8 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         while (waktu < durasiAnimasi)
         {
             float t = waktu / durasiAnimasi;
+            t = t * t * (3f - 2f * t); 
+            
             transform.localScale = Vector3.Lerp(startScale, targetScale, t);
             transform.localPosition = Vector3.Lerp(startPos, targetPosition, t);
             waktu += Time.deltaTime;
