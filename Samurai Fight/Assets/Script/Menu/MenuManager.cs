@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI; 
 using System.Collections.Generic;
 
 public class MenuManager : MonoBehaviour
@@ -16,10 +17,11 @@ public class MenuManager : MonoBehaviour
     public GameObject GameRulePanel;
     public GameObject VolumePanel;
 
-    [Header("Pages")]
-    public List<GameObject> Pages;
-    private int currentPageIndex = 0;
+    [Header("Game Rule")]
+    public Image GameRulesImage;       
+    public List<Sprite> GameRulesSprites; 
 
+    private int currentPageIndex = 0;
     private bool isVolumePanelVisible = false;
 
     void Start()
@@ -29,9 +31,10 @@ public class MenuManager : MonoBehaviour
         gameRuleButton.SetActive(true);
         closeAppButton.SetActive(true);
         volumeButton.SetActive(true);
-        CreditPanel.SetActive(false);
-        GameRulePanel.SetActive(false);
-        VolumePanel.SetActive(false);
+        
+        if (CreditPanel != null) CreditPanel.SetActive(false);
+        if (GameRulePanel != null) GameRulePanel.SetActive(false);
+        if (VolumePanel != null) VolumePanel.SetActive(false);
     }
 
     public void PlayGame()
@@ -60,6 +63,7 @@ public class MenuManager : MonoBehaviour
     {
         ToggleMainButtons(false);
         GameRulePanel.SetActive(true);
+        
         if (isVolumePanelVisible)
         {
             isVolumePanelVisible = false;
@@ -78,24 +82,36 @@ public class MenuManager : MonoBehaviour
 
     public void NextPage()
     {
+        if (GameRulesSprites.Count == 0) return;
+
         currentPageIndex++;
-        if (currentPageIndex >= Pages.Count)
+        if (currentPageIndex >= GameRulesSprites.Count)
             currentPageIndex = 0;
+            
         UpdatePageDisplay();
     }
 
     public void PrevPage()
     {
+        if (GameRulesSprites.Count == 0) return;
+
         currentPageIndex--;
         if (currentPageIndex < 0)
-            currentPageIndex = Pages.Count - 1;
+            currentPageIndex = GameRulesSprites.Count - 1;
+            
         UpdatePageDisplay();
     }
 
     void UpdatePageDisplay()
     {
-        for (int i = 0; i < Pages.Count; i++)
-            Pages[i].SetActive(i == currentPageIndex);
+        if (GameRulesImage != null && GameRulesSprites.Count > 0)
+        {
+            GameRulesImage.sprite = GameRulesSprites[currentPageIndex];
+        }
+        else
+        {
+            Debug.LogWarning("GameRules Image atau GameRules Sprites belum di-assign di Inspector!");
+        }
     }
 
     public void CloseApp()
