@@ -39,7 +39,14 @@ public class MenuManager : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("Gameplay");
+        if (TransisiScene.Instance != null)
+        {
+            TransisiScene.Instance.PindahKeScene("Gameplay");
+        }
+        else
+        {
+            SceneManager.LoadScene("Gameplay");
+        }
     }
 
     public void ShowCredits()

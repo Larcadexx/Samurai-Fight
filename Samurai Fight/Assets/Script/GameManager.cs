@@ -564,16 +564,18 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
 
     public void PlayAgain()
     {
-        Time.timeScale = 1f; 
-        isPaused = false;    
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (TransisiScene.Instance != null)
+            TransisiScene.Instance.PindahKeScene(SceneManager.GetActiveScene().name);
+        else
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GoToMainMenu()
     {
-        Time.timeScale = 1f; 
-        isPaused = false;    
-        SceneManager.LoadScene("MainMenu");
+        if (TransisiScene.Instance != null)
+            TransisiScene.Instance.PindahKeScene("MainMenu");
+        else
+            SceneManager.LoadScene("MainMenu");
     }
 
     private IEnumerator ShowRoundStartMessageAndBeginTurn()
@@ -734,17 +736,17 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
             string winnerName = winner.isAI ? "AI" : "Pemain";
             yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
 
-            if (winner == player) 
+            string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
+            
+            if (TransisiScene.Instance != null)
             {
-                Time.timeScale = 1f; 
-                SceneManager.LoadScene("SceneWIN");
+                TransisiScene.Instance.PindahKeScene(nextScene);
             }
-            else 
+            else
             {
                 Time.timeScale = 1f;
-                SceneManager.LoadScene("SceneLOSE");
+                SceneManager.LoadScene(nextScene);
             }
-            
         }
         else
         {
