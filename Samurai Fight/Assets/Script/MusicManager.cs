@@ -11,6 +11,8 @@ public class MusicManager : MonoBehaviour
     public AudioClip backgroundMusic;
     [SerializeField] private Slider musicSlider;
 
+    private float previousVolume = 1f;
+
     private void Awake()
     {
         if (Instance == null)
@@ -33,6 +35,11 @@ public class MusicManager : MonoBehaviour
 
     void Start()
     {
+        SetVolume(0.5f);
+
+        if(musicSlider !=null)
+            musicSlider.value = 0.5f;
+
         if (backgroundMusic != null)
         {
             audioSource.clip = backgroundMusic;
@@ -103,5 +110,25 @@ public class MusicManager : MonoBehaviour
             return audioSource.mute;
         }
         return false;
+    }   
+
+    public void ToggleVolume()
+    {
+        if (audioSource.volume > 0f)
+        {
+            previousVolume = audioSource.volume;  
+            SetVolume(0f);
+
+            if (musicSlider != null)
+                musicSlider.value = 0f;
+        }
+        else
+        {
+            SetVolume(previousVolume);
+
+            if (musicSlider != null)
+                musicSlider.value = previousVolume;
+        }
     }
+
 }

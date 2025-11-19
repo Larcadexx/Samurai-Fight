@@ -6576,7 +6576,7 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 21300000, guid: 00bca2012ec42417297c117f681274a1, type: 3}
+    m_HighlightedSprite: {fileID: 21300000, guid: b6ef5490f5e28fe47b6739304b1d8e22, type: 3}
     m_PressedSprite: {fileID: 21300000, guid: ce75d276b2f2a4e94860d83ea6e35d43, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
@@ -6759,7 +6759,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1344253697}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.037364986, y: -0.5471563, z: 0.024459857, w: 0.83583826}
+  m_LocalRotation: {x: 0.037364922, y: -0.54715633, z: 0.024459794, w: 0.8358383}
   m_LocalPosition: {x: -549.51385, y: -252.89998, z: 778.6742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8571,7 +8571,7 @@ MonoBehaviour:
     m_FadeDuration: 0.1
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 21300000, guid: ab48b56589c03488b844c308fc000994, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
@@ -8584,7 +8584,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1501956375}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1457939391}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: ToggleVolume
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1501956375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9614,7 +9626,7 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 21300000, guid: cd365cb120254415382542bfd138cb00, type: 3}
+    m_HighlightedSprite: {fileID: 21300000, guid: a5baa8809de36fe48ad1e21025f479a2, type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 8d296d09fa4af4b26a633c38fab46903, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
@@ -11272,7 +11284,7 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 21300000, guid: 09891700d13cf4917b30fa8e10db8303, type: 3}
+    m_HighlightedSprite: {fileID: 21300000, guid: d30eb4450b63cf3439982329b116b1e5, type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 3d2da70c5eb4341f2afb41d6778b0920, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
