@@ -23,7 +23,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI sisaKartuDeckText;
 
     [Header("Tampilan Ronde & Kemenangan (Sprite)")]
-    public Image roundImageDisplay; 
+    public Image RondeImage; 
     public Sprite[] roundNumberSprites;
     public Sprite pemainMenangSprite; 
     public Sprite aiMenangSprite; 
@@ -144,14 +144,14 @@ public class UIManager : MonoBehaviour
         ShowMessage("Giliran AI...", 0f);
     }
 
-    public void ShowAttackStrength(int strength)
+    public void ShowNilaiSerangan(int strength)
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
         nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
     }
 
-    public void UpdateSelectedTangkisTotal(int total, int requiredStrength)
+    public void UpdateTotalNilaiTangkisan(int total, int requiredStrength)
     {
         if (nilaiSerangText == null) return;
         nilaiSerangText.gameObject.SetActive(true);
@@ -294,22 +294,22 @@ public class UIManager : MonoBehaviour
         MoveCardPanel(posisiPanelKanan);
         KartuManusiaPanel.SetActive(true);
         SetPlayerHandInteractable(true);
-        UpdateSelectedTangkisTotal(0, kekuatanSerangan);
+        UpdateTotalNilaiTangkisan(0, kekuatanSerangan);
     }
 
-    public IEnumerator ShowRoundStartPanel(int roundNumber, float totalDuration)
+    public IEnumerator ShowRondePanel(int roundNumber, float totalDuration)
     {
         HideAllUIsForRoundEnd();
 
         float fadeDuration = 0.5f;
         float holdDuration = totalDuration - (fadeDuration * 2);
 
-        if (RoundPanel != null && roundImageDisplay != null && roundPanelCanvasGroup != null && roundNumberSprites.Length > 0)
+        if (RoundPanel != null && RondeImage != null && roundPanelCanvasGroup != null && roundNumberSprites.Length > 0)
         {
             if (roundNumber >= 1 && roundNumber <= roundNumberSprites.Length)
             {
-                roundImageDisplay.sprite = roundNumberSprites[roundNumber - 1];
-                roundImageDisplay.gameObject.SetActive(true);
+                RondeImage.sprite = roundNumberSprites[roundNumber - 1];
+                RondeImage.gameObject.SetActive(true);
                 RoundPanel.SetActive(true);
                 roundPanelCanvasGroup.alpha = 0f; 
 
@@ -336,20 +336,20 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ShowGameWinRoundText(string winnerName, float totalDuration)
+    public IEnumerator ShowGameWIN(string winnerName, float totalDuration)
     {
         float fadeDuration = 0.5f;
         float holdDuration = totalDuration - (fadeDuration * 2);
 
-        if (RoundPanel != null && roundImageDisplay != null && roundPanelCanvasGroup != null)
+        if (RoundPanel != null && RondeImage != null && roundPanelCanvasGroup != null)
         {
             if (winnerName == "Pemain" && pemainMenangSprite != null)
             {
-                roundImageDisplay.sprite = pemainMenangSprite;
+                RondeImage.sprite = pemainMenangSprite;
             }
             else if (winnerName == "AI" && aiMenangSprite != null)
             {
-                roundImageDisplay.sprite = aiMenangSprite;
+                RondeImage.sprite = aiMenangSprite;
             }
             else
             {
@@ -357,7 +357,7 @@ public class UIManager : MonoBehaviour
                 yield break;
             }
 
-            roundImageDisplay.gameObject.SetActive(true);
+            RondeImage.gameObject.SetActive(true);
             RoundPanel.SetActive(true);
             roundPanelCanvasGroup.alpha = 0f; 
 

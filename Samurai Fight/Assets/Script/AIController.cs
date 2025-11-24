@@ -41,7 +41,7 @@ public class AIController : MonoBehaviour
             uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
             yield return new WaitForSeconds(2.0f);
             aiPlayer.hand.Remove(attackCard);
-            gameManager.InitiateAttack(aiPlayer, humanPlayer, attackCard.value, isCounter: false);
+            gameManager.InisiasiSerangan(aiPlayer, humanPlayer, attackCard.value, isCounter: false);
         }
         else if (canMoveForward)
         {
@@ -65,7 +65,7 @@ public class AIController : MonoBehaviour
         }
         else
         {
-            StartCoroutine(gameManager.ExecuteTieBreakerDelay(GameManager.TieBreakerReason.PlayerCornered));
+            StartCoroutine(gameManager.TieBreakerDelay(GameManager.TieBreakerReason.PlayerCornered));
         }
     }
 
@@ -115,7 +115,7 @@ public class AIController : MonoBehaviour
         uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {counterCard.value}!", 2.5f);
         yield return new WaitForSeconds(2.5f);
         aiPlayer.hand.Remove(counterCard);
-        gameManager.InitiateAttack(aiPlayer, humanPlayer, counterCard.value, true);
+        gameManager.InisiasiSerangan(aiPlayer, humanPlayer, counterCard.value, true);
     }
 
     private IEnumerator CheckForAISergapCoroutine()
@@ -133,7 +133,7 @@ public class AIController : MonoBehaviour
             yield return new WaitForSeconds(2.5f);
 
             aiPlayer.hand.Remove(sergapCard);
-            gameManager.InitiateAttack(aiPlayer, humanPlayer, sergapCard.value, false, false); 
+            gameManager.InisiasiSerangan(aiPlayer, humanPlayer, sergapCard.value, false, false); 
         }
         else
         {

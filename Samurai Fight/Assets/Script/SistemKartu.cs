@@ -43,7 +43,7 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void OnClick()
     {
         if (cardData == null) return;
-        GameManager.instance.CardSlotClicked(cardData, this);
+        GameManager.instance.CardHandPressed(cardData, this);
     }
 
     public void ToggleSelection(bool select)

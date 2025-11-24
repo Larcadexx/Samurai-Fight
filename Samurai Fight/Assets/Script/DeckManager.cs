@@ -14,10 +14,10 @@ public class DeckManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void SetupNewDeck()
+    public void SetupDeck()
     {
         CreateDeck();
-        ShuffleDeck();
+        AcakDeck();
     }
 
     private void CreateDeck()
@@ -32,7 +32,7 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    public void ShuffleDeck()
+    public void AcakDeck()
     {
         System.Random rng = new System.Random();
         int n = deck.Count;
@@ -46,7 +46,7 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    public Card DrawCard()
+    public Card AcakCard()
     {
         if (deck.Count == 0) return null;
 
@@ -55,7 +55,7 @@ public class DeckManager : MonoBehaviour
         return drawnCard;
     }
 
-    public int GetDeckCount()
+    public int DeckCount()
     {
         return deck.Count;
     }
