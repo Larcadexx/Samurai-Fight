@@ -427,10 +427,8 @@ public class UIManager : MonoBehaviour
     {
         if (MusicManager.Instance == null) return;
 
-        // Panggil fungsi di MusicManager
         bool isNowMuted = MusicManager.Instance.ToggleMute();
 
-        // Update sprite tombol
         UpdateVolumeButtonSprite(isNowMuted);
     }
 

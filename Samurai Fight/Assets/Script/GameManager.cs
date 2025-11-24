@@ -40,15 +40,11 @@ public class GameManager : MonoBehaviour
         DeckEmpty
     }
 
-    private Animator pionManusiaAnimator;
-
-
     private PlayerTurnState playerState;
     private AttackPhase currentAttackPhase = AttackPhase.None;
 
     private Player player;
     private Player ai;
-    private List<Card> deck = new List<Card>();
     private Player activePlayer;
 
     private bool isGameOver = false;
@@ -69,20 +65,10 @@ public class GameManager : MonoBehaviour
     {
         if (instance == null) { instance = this; }
         else { Destroy(gameObject); }
-
     }
 
     void Start()
     {
-        if (pionManusiaAnimator != null)
-{
-    pionManusiaAnimator.Rebind();
-    pionManusiaAnimator.Update(0f);
-    pionManusiaAnimator.SetBool("isWalking", false);
-}
-
-        pionManusiaAnimator = pionManusia.GetComponent<Animator>();
-
         if (aiController == null)
         {
             Debug.LogError("AIController belum di-assign di Inspector GameManager!");
@@ -93,15 +79,11 @@ public class GameManager : MonoBehaviour
         }
 
         SetupGame();
-        if (pionManusiaAnimator == null)
-{
-    pionManusiaAnimator = pionManusia.GetComponent<Animator>();
-}
 
-if (pionManusiaAnimator != null)
-{
-    pionManusiaAnimator.SetBool("isWalking", false);
-}
+        if (AnimasiManager.Instance != null)
+        {
+            AnimasiManager.Instance.ResetAllAnimations();
+        }
 
         StartRound();
     }
@@ -115,7 +97,7 @@ if (pionManusiaAnimator != null)
 
     public void StartRound()
     {
-        CameraManager.Instance.SwitchToDefault();
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
 
         currentAttackPhase = AttackPhase.None;
         playerState = PlayerTurnState.None;
@@ -128,47 +110,47 @@ if (pionManusiaAnimator != null)
         MovePionVisual(player, player.position);
         MovePionVisual(ai, ai.position);
 
-        CreateDeck();
-        ShuffleDeck();
+        DeckManager.Instance.SetupNewDeck();
+        
         player.hand.Clear();
         ai.hand.Clear();
 
         for (int i = 0; i < 5; i++)
         {
-            player.hand.Add(DrawCardFromDeck());
-            ai.hand.Add(DrawCardFromDeck());
+            player.hand.Add(DeckManager.Instance.DrawCard());
+            ai.hand.Add(DeckManager.Instance.DrawCard());
         }
 
         uiManager.UpdatePlayerHandUI(player);
-        uiManager.UpdateMainDeckUI(deck.Count);
+        uiManager.UpdateMainDeckUI(DeckManager.Instance.GetDeckCount());
 
         activePlayer = ai;
         StartCoroutine(ShowRoundStartMessageAndBeginTurn());
     }
 
     private void StartTurn()
-{
-    if (isGameOver) return;
-
-    CameraManager.Instance.SwitchToDefault();
-    playerState = PlayerTurnState.None;
-    uiManager.RestoreDefaultLayout();
-
-    if (pionManusiaAnimator != null)
     {
-        pionManusiaAnimator.SetBool("isWalking", false);
-    }
+        if (isGameOver) return;
 
-    if (activePlayer.isAI)
-    {
-        StartCoroutine(aiController.ExecuteTurn(ai, player));
-    }
-    else
-    {
-        StartCoroutine(ShowPlayerTurnMessage());
-    }
-}
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
+        playerState = PlayerTurnState.None;
+        uiManager.RestoreDefaultLayout();
 
+        if (AnimasiManager.Instance != null)
+        {
+            AnimasiManager.Instance.SetWalking(false, false); 
+            AnimasiManager.Instance.SetWalking(true, false); 
+        }
+
+        if (activePlayer.isAI)
+        {
+            StartCoroutine(aiController.ExecuteTurn(ai, player));
+        }
+        else
+        {
+            StartCoroutine(ShowPlayerTurnMessage());
+        }
+    }
 
     public void EndTurn()
     {
@@ -177,7 +159,7 @@ if (pionManusiaAnimator != null)
         RefillHand(player);
         RefillHand(ai);
 
-        if (deck.Count == 0 && (player.hand.Count < 5 || ai.hand.Count < 5))
+        if (DeckManager.Instance.IsDeckEmpty() && (player.hand.Count < 5 || ai.hand.Count < 5))
         {
             StartCoroutine(ExecuteTieBreakerDelay(TieBreakerReason.DeckEmpty));
             return;
@@ -186,13 +168,13 @@ if (pionManusiaAnimator != null)
         activePlayer = (activePlayer == player) ? ai : player;
         StartTurn();
     }
-    
+
     public void PauseGame()
     {
         if (isGameOver || isPaused) return;
 
         isPaused = true;
-        Time.timeScale = 0f; 
+        Time.timeScale = 0f;
         uiManager.ShowPausePanel();
         uiManager.SetPlayerHandInteractable(false);
 
@@ -209,71 +191,71 @@ if (pionManusiaAnimator != null)
         isPaused = false;
         Time.timeScale = 1f;
         uiManager.HidePausePanel();
-        
+
         if (MusicManager.Instance != null)
         {
             MusicManager.Instance.PlayBGM(false);
         }
 
-        bool shouldBeInteractable = 
-            playerState != PlayerTurnState.None || 
+        bool shouldBeInteractable =
+            playerState != PlayerTurnState.None ||
             currentAttackPhase == AttackPhase.PlayerSelectingTangkisCards;
-            
+
         uiManager.SetPlayerHandInteractable(shouldBeInteractable);
     }
 
 
     public void btnMelangkahPressed()
     {
-        if (isPaused) return; 
-        CameraManager.Instance.SwitchToMelangkah(); 
+        if (isPaused) return;
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToMelangkah();
         StartCoroutine(btnMelangkahPressedCoroutine());
     }
 
     public void btnArahLangkahPressed(bool isMaju)
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         StartCoroutine(btnArahLangkahPressedCoroutine(isMaju));
     }
 
     public void btnSerangPressed()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         StartCoroutine(btnSerangPressedCoroutine());
     }
 
     public void btnPerkuatSeranganYes()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         playerState = PlayerTurnState.StrengtheningAttack;
         uiManager.ShowPilihKartuAksi("perkuat");
     }
 
     public void btnPerkuatSeranganNo()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         uiManager.HideAllPlayerPanels();
         InitiateAttack(player, ai, initialAttackCard.value, false);
     }
 
     public void btnSergapYes()
     {
-        if (isPaused) return; 
-        CameraManager.Instance.SwitchToDefault();
+        if (isPaused) return;
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.SelectingSergapCard;
         uiManager.ShowPilihKartuAksi("sergap");
     }
 
     public void btnSergapNo()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         uiManager.HideAllPlayerPanels();
         EndTurn();
     }
 
     public void btnTangkisYes()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         currentAttackPhase = AttackPhase.PlayerSelectingTangkisCards;
         uiManager.ShowPilihKartuTangkis(attackValue);
@@ -283,7 +265,7 @@ if (pionManusiaAnimator != null)
 
     public void btnTangkisNo()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         if (currentAttackPhase != AttackPhase.AwaitingTangkisPlayer) return;
         uiManager.HideAllPlayerPanels();
         currentAttackPhase = AttackPhase.None;
@@ -292,7 +274,7 @@ if (pionManusiaAnimator != null)
 
     public void btnConfirmTangkis()
     {
-        if (isPaused) return; 
+        if (isPaused) return;
         uiManager.HideConfirmTangkisbtn();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
@@ -342,7 +324,7 @@ if (pionManusiaAnimator != null)
 
     public void CardSlotClicked(Card clickedCard, SistemKartu slotController)
     {
-        if (isPaused) return; 
+        if (isPaused) return;
 
         if (currentAttackPhase == AttackPhase.PlayerSelectingTangkisCards)
         {
@@ -367,7 +349,7 @@ if (pionManusiaAnimator != null)
             player.hand.Remove(clickedCard);
             slotController.HideSlot();
 
-            CameraManager.Instance.SwitchToAttack();
+            if (CameraManager.Instance != null) CameraManager.Instance.SwitchToAttack();
 
             InitiateAttack(player, ai, clickedCard.value, false, false);
         }
@@ -397,7 +379,7 @@ if (pionManusiaAnimator != null)
         }
         else
         {
-            CameraManager.Instance.SwitchToTangkis();
+            if (CameraManager.Instance != null) CameraManager.Instance.SwitchToTangkis();
             currentAttackPhase = AttackPhase.AwaitingTangkisPlayer;
             StartCoroutine(uiManager.ShowTangkis(value, isCounter));
         }
@@ -426,7 +408,7 @@ if (pionManusiaAnimator != null)
         {
             while (player.hand.Count < 5)
             {
-                Card newCard = DrawCardFromDeck();
+                Card newCard = DeckManager.Instance.DrawCard();
                 if (newCard == null) return;
                 player.hand.Add(newCard);
             }
@@ -439,7 +421,7 @@ if (pionManusiaAnimator != null)
 
                 if (!slot.gameObject.activeSelf)
                 {
-                    Card newCard = DrawCardFromDeck();
+                    Card newCard = DeckManager.Instance.DrawCard();
                     if (newCard == null) break;
 
                     player.hand.Add(newCard);
@@ -448,39 +430,9 @@ if (pionManusiaAnimator != null)
             }
         }
 
-        uiManager.UpdateMainDeckUI(deck.Count);
+        uiManager.UpdateMainDeckUI(DeckManager.Instance.GetDeckCount());
     }
 
-    private void CreateDeck()
-    {
-        deck.Clear();
-        for (int value = 1; value <= 5; value++)
-        {
-            for (int i = 0; i < 5; i++) deck.Add(new Card(value));
-        }
-    }
-
-    private void ShuffleDeck()
-    {
-        System.Random rng = new System.Random();
-        int n = deck.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rng.Next(n + 1);
-            Card value = deck[k];
-            deck[k] = deck[n];
-            deck[n] = value;
-        }
-    }
-
-    private Card DrawCardFromDeck()
-    {
-        if (deck.Count == 0) return null;
-        Card drawn = deck[0];
-        deck.RemoveAt(0);
-        return drawn;
-    }
 
     private void CheckAvailablePlayerActions()
     {
@@ -504,63 +456,58 @@ if (pionManusiaAnimator != null)
         StartCoroutine(uiManager.ShowArahLangkah(canMoveForward, canMoveBackward));
     }
 
-
-
     public void MovePionVisual(Player player, int targetPosition)
-{
-    GameObject pawn = player.isAI ? pionAI : pionManusia;
-    if (targetPosition > 0 && targetPosition <= petakPapan.Length)
     {
-        Transform targetPetak = petakPapan[targetPosition - 1];
-        pawn.transform.position = targetPetak.position + new Vector3(0, 5f, 0);
-    }
-}
-
-
-private IEnumerator MovePionStepByStep(Player player, int targetPosition)
-{
-    GameObject pawn = player.isAI ? pionAI : pionManusia;
-    int currentPos = player.position;
-    int step = (targetPosition > currentPos) ? 1 : -1;
-
-    if (!player.isAI && pionManusiaAnimator != null)
-    {
-        pionManusiaAnimator.SetBool("isWalking", true);
-    }
-
-    const float moveDuration = 1f;
-
-    float speed = 1.0f / moveDuration; 
-
-    for (int pos = currentPos; pos != targetPosition; pos += step)
-    {
-        int nextPos = pos + step;
-
-        if (nextPos > 0 && nextPos <= petakPapan.Length)
+        GameObject pawn = player.isAI ? pionAI : pionManusia;
+        if (targetPosition > 0 && targetPosition <= petakPapan.Length)
         {
-            Vector3 startPos = petakPapan[pos - 1].position + new Vector3(0, 5f, 0);
-            Vector3 endPos = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
-            float t = 0f;
-            
-            while (t < 1f)
-            {
-                t += Time.deltaTime * speed; 
-                pawn.transform.position = Vector3.Lerp(startPos, endPos, t);
-                yield return null;
-            }
-
-            pawn.transform.position = endPos; 
+            Transform targetPetak = petakPapan[targetPosition - 1];
+            pawn.transform.position = targetPetak.position + new Vector3(0, 5f, 0);
         }
     }
 
-    player.position = targetPosition;
-
-    if (!player.isAI && pionManusiaAnimator != null)
+    private IEnumerator MovePionStepByStep(Player player, int targetPosition)
     {
-        pionManusiaAnimator.SetBool("isWalking", false);
-    }
-}
+        GameObject pawn = player.isAI ? pionAI : pionManusia;
+        int currentPos = player.position;
+        int step = (targetPosition > currentPos) ? 1 : -1;
 
+        if (AnimasiManager.Instance != null)
+        {
+            AnimasiManager.Instance.SetWalking(player.isAI, true);
+        }
+
+        const float moveDuration = 1f;
+        float speed = 1.0f / moveDuration;
+
+        for (int pos = currentPos; pos != targetPosition; pos += step)
+        {
+            int nextPos = pos + step;
+
+            if (nextPos > 0 && nextPos <= petakPapan.Length)
+            {
+                Vector3 startPos = petakPapan[pos - 1].position + new Vector3(0, 5f, 0);
+                Vector3 endPos = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
+                float t = 0f;
+
+                while (t < 1f)
+                {
+                    t += Time.deltaTime * speed;
+                    pawn.transform.position = Vector3.Lerp(startPos, endPos, t);
+                    yield return null;
+                }
+
+                pawn.transform.position = endPos;
+            }
+        }
+
+        player.position = targetPosition;
+
+        if (AnimasiManager.Instance != null)
+        {
+            AnimasiManager.Instance.SetWalking(player.isAI, false);
+        }
+    }
 
     public void PlayAgain()
     {
@@ -584,7 +531,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         StartTurn();
     }
 
-    private IEnumerator ShowPlayerTurnMessage() 
+    private IEnumerator ShowPlayerTurnMessage()
     {
         uiManager.InfoPanel.SetActive(true);
         uiManager.ShowMessage("Giliran anda!!", 1.5f);
@@ -607,7 +554,6 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         arahLangkah = isMaju ? 1 : -1;
         playerState = PlayerTurnState.SelectingMoveCard;
         uiManager.ShowPilihKartuAksi("melangkah");
-
     }
 
     private IEnumerator btnSerangPressedCoroutine()
@@ -617,7 +563,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
 
         playerState = PlayerTurnState.SelectingAttackCard;
         uiManager.ShowPilihKartuAksi("serang");
-        CameraManager.Instance.SwitchToAttack(); 
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToAttack();
     }
 
     private IEnumerator HandleCardActionCoroutine(Card clickedCard, SistemKartu slotController)
@@ -673,50 +619,49 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
     }
 
     private IEnumerator HandleMoveCoroutine(Card clickedCard, SistemKartu slotController)
-{
-    int newPosition = player.position + (clickedCard.value * arahLangkah);
-    bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
-
-    if (isValidMove)
     {
-        player.hand.Remove(clickedCard);
-        slotController.HideSlot();
-        CameraManager.Instance.SwitchToBergerak();
-        yield return new WaitForSeconds(1f);
-        yield return StartCoroutine(MovePionStepByStep(player, newPosition));
+        int newPosition = player.position + (clickedCard.value * arahLangkah);
+        bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
 
-        CameraManager.Instance.SwitchToDefault();
-
-        int newDistance = ai.position - player.position;
-        bool canSergap = player.hand.Any(card => card.value == newDistance);
-        if (canSergap)
+        if (isValidMove)
         {
-            CameraManager.Instance.SwitchToMelangkah();
-            StartCoroutine(uiManager.ShowSergap());
+            player.hand.Remove(clickedCard);
+            slotController.HideSlot();
+            if (CameraManager.Instance != null) CameraManager.Instance.SwitchToBergerak();
+            yield return new WaitForSeconds(1f);
+            yield return StartCoroutine(MovePionStepByStep(player, newPosition));
+
+            if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
+
+            int newDistance = ai.position - player.position;
+            bool canSergap = player.hand.Any(card => card.value == newDistance);
+            if (canSergap)
+            {
+                if (CameraManager.Instance != null) CameraManager.Instance.SwitchToMelangkah();
+                StartCoroutine(uiManager.ShowSergap());
+            }
+            else
+            {
+                EndTurn();
+            }
         }
         else
         {
-            EndTurn();
+            StartTurn();
         }
     }
-    else
-    {
-        StartTurn();
-    }
-}
-
 
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
         yield return new WaitForSeconds(2.5f);
-        CameraManager.Instance.SwitchToDefault();
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
         playerState = PlayerTurnState.SelectingCounterCard;
         uiManager.ShowPilihKartuAksi("serangbalik");
     }
 
     public IEnumerator RoundOverDelay(Player winner)
     {
-        CameraManager.Instance.SwitchToDefault();
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
         uiManager.HideAllUIsForRoundEnd();
 
         if (winner.score < 4)
@@ -737,7 +682,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
             yield return StartCoroutine(uiManager.ShowGameWinRoundText(winnerName, 2f));
 
             string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
-            
+
             if (TransisiScene.Instance != null)
             {
                 TransisiScene.Instance.PindahKeScene(nextScene);
@@ -782,7 +727,7 @@ private IEnumerator MovePionStepByStep(Player player, int targetPosition)
         {
             StartCoroutine(RoundOverDelay(winner));
         }
-                else
+        else
         {
             uiManager.ShowMessage("Hasil Tie Breaker seri!", 3.0f);
             yield return new WaitForSeconds(3.0f);
