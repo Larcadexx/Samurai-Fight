@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI; 
 using System.Collections.Generic;
 
-public class MenuManager : MonoBehaviour
+public class MainMenuManager : MonoBehaviour
 {
     [Header("Tombol Utama")]
     public GameObject playButton;
