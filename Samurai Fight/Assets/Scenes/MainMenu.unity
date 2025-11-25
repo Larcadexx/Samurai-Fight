@@ -2539,16 +2539,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playButton: {fileID: 519487061}
-  gameRuleButton: {fileID: 145779585}
-  creditButton: {fileID: 2039322227}
+  gameRulesButton: {fileID: 145779585}
+  creditsButton: {fileID: 2039322227}
   closeAppButton: {fileID: 63961116}
   volumeButton: {fileID: 1304885736}
-  CreditPanel: {fileID: 711513411}
-  GameRulePanel: {fileID: 1246694538}
-  VolumePanel: {fileID: 1779729298}
+  creditPanel: {fileID: 711513411}
+  gameRulesPanel: {fileID: 1246694538}
+  volumePanel: {fileID: 1779729298}
   volumeSlider: {fileID: 1693572560}
-  GameRulesImage: {fileID: 908276702}
-  GameRulesSprites:
+  gameRulesImage: {fileID: 908276702}
+  gameRulesSprites:
   - {fileID: 21300000, guid: ab1c3f87f0045442caf24328f48af16b, type: 3}
   - {fileID: 21300000, guid: cfb732f7f2f9347028cc21a809a7a8aa, type: 3}
   - {fileID: 21300000, guid: 7bd95ea41466047519f504a7d7764fc1, type: 3}
