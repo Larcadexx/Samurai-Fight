@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI; 
 using System.Linq;
 
 public class GameManager : MonoBehaviour
@@ -9,6 +10,9 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public UIManager uiManager;
     public AIController aiController;
+
+    [Header("Volume Slider")]
+    public Slider volumeSlider; 
 
     [Header("Referensi Objek di Scene")]
     public GameObject pionManusia;
@@ -80,6 +84,16 @@ public class GameManager : MonoBehaviour
             aiController.Initialize(this, uiManager);
         }
 
+        if (volumeSlider != null)
+        {
+            if (TransisiScene.Instance != null)
+            {
+                volumeSlider.value = TransisiScene.Instance.GetMasterVolume();
+            }
+
+            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        }
+
         SetupGame();
 
         if (AnimasiManager.Instance != null)
@@ -88,6 +102,14 @@ public class GameManager : MonoBehaviour
         }
 
         StartRound();
+    }
+
+    public void OnVolumeChanged(float value)
+    {
+        if (TransisiScene.Instance != null)
+        {
+            TransisiScene.Instance.SetMasterVolume(value);
+        }
     }
 
     void SetupGame()
@@ -189,9 +211,9 @@ public class GameManager : MonoBehaviour
         uiManager.ShowPausePanel();
         uiManager.SetPlayerHandInteractable(false);
 
-        if (MusicManager.Instance != null)
+        if (TransisiScene.Instance != null && TransisiScene.Instance.bgmSource != null)
         {
-            MusicManager.Instance.PauseBGM();
+            TransisiScene.Instance.bgmSource.Pause();
         }
     }
 
@@ -203,9 +225,9 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         uiManager.HidePausePanel();
 
-        if (MusicManager.Instance != null)
+        if (TransisiScene.Instance != null && TransisiScene.Instance.bgmSource != null)
         {
-            MusicManager.Instance.PlayBGM(false);
+            TransisiScene.Instance.bgmSource.UnPause();
         }
 
         bool shouldBeInteractable =

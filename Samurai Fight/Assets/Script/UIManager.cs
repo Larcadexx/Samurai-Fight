@@ -45,6 +45,7 @@ public class UIManager : MonoBehaviour
     public Button MajuButton;
     public Button MundurButton;
     public Button KonfirmasiTangkisButton;
+    
     private Coroutine messageCoroutine;
     private CanvasGroup roundPanelCanvasGroup;
 
@@ -55,27 +56,29 @@ public class UIManager : MonoBehaviour
 
     void Awake()
     {
-    instance = this;
-    if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
-    if (systemText != null) systemText.gameObject.SetActive(false);
-    if (InfoPanel != null) InfoPanel.SetActive(false);
-    if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        instance = this;
+        
+        if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
+        if (systemText != null) systemText.gameObject.SetActive(false);
+        if (InfoPanel != null) InfoPanel.SetActive(false);
+        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
 
-    if (RoundPanel != null)
-    {
-        roundPanelCanvasGroup = RoundPanel.GetComponent<CanvasGroup>();
-        if (roundPanelCanvasGroup == null)
+        if (RoundPanel != null)
         {
-            Debug.LogError("RoundPanel tidak memiliki komponen CanvasGroup! Harap tambahkan di Inspector.");
+            roundPanelCanvasGroup = RoundPanel.GetComponent<CanvasGroup>();
+            if (roundPanelCanvasGroup == null)
+            {
+                Debug.LogError("RoundPanel tidak memiliki komponen CanvasGroup! Harap tambahkan di Inspector.");
+            }
+            RoundPanel.SetActive(false);
         }
-        RoundPanel.SetActive(false);
-    }
 
-    if (PausePanel != null) PausePanel.SetActive(false); 
-    if (volumeButton != null)
-    {
-        volumeButton.onClick.AddListener(OnVolumeButtonPressed);
-    }
+        if (PausePanel != null) PausePanel.SetActive(false); 
+        
+        if (volumeButton != null)
+        {
+            volumeButton.onClick.AddListener(OnVolumeButtonPressed);
+        }
     }
 
     public void UpdatePlayerHandUI(Player player)
@@ -180,17 +183,17 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowPausePanel()
-{
-    if (PausePanel != null)
     {
-        PausePanel.SetActive(true);
-
-        if (MusicManager.Instance != null)
+        if (PausePanel != null)
         {
-            UpdateVolumeButtonSprite(MusicManager.Instance.IsMuted());
+            PausePanel.SetActive(true);
+
+            if (TransisiScene.Instance != null)
+            {
+                UpdateVolumeButtonSprite(TransisiScene.Instance.IsMuted());
+            }
         }
     }
-}
 
     public void HidePausePanel()
     {
@@ -317,7 +320,7 @@ public class UIManager : MonoBehaviour
 
                 if (holdDuration > 0)
                 {
-                    yield return new WaitForSeconds( 1.2f);
+                    yield return new WaitForSeconds(1.2f);
                 }
 
                 yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
@@ -423,11 +426,12 @@ public class UIManager : MonoBehaviour
         ShowMessage(message, 0f);
         AksiTangkisPanel.SetActive(true);
     }
+
     void OnVolumeButtonPressed()
     {
-        if (MusicManager.Instance == null) return;
+        if (TransisiScene.Instance == null) return;
 
-        bool isNowMuted = MusicManager.Instance.ToggleMute();
+        bool isNowMuted = TransisiScene.Instance.ToggleMute();
 
         UpdateVolumeButtonSprite(isNowMuted);
     }

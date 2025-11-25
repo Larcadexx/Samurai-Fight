@@ -17,6 +17,9 @@ public class MenuManager : MonoBehaviour
     public GameObject GameRulePanel;
     public GameObject VolumePanel;
 
+    [Header("UI Slider")]
+    public Slider volumeSlider; 
+
     [Header("Game Rule")]
     public Image GameRulesImage;       
     public List<Sprite> GameRulesSprites; 
@@ -35,6 +38,24 @@ public class MenuManager : MonoBehaviour
         if (CreditPanel != null) CreditPanel.SetActive(false);
         if (GameRulePanel != null) GameRulePanel.SetActive(false);
         if (VolumePanel != null) VolumePanel.SetActive(false);
+
+        if (volumeSlider != null)
+        {
+            if (TransisiScene.Instance != null)
+            {
+                volumeSlider.value = TransisiScene.Instance.GetMasterVolume();
+            }
+
+            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        }
+    }
+
+    public void OnVolumeChanged(float value)
+    {
+        if (TransisiScene.Instance != null)
+        {
+            TransisiScene.Instance.SetMasterVolume(value);
+        }
     }
 
     public void PlayGame()
