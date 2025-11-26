@@ -5809,7 +5809,7 @@ MonoBehaviour:
   playerStartingPos: 1
   aiStartingPos: 23
   maxHandSize: 5
-  winningScore: 2
+  winningScore: 5
 --- !u!4 &1267798871
 Transform:
   m_ObjectHideFlags: 0
@@ -10885,8 +10885,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0738974, y: 0.687416, z: -0.07064809, w: 0.7190322}
-  m_LocalPosition: {x: -755.71387, y: -222.99991, z: 755.4742}
+  m_LocalRotation: {x: 0.037364915, y: -0.54715633, z: 0.024459815, w: 0.83583826}
+  m_LocalPosition: {x: -549.51385, y: -252.89992, z: 778.6742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
