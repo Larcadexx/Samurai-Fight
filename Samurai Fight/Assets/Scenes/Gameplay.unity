@@ -884,6 +884,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &276616739
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1533,6 +1534,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &391320090
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1781,6 +1783,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &393232858
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2901,6 +2904,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &631932516
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3149,6 +3153,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &668226395
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3505,7 +3510,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 144, y: 809}
+  m_AnchoredPosition: {x: 110, y: 809}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &691151048
@@ -3537,8 +3542,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3759,6 +3764,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &727191681
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4008,6 +4014,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &860599649
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5507,6 +5514,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1234080721
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5798,6 +5806,10 @@ MonoBehaviour:
   - {fileID: 6461109676001431320}
   - {fileID: 5371671862546577336}
   - {fileID: 4524298506227147223}
+  playerStartingPos: 1
+  aiStartingPos: 23
+  maxHandSize: 5
+  winningScore: 2
 --- !u!4 &1267798871
 Transform:
   m_ObjectHideFlags: 0
@@ -5973,7 +5985,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -277.2, y: -23.9, z: -23.1}
+  TargetOffset: {x: -131.2, y: -151.5, z: -537.3}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -5998,7 +6010,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 115.3, y: 91, z: -38.8}
+  FollowOffset: {x: 68.5, y: 81, z: -36.5}
 --- !u!4 &1305546823
 Transform:
   m_ObjectHideFlags: 0
@@ -6007,8 +6019,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305546819}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.029410655, y: -0.633148, z: 0.024086632, w: 0.77309674}
-  m_LocalPosition: {x: 808.6903, y: -236.45166, z: 769.4181}
+  m_LocalRotation: {x: 0.043577466, y: -0.671476, z: 0.039612725, w: 0.73868257}
+  m_LocalPosition: {x: 761.8903, y: -246.45166, z: 771.7181}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6253,6 +6265,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1332974915
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6933,6 +6946,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1357755217
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7663,6 +7677,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1448948513
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8103,6 +8118,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1501956373
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8581,6 +8597,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1544690677
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9021,6 +9038,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1617738961
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9804,6 +9822,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!1 &1699340808
 GameObject:
   m_ObjectHideFlags: 0
@@ -9890,7 +9909,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1135, y: 1433}
+  m_AnchoredPosition: {x: 1116, y: 1433}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1730227770
@@ -9948,6 +9967,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1730227773
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10586,6 +10606,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1821560106
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10838,7 +10859,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 3500
-  field of view: 70
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -10864,8 +10885,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.013089582, y: 0, z: 0, w: 0.99991435}
-  m_LocalPosition: {x: 8, y: -100, z: -35}
+  m_LocalRotation: {x: 0.0738974, y: 0.687416, z: -0.07064809, w: 0.7190322}
+  m_LocalPosition: {x: -755.71387, y: -222.99991, z: 755.4742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12214,6 +12235,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &2072217873
 AudioSource:
   m_ObjectHideFlags: 0

@@ -19,6 +19,19 @@ public class GameManager : MonoBehaviour
     public GameObject pionAI;
     public Transform[] petakPapan;
 
+    [Header("Game Settings (Aturan Main)")]
+    [Tooltip("Posisi awal pion Player (biasanya 1)")]
+    public int playerStartingPos = 1;
+    
+    [Tooltip("Posisi awal pion AI (biasanya 23)")]
+    public int aiStartingPos = 23;
+    
+    [Tooltip("Jumlah kartu maksimal di tangan")]
+    public int maxHandSize = 5;
+    
+    [Tooltip("Skor yang dibutuhkan untuk menang")]
+    public int winningScore = 5;
+
     private enum PlayerTurnState
     {
         None,
@@ -114,8 +127,8 @@ public class GameManager : MonoBehaviour
 
     void SetupGame()
     {
-        player = new Player("Manusia", 1);
-        ai = new Player("AI", 23, true);
+        player = new Player("Manusia", playerStartingPos);
+        ai = new Player("AI", aiStartingPos, true);
         uiManager.ResetScoreUI();
     }
 
@@ -130,8 +143,8 @@ public class GameManager : MonoBehaviour
         
         roundNumber++;
 
-        player.position = 1;
-        ai.position = 23;
+        player.position = playerStartingPos;
+        ai.position = aiStartingPos;
         MovePionVisual(player, player.position);
         MovePionVisual(ai, ai.position);
 
@@ -140,7 +153,7 @@ public class GameManager : MonoBehaviour
         player.hand.Clear();
         ai.hand.Clear();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < maxHandSize; i++)
         {
             player.hand.Add(DeckManager.Instance.AcakCard());
             ai.hand.Add(DeckManager.Instance.AcakCard());
@@ -192,7 +205,7 @@ public class GameManager : MonoBehaviour
         RefillHand(player);
         RefillHand(ai);
 
-        if (DeckManager.Instance.IsDeckEmpty() && (player.hand.Count < 5 || ai.hand.Count < 5))
+        if (DeckManager.Instance.IsDeckEmpty() && (player.hand.Count < maxHandSize || ai.hand.Count < maxHandSize))
         {
             StartCoroutine(TieBreakerDelay(TieBreakerReason.DeckEmpty));
             return;
@@ -441,7 +454,7 @@ public class GameManager : MonoBehaviour
     {
         if (player.isAI)
         {
-            while (player.hand.Count < 5)
+            while (player.hand.Count < maxHandSize)
             {
                 Card newCard = DeckManager.Instance.AcakCard();
                 if (newCard == null) return;
@@ -452,7 +465,7 @@ public class GameManager : MonoBehaviour
         {
             foreach (SistemKartu slot in uiManager.cardSlots)
             {
-                if (player.hand.Count >= 5) break;
+                if (player.hand.Count >= maxHandSize) break;
 
                 if (!slot.gameObject.activeSelf)
                 {
@@ -699,7 +712,7 @@ public class GameManager : MonoBehaviour
         if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
         uiManager.HideAllUIsForRoundEnd();
 
-        if (winner.score < 4)
+        if (winner.score < (winningScore - 1))
         {
             uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.0f);
         }
@@ -708,7 +721,7 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateScoreUI(winner);
         yield return new WaitForSeconds(3.0f);
 
-        if (winner.score >= 5)
+        if (winner.score >= winningScore)
         {
             isGameOver = true;
             yield return new WaitForSeconds(0.3f);

@@ -942,6 +942,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1547604656
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1190,6 +1191,7 @@ MonoBehaviour:
   posisiHoverY: 10
   durasiAnimasi: 0.15
   audioKlik: {fileID: 8300000, guid: 1e440786e8236473fa6c8241a431c091, type: 3}
+  volumeSuara: 0.5
 --- !u!82 &1580317436
 AudioSource:
   m_ObjectHideFlags: 0

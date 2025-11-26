@@ -14,7 +14,10 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public float durasiAnimasi = 0.15f; 
 
     [Header("Pengaturan Audio")]
-    public AudioClip audioKlik; 
+    public AudioClip audioKlik;
+    
+    [Range(0f, 1f)] 
+    public float volumeSuara = 0.3f; 
 
     private Vector3 originalScale;
     private Vector3 originalPosition;
@@ -58,7 +61,7 @@ public class TombolAnimasi : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             
             if (audioKlik != null)
             {
-                audioSource.PlayOneShot(audioKlik);
+                audioSource.PlayOneShot(audioKlik, volumeSuara);
             }
         }
     }
