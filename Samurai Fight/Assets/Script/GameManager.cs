@@ -501,7 +501,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator MovePionStepByStep(Player player, int targetPosition)
+    public IEnumerator MovePionStepByStep(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;
         int currentPos = player.position;
