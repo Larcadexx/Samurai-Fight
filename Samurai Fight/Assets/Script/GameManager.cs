@@ -20,16 +20,10 @@ public class GameManager : MonoBehaviour
     public Transform[] petakPapan;
 
     [Header("Game Settings (Aturan Main)")]
-    [Tooltip("Posisi awal pion Player (biasanya 1)")]
     public int playerStartingPos = 1;
-    
-    [Tooltip("Posisi awal pion AI (biasanya 23)")]
     public int aiStartingPos = 23;
-    
-    [Tooltip("Jumlah kartu maksimal di tangan")]
     public int maxHandSize = 5;
-    
-    [Tooltip("Skor yang dibutuhkan untuk menang")]
+    [Range(1, 5)]
     public int winningScore = 5;
 
     private enum PlayerTurnState
@@ -611,7 +605,8 @@ public class GameManager : MonoBehaviour
 
         playerState = PlayerTurnState.SelectingAttackCard;
         uiManager.ShowPilihKartuAksi("serang");
-        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToAttack();
+        
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
     }
 
     private IEnumerator HandleCardActionCoroutine(Card clickedCard, SistemKartu slotController)
@@ -623,11 +618,13 @@ public class GameManager : MonoBehaviour
         {
             case PlayerTurnState.SelectingAttackCard:
                 int distance = ai.position - player.position;
+                
                 if (clickedCard.value == distance)
                 {
                     InisiasiKartuSerang = clickedCard;
                     player.hand.Remove(clickedCard);
                     slotController.HideSlot();
+                    
                     if (player.hand.Count > 0)
                     {
                         uiManager.ShowPerkuatSerangan();
@@ -639,7 +636,11 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    StartTurn();
+                    uiManager.ShowMessage("kartu tidak sesuai! giliran ai", 2.0f);
+                    
+                    yield return new WaitForSeconds(2.0f); 
+
+                    EndTurn();
                 }
                 break;
 
@@ -664,7 +665,7 @@ public class GameManager : MonoBehaviour
                 InisiasiSerangan(player, ai, clickedCard.value, true);
                 break;
         }
-    }
+    }   
 
     private IEnumerator HandleMoveCoroutine(Card clickedCard, SistemKartu slotController)
     {
