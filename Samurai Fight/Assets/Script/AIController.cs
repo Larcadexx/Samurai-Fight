@@ -17,79 +17,66 @@ public class AIController : MonoBehaviour
     }
 
     public IEnumerator ExecuteTurn(Player ai, Player player)
-{
-    this.aiPlayer = ai;
-    this.humanPlayer = player;
-
-    uiManager.ShowInfo_AITurn();
-    yield return new WaitForSeconds(2.0f);
-
-    if (aiPlayer.hand.Count == 0) 
-    { 
-        gameManager.EndTurn(); 
-        yield break; 
-    }
-
-    int distance = aiPlayer.position - humanPlayer.position;
-    bool canAttack = aiPlayer.hand.Any(card => card.value == distance);
-    bool canMoveForward = aiPlayer.hand.Any(card => aiPlayer.position - card.value > humanPlayer.position);
-    bool canMoveBackward = aiPlayer.hand.Any(card => aiPlayer.position + card.value <= 23);
-
-    if (canAttack)
     {
-        Card attackCard = aiPlayer.hand.First(card => card.value == distance);
-        uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
+        this.aiPlayer = ai;
+        this.humanPlayer = player;
+
+        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true);
+        uiManager.ShowMessage("Giliran AI...", 0f);
+        
         yield return new WaitForSeconds(2.0f);
-        aiPlayer.hand.Remove(attackCard);
-        gameManager.InisiasiSerangan(aiPlayer, humanPlayer, attackCard.value, isCounter: false);
-    }
-    else if (canMoveForward)
-    {
-        var validCards = aiPlayer.hand.Where(card => aiPlayer.position - card.value > humanPlayer.position).ToList();
-        Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-        
-        // --- PERUBAHAN MULAI DI SINI (Melangkah Maju) ---
-        
-        // 1. Hitung target posisi (JANGAN update aiPlayer.position di sini, biarkan animasi yang update)
-        int targetPos = aiPlayer.position - chosenCard.value;
 
-        uiManager.ShowMessage("AI melangkah maju.", 1.5f); // Waktu pesan dikurangi sedikit agar tidak terlalu lama
-        
-        // 2. Jalankan animasi berjalan (tunggu sampai selesai)
-        yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
-        
-        // 3. Hapus kartu
-        aiPlayer.hand.Remove(chosenCard);
-        StartCoroutine(CheckForAISergapCoroutine());
+        if (aiPlayer.hand.Count == 0) 
+        { 
+            gameManager.EndTurn(); 
+            yield break; 
+        }
 
-        // --- PERUBAHAN SELESAI ---
-    }
-    else if (canMoveBackward)
-    {
-        var validCards = aiPlayer.hand.Where(card => aiPlayer.position + card.value <= 23).ToList();
-        Card chosenCard = validCards[Random.Range(0, validCards.Count)];
-        
-        // --- PERUBAHAN MULAI DI SINI (Melangkah Mundur) ---
-        
-        // 1. Hitung target posisi
-        int targetPos = aiPlayer.position + chosenCard.value;
+        int distance = aiPlayer.position - humanPlayer.position;
+        bool canAttack = aiPlayer.hand.Any(card => card.value == distance);
+        bool canMoveForward = aiPlayer.hand.Any(card => aiPlayer.position - card.value > humanPlayer.position);
+        bool canMoveBackward = aiPlayer.hand.Any(card => aiPlayer.position + card.value <= 23);
 
-        uiManager.ShowMessage("AI melangkah mundur.", 1.5f);
-        
-        // 2. Jalankan animasi berjalan
-        yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
-        
-        // 3. Hapus kartu
-        aiPlayer.hand.Remove(chosenCard);
-        StartCoroutine(CheckForAISergapCoroutine());
-
-        // --- PERUBAHAN SELESAI ---
+        if (canAttack)
+        {
+            Card attackCard = aiPlayer.hand.First(card => card.value == distance);
+            uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
+            yield return new WaitForSeconds(2.0f);
+            aiPlayer.hand.Remove(attackCard);
+            
+            gameManager.InisiasiSerangan(aiPlayer, humanPlayer, attackCard.value, isCounter: false);
+        }
+        else if (canMoveForward)
+        {
+            var validCards = aiPlayer.hand.Where(card => aiPlayer.position - card.value > humanPlayer.position).ToList();
+            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+            
+            int targetPos = aiPlayer.position - chosenCard.value;
+            uiManager.ShowMessage("AI melangkah maju.", 1.5f); 
+            
+            yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
+            
+            aiPlayer.hand.Remove(chosenCard);
+            StartCoroutine(CheckForAISergapCoroutine());
+        }
+        else if (canMoveBackward)
+        {
+            var validCards = aiPlayer.hand.Where(card => aiPlayer.position + card.value <= 23).ToList();
+            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+            
+            int targetPos = aiPlayer.position + chosenCard.value;
+            uiManager.ShowMessage("AI melangkah mundur.", 1.5f);
+            
+            yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
+            
+            aiPlayer.hand.Remove(chosenCard);
+            StartCoroutine(CheckForAISergapCoroutine());
+        }
+        else
+        {
+            StartCoroutine(gameManager.TieBreakerDelay(GameManager.TieBreakerReason.PlayerCornered));
+        }
     }
-    else
-    {
-        StartCoroutine(gameManager.TieBreakerDelay(GameManager.TieBreakerReason.PlayerCornered));
-    }
-}
 
     public void HandleAIAttacked(Player ai, Player player, int attackValue, bool isCounter)
     {

@@ -62,7 +62,7 @@ public class MainMenuManager : MonoBehaviour
     {
         if (TransisiScene.Instance != null)
         {
-            TransisiScene.Instance.PindahKeScene("Gameplay");
+            TransisiScene.Instance.LoadSceneTransisi("Gameplay");
         }
         else
         {

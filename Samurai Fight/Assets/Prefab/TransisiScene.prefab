@@ -239,17 +239,17 @@ MonoBehaviour:
   fadeCanvasGroup: {fileID: 5104707545502291200}
   fadeCanvasObject: {fileID: 5678238054690927051}
   bgmSource: {fileID: 4617216396903908826}
-  daftarMusik:
-  - namaScene: MainMenu
-    musikBGM: {fileID: 8300000, guid: 3642d327c1cce44729fd306ee5448dc5, type: 3}
-  - namaScene: Gameplay
-    musikBGM: {fileID: 8300000, guid: 6d9653426e0d24183aae8bd0fea1a115, type: 3}
-  - namaScene: SceneLOSE
-    musikBGM: {fileID: 8300000, guid: 5254a4cc8d38c4deaa12bc7f672fb863, type: 3}
-  - namaScene: SceneWIN
-    musikBGM: {fileID: 8300000, guid: 252a2fecd640e45a98946ea3caa588f6, type: 3}
-  durasiFade: 1
-  durasiTunggu: 1
+  musicList:
+  - sceneName: MainMenu
+    bgmMusic: {fileID: 8300000, guid: 3642d327c1cce44729fd306ee5448dc5, type: 3}
+  - sceneName: Gameplay
+    bgmMusic: {fileID: 8300000, guid: 6d9653426e0d24183aae8bd0fea1a115, type: 3}
+  - sceneName: SceneLOSE
+    bgmMusic: {fileID: 8300000, guid: 5254a4cc8d38c4deaa12bc7f672fb863, type: 3}
+  - sceneName: SceneWIN
+    bgmMusic: {fileID: 8300000, guid: 252a2fecd640e45a98946ea3caa588f6, type: 3}
+  fadeDuration: 1
+  waitDuration: 1
 --- !u!82 &4617216396903908826
 AudioSource:
   m_ObjectHideFlags: 0

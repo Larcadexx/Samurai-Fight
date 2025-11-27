@@ -1,37 +1,37 @@
+using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class TransisiScene : MonoBehaviour
 {
     public static TransisiScene Instance;
 
-    [Header("Komponen UI")]
+    [Header("UI Components")]
     public CanvasGroup fadeCanvasGroup;
     public GameObject fadeCanvasObject;
 
-    [Header("Komponen Audio")]
+    [Header("Audio Components")]
     public AudioSource bgmSource;
     
     private float masterVolume = 0.5f; 
 
     [System.Serializable]
-    public struct PlaylistScene
+    public struct ScenePlaylist
     {
-        public string namaScene;
-        public AudioClip musikBGM;
+        public string sceneName;
+        public AudioClip bgmMusic;
     }
 
-    [Header("Daftar Lagu")]
-    public List<PlaylistScene> daftarMusik; 
+    [Header("Music List")]
+    public List<ScenePlaylist> musicList; 
 
-    [Header("Pengaturan Waktu")]
-    public float durasiFade = 1.0f;
-    public float durasiTunggu = 1.0f;
+    [Header("Time Settings")]
+    public float fadeDuration = 1.0f;
+    public float waitDuration = 1.0f;
 
-    private bool sedangTransisi = false;
+    private bool isTransisiActive = false;
 
     private void Awake()
     {
@@ -59,11 +59,11 @@ public class TransisiScene : MonoBehaviour
         if (Instance == this)
         {
             string currentScene = SceneManager.GetActiveScene().name;
-            AudioClip musicAwal = CariMusik(currentScene);
+            AudioClip initialMusic = FindMusic(currentScene);
 
-            if (musicAwal != null)
+            if (initialMusic != null)
             {
-                bgmSource.clip = musicAwal;
+                bgmSource.clip = initialMusic;
                 bgmSource.loop = true;
                 bgmSource.Play();
                 bgmSource.volume = 0f; 
@@ -96,7 +96,7 @@ public class TransisiScene : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        if (bgmSource != null && !sedangTransisi)
+        if (bgmSource != null && !isTransisiActive)
         {
             bgmSource.volume = masterVolume;
         }
@@ -107,67 +107,71 @@ public class TransisiScene : MonoBehaviour
         return masterVolume;
     }
 
-    public void PindahKeScene(string namaScene)
+    public void LoadSceneTransisi(string targetSceneName)
     {
-        if (!sedangTransisi)
+        if (!isTransisiActive)
         {
-            StartCoroutine(ProsesTransisi(namaScene));
+            StartCoroutine(ProcessTransisi(targetSceneName));
         }
     }
 
-    private IEnumerator ProsesTransisi(string namaSceneTujuan)
+    private IEnumerator ProcessTransisi(string targetSceneName)
     {
-        sedangTransisi = true;
+        isTransisiActive = true;
         Time.timeScale = 1f;  
 
-        AudioClip musikBaru = CariMusik(namaSceneTujuan);
-        bool gantiLagu = (musikBaru != bgmSource.clip);
+        AudioClip newMusic = FindMusic(targetSceneName);
+        
+        bool changeSong = (newMusic != bgmSource.clip);
 
         yield return StartCoroutine(FadeOut(true)); 
 
-        SceneManager.LoadScene(namaSceneTujuan);
+        SceneManager.LoadScene(targetSceneName);
 
-        if (musikBaru != null)
+        if (newMusic != null)
         {
-            bgmSource.clip = musikBaru;
-            bgmSource.Stop(); 
-            bgmSource.time = 0f; 
-            bgmSource.Play();
+            if (changeSong || bgmSource.clip == null)
+            {
+                bgmSource.clip = newMusic;
+                bgmSource.Stop(); 
+                bgmSource.time = 0f; 
+                bgmSource.Play();
+            }
         }
         else
         {
             bgmSource.Stop();
         }
 
-        yield return new WaitForSeconds(durasiTunggu);
+        yield return new WaitForSeconds(waitDuration);
 
         yield return StartCoroutine(FadeIn());
         
-        sedangTransisi = false;
+        isTransisiActive = false;
     }
 
-    private AudioClip CariMusik(string namaScene)
+    private AudioClip FindMusic(string sceneName)
     {
-        foreach (var item in daftarMusik)
+        foreach (var item in musicList)
         {
-            if (item.namaScene == namaScene)
+            if (item.sceneName == sceneName)
             {
-                return item.musikBGM;
+                return item.bgmMusic;
             }
         }
         return null; 
     }
 
-    private IEnumerator FadeOut(bool matikanAudio)
+    private IEnumerator FadeOut(bool muteAudio)
     {
         fadeCanvasObject.SetActive(true);
         float timer = 0f;
         float startVolume = bgmSource.volume;
 
-        while (timer < durasiFade)
+        while (timer < fadeDuration)
         {
             timer += Time.deltaTime;
-            float progress = timer / durasiFade;
+            float progress = timer / fadeDuration;
 
             fadeCanvasGroup.alpha = Mathf.Clamp01(progress);
 
@@ -186,10 +190,10 @@ public class TransisiScene : MonoBehaviour
         
         bgmSource.volume = 0f;
 
-        while (timer < durasiFade)
+        while (timer < fadeDuration)
         {
             timer += Time.deltaTime;
-            float progress = timer / durasiFade; 
+            float progress = timer / fadeDuration; 
 
             fadeCanvasGroup.alpha = Mathf.Clamp01(1f - progress);
 

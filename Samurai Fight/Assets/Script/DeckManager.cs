@@ -6,7 +6,7 @@ public class DeckManager : MonoBehaviour
     public static DeckManager Instance;
 
     [SerializeField] 
-    private List<Card> deck = new List<Card>();
+    private List<Card> dek = new List<Card>();
 
     void Awake()
     {
@@ -14,54 +14,51 @@ public class DeckManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void SetupDeck()
+    public void SetupDek()
     {
-        CreateDeck();
-        AcakDeck();
+        CreateDek();
+        ShuffleDek();
     }
 
-    private void CreateDeck()
+    private void CreateDek()
     {
-        deck.Clear();
+        dek.Clear();
         for (int value = 1; value <= 5; value++)
         {
             for (int i = 0; i < 5; i++)
             {
-                deck.Add(new Card(value));
+                dek.Add(new Card(value));
             }
         }
     }
 
-    public void AcakDeck()
+    public void ShuffleDek()
     {
-        System.Random rng = new System.Random();
-        int n = deck.Count;
-        while (n > 1)
+        for (int i = 0; i < dek.Count; i++)
         {
-            n--;
-            int k = rng.Next(n + 1);
-            Card temp = deck[k];
-            deck[k] = deck[n];
-            deck[n] = temp;
+            Card temp = dek[i];
+            int randomIndex = Random.Range(i, dek.Count);
+            dek[i] = dek[randomIndex];
+            dek[randomIndex] = temp;
         }
     }
 
-    public Card AcakCard()
+    public Card DrawDek()
     {
-        if (deck.Count == 0) return null;
+        if (dek.Count == 0) return null;
 
-        Card drawnCard = deck[0];
-        deck.RemoveAt(0);
+        Card drawnCard = dek[0];
+        dek.RemoveAt(0);
         return drawnCard;
     }
 
-    public int DeckCount()
+    public int GetSisaDek()
     {
-        return deck.Count;
+        return dek.Count;
     }
 
-    public bool IsDeckEmpty()
+    public bool IsDekEmpty()
     {
-        return deck.Count == 0;
+        return dek.Count == 0;
     }
 }

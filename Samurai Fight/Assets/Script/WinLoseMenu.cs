@@ -8,7 +8,7 @@ public class WinLoseMenu : MonoBehaviour
 
         if (TransisiScene.Instance != null)
         {
-            TransisiScene.Instance.PindahKeScene("Gameplay");
+            TransisiScene.Instance.LoadSceneTransisi("Gameplay");
         }
         else
         {
@@ -22,7 +22,7 @@ public class WinLoseMenu : MonoBehaviour
 
         if (TransisiScene.Instance != null)
         {
-            TransisiScene.Instance.PindahKeScene("MainMenu");
+            TransisiScene.Instance.LoadSceneTransisi("MainMenu");
         }
         else
         {
