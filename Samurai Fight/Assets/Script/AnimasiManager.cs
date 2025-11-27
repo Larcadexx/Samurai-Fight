@@ -10,6 +10,7 @@ public class AnimasiManager : MonoBehaviour
 
     [Header("Parameter Names")]
     private string walkingBool = "isWalking";
+    private string walkingBackwardBool = "isWalkingBackward";
 
     void Awake()
     {
@@ -37,20 +38,32 @@ public class AnimasiManager : MonoBehaviour
         }
     }
 
+    public void SetWalkingBackward(bool isAI, bool isWalking)
+    {
+        Animator targetAnimator = isAI ? aiAnimator : playerAnimator;
+        if (targetAnimator != null)
+        {
+            targetAnimator.SetBool(walkingBackwardBool, isWalking);
+        }
+    }
+
     public void ResetAllAnimations()
     {
         if (playerAnimator != null)
         {
-            playerAnimator.SetBool(walkingBool, false);
+            playerAnimator.SetBool("isWalking", false);
+            playerAnimator.SetBool("isWalkingBackward", false);
             playerAnimator.Rebind();
             playerAnimator.Update(0f);
         }
 
         if (aiAnimator != null)
         {
-            aiAnimator.SetBool(walkingBool, false);
+            aiAnimator.SetBool("isWalking", false);
+            aiAnimator.SetBool("isWalkingBackward", false);
             aiAnimator.Rebind();
             aiAnimator.Update(0f);
         }
     }
+
 }

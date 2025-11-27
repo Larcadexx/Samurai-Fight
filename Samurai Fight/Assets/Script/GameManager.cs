@@ -26,6 +26,9 @@ public class GameManager : MonoBehaviour
     [Range(1, 5)]
     public int winningScore = 5;
 
+    public float movementSpeed = 6f;
+
+
     private enum PlayerTurnState
     {
         None,
@@ -511,45 +514,96 @@ public class GameManager : MonoBehaviour
     public IEnumerator MovePionStepByStep(Player player, int targetPosition)
     {
         GameObject pawn = player.isAI ? pionAI : pionManusia;
+
+        if (targetPosition <= 0 || targetPosition > petakPapan.Length)
+            yield break;
+
         int currentPos = player.position;
-        int step = (targetPosition > currentPos) ? 1 : -1;
 
-        if (AnimasiManager.Instance != null)
+        int stepDirection = (targetPosition > currentPos) ? 1 : -1;
+
+        float stepDuration = 1.15f; 
+
+        AnimasiManager.Instance.SetWalking(player.isAI, true);
+
+        while (currentPos != targetPosition)
         {
-            AnimasiManager.Instance.SetWalking(player.isAI, true);
-        }
+            int nextPos = currentPos + stepDirection;
 
-        const float moveDuration = 1f;
-        float speed = 1.0f / moveDuration;
+            Vector3 startPos = petakPapan[currentPos - 1].position + new Vector3(0, 5f, 0);
+            Vector3 endPos   = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
 
-        for (int pos = currentPos; pos != targetPosition; pos += step)
-        {
-            int nextPos = pos + step;
+            float t = 0f;
 
-            if (nextPos > 0 && nextPos <= petakPapan.Length)
+            while (t < 1f)
             {
-                Vector3 startPos = petakPapan[pos - 1].position + new Vector3(0, 5f, 0);
-                Vector3 endPos = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
-                float t = 0f;
+                t += Time.deltaTime / stepDuration;
 
-                while (t < 1f)
-                {
-                    t += Time.deltaTime * speed;
-                    pawn.transform.position = Vector3.Lerp(startPos, endPos, t);
-                    yield return null;
-                }
+                float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-                pawn.transform.position = endPos;
+                pawn.transform.position = Vector3.Lerp(startPos, endPos, smoothT);
+                yield return null;
             }
+
+            pawn.transform.position = endPos;
+            currentPos = nextPos;
+            player.position = currentPos;
+
+            yield return null;
         }
 
-        player.position = targetPosition;
-
-        if (AnimasiManager.Instance != null)
-        {
-            AnimasiManager.Instance.SetWalking(player.isAI, false);
-        }
+        AnimasiManager.Instance.SetWalking(player.isAI, false);
     }
+
+    public IEnumerator MoveBackwardStep(Player player, int targetPosition)
+    {
+        GameObject pawn = player.isAI ? pionAI : pionManusia;
+
+        AnimasiManager.Instance.SetWalking(player.isAI, false);
+        AnimasiManager.Instance.SetWalkingBackward(player.isAI, true);
+
+
+        if (targetPosition <= 0 || targetPosition > petakPapan.Length)
+            yield break;
+
+        int currentPos = player.position;
+        int stepDirection = -1;
+
+        float stepDuration = 1.15f; 
+
+        AnimasiManager.Instance.SetWalkingBackward(player.isAI, true);
+
+        while (currentPos != targetPosition)
+        {
+            int nextPos = currentPos + stepDirection;
+
+            Vector3 startPos = petakPapan[currentPos - 1].position + new Vector3(0, 5f, 0);
+            Vector3 endPos   = petakPapan[nextPos - 1].position + new Vector3(0, 5f, 0);
+
+            float t = 0f;
+
+            while (t < 1f)
+            {
+                t += Time.deltaTime / stepDuration;
+                float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                pawn.transform.position = Vector3.Lerp(startPos, endPos, smoothT);
+
+                yield return null;
+            }
+
+            pawn.transform.position = endPos;
+
+            currentPos = nextPos;
+            player.position = currentPos;
+
+            yield return null;
+        }
+
+        AnimasiManager.Instance.SetWalkingBackward(player.isAI, false);
+    }
+
+
 
     public void PlayAgain()
     {
