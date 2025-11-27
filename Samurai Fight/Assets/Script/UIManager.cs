@@ -64,6 +64,9 @@ public class UIManager : MonoBehaviour
     private Coroutine messageCoroutine;
     private CanvasGroup roundPanelCanvasGroup;
 
+    [Header("Indikator Visual")]
+    public GameObject melangkahArrow;
+
     void Awake()
     {
         instance = this;
@@ -274,12 +277,21 @@ public class UIManager : MonoBehaviour
     public void ShowOpsiAwal(bool bisaMelangkah, bool bisaMenyerang)
     {
         RestoreDefaultLayout();
+
+        ShowMessage("Silahkan pilih aksi melangkah atau serang", 0f);
+        if (melangkahArrow != null) 
+        {
+            melangkahArrow.SetActive(bisaMelangkah && !bisaMenyerang);
+        }
+
         OpsiAwalPanel.SetActive(true);
         if (InfoPanel != null) InfoPanel.SetActive(true);
         MoveCardPanel(posisiPanelDefault);
         KartuManusiaPanel.SetActive(true);
+        
         MelangkahButton.interactable = bisaMelangkah;
         SerangButton.interactable = bisaMenyerang;
+        
         SetPlayerHandInteractable(false);
     }
 
