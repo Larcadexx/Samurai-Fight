@@ -210,4 +210,32 @@ public class TransisiScene : MonoBehaviour
         
         if (bgmSource.clip != null) bgmSource.volume = masterVolume;
     }
+
+    public void MuteBGMForCutscene(float duration = 0.5f)
+    {
+        StartCoroutine(FadeBGMVolume(0f, duration));
+    }
+
+    public void ResumeBGMAfterCutscene(float duration = 0.5f)
+    {
+        StopAllCoroutines();
+        StartCoroutine(FadeBGMVolume(masterVolume, duration));
+    }
+
+    private IEnumerator FadeBGMVolume(float targetVolume, float duration)
+    {
+        if (bgmSource == null) yield break;
+
+        float startVolume = bgmSource.volume;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            bgmSource.volume = Mathf.Lerp(startVolume, targetVolume, timer / duration);
+            yield return null;
+        }
+
+        bgmSource.volume = targetVolume;
+    }
 }

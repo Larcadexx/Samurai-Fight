@@ -457,8 +457,14 @@ public class UIManager : MonoBehaviour
         }
 
         if (GameManager.instance != null) GameManager.instance.uiManager.SetPlayerHandInteractable(false);
+        
+        if (TransisiScene.Instance != null) TransisiScene.Instance.MuteBGMForCutscene(0.5f);
 
-        cutscenePanel.SetActive(true); 
+        cutscenePanel.SetActive(true);
+        CanvasGroup cg = cutscenePanel.GetComponent<CanvasGroup>();
+        if (cg == null) cg = cutscenePanel.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+
         videoPlayer.clip = clip;
         videoPlayer.Prepare();
 
@@ -467,15 +473,20 @@ public class UIManager : MonoBehaviour
             yield return null;
         }
 
+        float timer = 0f;
+        float fadeDuration = 0.5f;
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(0f, 1f, timer / fadeDuration);
+            yield return null;
+        }
+        cg.alpha = 1f;
+
         videoPlayer.Play();
 
         bool isVideoFinished = false;
-        
-        void OnVideoFinished(VideoPlayer vp) 
-        {
-            isVideoFinished = true;
-        }
-
+        void OnVideoFinished(VideoPlayer vp) { isVideoFinished = true; }
         videoPlayer.loopPointReached += OnVideoFinished;
 
         while (!isVideoFinished)
@@ -485,8 +496,21 @@ public class UIManager : MonoBehaviour
 
         videoPlayer.loopPointReached -= OnVideoFinished;
 
+        yield return new WaitForSeconds(0.5f); 
+
+        timer = 0f;
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
+            yield return null;
+        }
+        cg.alpha = 0f;
+
         videoPlayer.Stop();
         cutscenePanel.SetActive(false);
+
+        if (TransisiScene.Instance != null) TransisiScene.Instance.ResumeBGMAfterCutscene(0.5f);
         
         onComplete?.Invoke();
     }
