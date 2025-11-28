@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.Events;
+using UnityEngine.Video; // PENTING: Tambahkan ini
 
 public enum ActionType
 {
@@ -66,6 +67,14 @@ public class UIManager : MonoBehaviour
 
     [Header("Indikator Visual")]
     public GameObject melangkahArrow;
+
+    [Header("Cutscene System")]
+    public VideoPlayer videoPlayer; 
+    public GameObject cutscenePanel; 
+    public VideoClip clipPlayerTangkisSukses;
+    public VideoClip clipPlayerTangkisGagal; 
+    public VideoClip clipAITangkisSukses;
+    public VideoClip clipAITangkisGagal;
 
     void Awake()
     {
@@ -431,5 +440,54 @@ public class UIManager : MonoBehaviour
         {
             volumeButton.image.sprite = isMuted ? volumeOffSprite : volumeOnSprite;
         }
+    }
+
+    public void PlayCutscene(VideoClip clip, System.Action onComplete)
+    {
+        StopAllCoroutines(); 
+        StartCoroutine(PlayCutsceneCoroutine(clip, onComplete));
+    }
+
+    private IEnumerator PlayCutsceneCoroutine(VideoClip clip, System.Action onComplete)
+    {
+        if (clip == null || videoPlayer == null) 
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        if (GameManager.instance != null) GameManager.instance.uiManager.SetPlayerHandInteractable(false);
+
+        cutscenePanel.SetActive(true); 
+        videoPlayer.clip = clip;
+        videoPlayer.Prepare();
+
+        while (!videoPlayer.isPrepared)
+        {
+            yield return null;
+        }
+
+        videoPlayer.Play();
+
+        bool isVideoFinished = false;
+        
+        void OnVideoFinished(VideoPlayer vp) 
+        {
+            isVideoFinished = true;
+        }
+
+        videoPlayer.loopPointReached += OnVideoFinished;
+
+        while (!isVideoFinished)
+        {
+            yield return null;
+        }
+
+        videoPlayer.loopPointReached -= OnVideoFinished;
+
+        videoPlayer.Stop();
+        cutscenePanel.SetActive(false);
+        
+        onComplete?.Invoke();
     }
 }

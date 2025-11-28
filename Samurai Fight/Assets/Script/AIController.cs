@@ -92,25 +92,41 @@ public class AIController : MonoBehaviour
 
         if (parryCombination != null)
         {
-            uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
-            yield return new WaitForSeconds(3.0f);
-            foreach (var card in parryCombination) aiPlayer.hand.Remove(card);
-
-            if (isCurrentAttackACounter)
+            uiManager.PlayCutscene(uiManager.clipAITangkisSukses, () => 
             {
-                gameManager.EndTurn();
-            }
-            else
-            {
-                StartCoroutine(ExecuteAISerangBalikCoroutine());
-            }
+                gameManager.StartCoroutine(ProcessAISuccessParry(parryCombination, isCurrentAttackACounter));
+            });
         }
         else
         {
-            uiManager.ShowMessage($"AI gagal menangkis serangan Anda.", 2.5f);
-            yield return new WaitForSeconds(2.5f);
-            StartCoroutine(gameManager.RoundOverDelay(humanPlayer));
+            uiManager.PlayCutscene(uiManager.clipAITangkisGagal, () => 
+            {
+                gameManager.StartCoroutine(ProcessAIFailedParry());
+            });
         }
+    }
+
+    private IEnumerator ProcessAISuccessParry(List<Card> parryCombination, bool isCurrentAttackACounter)
+    {
+        uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
+        yield return new WaitForSeconds(3.0f);
+        foreach (var card in parryCombination) aiPlayer.hand.Remove(card);
+
+        if (isCurrentAttackACounter)
+        {
+            gameManager.EndTurn();
+        }
+        else
+        {
+            StartCoroutine(ExecuteAISerangBalikCoroutine());
+        }
+    }
+
+    private IEnumerator ProcessAIFailedParry()
+    {
+        uiManager.ShowMessage($"AI gagal menangkis serangan Anda.", 2.5f);
+        yield return new WaitForSeconds(2.5f);
+        StartCoroutine(gameManager.RoundOverDelay(humanPlayer)); 
     }
 
     private IEnumerator ExecuteAISerangBalikCoroutine()

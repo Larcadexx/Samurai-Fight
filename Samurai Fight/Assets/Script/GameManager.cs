@@ -231,10 +231,14 @@ public class GameManager : MonoBehaviour
     {
         if (isPaused) return;
         if (phaseSaatIni != PhaseSerangan.MenungguTangkisPemain) return;
-        
+
         uiManager.HideAllPlayerPanels();
         phaseSaatIni = PhaseSerangan.None;
-        StartCoroutine(RoundOverDelay(pihakPenyerang));
+
+        uiManager.PlayCutscene(uiManager.clipPlayerTangkisGagal, () => 
+        {
+            StartCoroutine(RoundOverDelay(pihakPenyerang));
+        });
     }
 
     public void btnConfirmTangkis()
@@ -252,34 +256,46 @@ public class GameManager : MonoBehaviour
         {
             if (IsSeranganBalik)
             {
-                uiManager.ShowMessage("Serang balik berhasil ditangkis!", 3.0f);
-                foreach (var entry in selectedTangkis)
+                uiManager.PlayCutscene(uiManager.clipPlayerTangkisSukses, () => 
                 {
-                    player.hand.Remove(entry.Key);
-                    entry.Value.HideSlot();
-                }
-                EndTurn();
+                    uiManager.ShowMessage("Serang balik berhasil ditangkis!", 3.0f);
+                    foreach (var entry in selectedTangkis)
+                    {
+                        player.hand.Remove(entry.Key);
+                        entry.Value.HideSlot();
+                    }
+                    EndTurn();
+                });
             }
             else if (hasCardLeftForCounter)
             {
-                uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 2.5f);
-                foreach (var entry in selectedTangkis)
+                uiManager.PlayCutscene(uiManager.clipPlayerTangkisSukses, () => 
                 {
-                    player.hand.Remove(entry.Key);
-                    entry.Value.HideSlot();
-                }
-                StartCoroutine(ExecutePlayerSerangBalikCoroutine());
+                    uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 2.5f);
+                    foreach (var entry in selectedTangkis)
+                    {
+                        player.hand.Remove(entry.Key);
+                        entry.Value.HideSlot();
+                    }
+                    StartCoroutine(ExecutePlayerSerangBalikCoroutine());
+                });
             }
             else
             {
-                uiManager.ShowMessage("Tangkisan Tidak Sah! Wajib menyisakan 1 kartu untuk Serang Balik.", 3.5f);
-                StartCoroutine(RoundOverDelay(pihakPenyerang));
+                uiManager.PlayCutscene(uiManager.clipPlayerTangkisGagal, () => 
+                {
+                    uiManager.ShowMessage("Tangkisan Tidak Sah! Wajib menyisakan 1 kartu untuk Serang Balik.", 3.5f);
+                    StartCoroutine(RoundOverDelay(pihakPenyerang));
+                });
             }
         }
         else
         {
-            uiManager.ShowTangkisanGagalMessage(3.5f);
-            StartCoroutine(RoundOverDelay(pihakPenyerang));
+            uiManager.PlayCutscene(uiManager.clipPlayerTangkisGagal, () => 
+            {
+                uiManager.ShowTangkisanGagalMessage(3.5f);
+                StartCoroutine(RoundOverDelay(pihakPenyerang));
+            });
         }
 
         foreach (var entry in selectedTangkis) entry.Value.ToggleSelection(false);
