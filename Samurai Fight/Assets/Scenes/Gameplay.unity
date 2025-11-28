@@ -310,7 +310,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -14.052}
+  m_AnchoredPosition: {x: 0, y: -14.051941}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &73342010
@@ -2058,10 +2058,10 @@ MonoBehaviour:
   melangkahArrow: {fileID: 107270531}
   videoPlayer: {fileID: 461529153}
   cutscenePanel: {fileID: 1951961639}
-  clipPlayerTangkisSukses: {fileID: 32900000, guid: dda8fbfc3c5f84b06884865a51332517, type: 3}
-  clipPlayerTangkisGagal: {fileID: 32900000, guid: dda8fbfc3c5f84b06884865a51332517, type: 3}
-  clipAITangkisSukses: {fileID: 32900000, guid: dda8fbfc3c5f84b06884865a51332517, type: 3}
-  clipAITangkisGagal: {fileID: 32900000, guid: dda8fbfc3c5f84b06884865a51332517, type: 3}
+  clipPlayerTangkisSukses: {fileID: 32900000, guid: 21207b84a511e43fda5b6c88e878bcd4, type: 3}
+  clipPlayerTangkisGagal: {fileID: 32900000, guid: ba6a51a3c8f0042e7b58cd56f0ce8d4c, type: 3}
+  clipAITangkisSukses: {fileID: 32900000, guid: 898a05861408f4a6a9fae44bd3e59389, type: 3}
+  clipAITangkisGagal: {fileID: 32900000, guid: 6ab6e107c576e405d934e5e32ffda19b, type: 3}
 --- !u!4 &461529152
 Transform:
   m_ObjectHideFlags: 0
@@ -6154,7 +6154,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305546819}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.043577462, y: -0.671476, z: 0.03961271, w: 0.73868257}
+  m_LocalRotation: {x: 0.04357747, y: -0.671476, z: 0.039612707, w: 0.7386825}
   m_LocalPosition: {x: 761.8903, y: -246.45166, z: 771.7181}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
