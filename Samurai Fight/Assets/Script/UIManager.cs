@@ -23,39 +23,39 @@ public class UIManager : MonoBehaviour
     public Image[] scoreAiImages;
     public SistemKartu[] cardSlots;
 
-    [Header("Posisi Panel Kartu")]
-    public Transform posisiPanelDefault;
-    public Transform posisiPanelKanan;
-    public Transform posisiPanelBawah;
+    [Header("Position Panel Kartu")]
+    public Transform defaultPanelPosition;
+    public Transform rightPanelPosition;
+    public Transform bottomPanelPosition;
 
     [Header("Text System")]
-    public TextMeshProUGUI nilaiSerangText;
+    public TextMeshProUGUI attackValueText;
     public TextMeshProUGUI systemText;
-    public TextMeshProUGUI sisaKartuDeckText;
+    public TextMeshProUGUI remainingDekText;
 
-    [Header("Tampilan Ronde & Kemenangan")]
-    public Image RondeImage; 
+    [Header("Display Ronde & Victory")]
+    public Image rondeImage; 
     public Sprite[] roundNumberSprites;
-    public Sprite pemainMenangSprite; 
-    public Sprite aiMenangSprite; 
+    public Sprite playerWinSprite; 
+    public Sprite aiWinSprite; 
 
     [Header("Panels")]
-    public GameObject KartuManusiaPanel;
-    public GameObject InfoPanel;
-    public GameObject OpsiAwalPanel;
-    public GameObject AksiMelangkahPanel;
-    public GameObject AksiTangkisPanel;
-    public GameObject AksiSergapPanel;
-    public GameObject PerkuatSeranganPanel;
-    public GameObject RoundPanel;
-    public GameObject PausePanel; 
+    public GameObject panelKartuManusia;
+    public GameObject panelInfo;
+    public GameObject panelOpsiAwal;
+    public GameObject panelAksiMelangkah;
+    public GameObject panelAksiTangkis;
+    public GameObject panelAksiSergap;
+    public GameObject panelPerkuatSerangan;
+    public GameObject panelRonde;
+    public GameObject panelPause; 
 
     [Header("Action Buttons")]
-    public Button MelangkahButton;
-    public Button SerangButton;
-    public Button MajuButton;
-    public Button MundurButton;
-    public Button KonfirmasiTangkisButton;
+    public Button btnMelangkah;
+    public Button btnSerang;
+    public Button btnMaju;
+    public Button btnMundur;
+    public Button confirmTangkisButton;
     
     [Header("Pause Panel Elements")]
     public Button volumeButton;
@@ -65,16 +65,16 @@ public class UIManager : MonoBehaviour
     private Coroutine messageCoroutine;
     private CanvasGroup roundPanelCanvasGroup;
 
-    [Header("Indikator Visual")]
+    [Header("Visual Indicators")]
     public GameObject melangkahArrow;
 
     [Header("Cutscene System")]
     public VideoPlayer videoPlayer; 
     public GameObject cutscenePanel; 
-    public VideoClip clipPlayerTangkisSukses;
-    public VideoClip clipPlayerTangkisGagal; 
-    public VideoClip clipAITangkisSukses;
-    public VideoClip clipAITangkisGagal;
+    public VideoClip clipManusiaBerhasilTangkis;
+    public VideoClip clipManusiaGagalTangkis; 
+    public VideoClip clipAIBerhasilTangkis;
+    public VideoClip clipAIGagalTangkis;
 
     void Awake()
     {
@@ -82,17 +82,17 @@ public class UIManager : MonoBehaviour
         
         HideAllPlayerPanels();
         
-        if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
+        if (attackValueText != null) attackValueText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
-        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        if (confirmTangkisButton != null) confirmTangkisButton.gameObject.SetActive(false);
 
-        if (RoundPanel != null)
+        if (panelRonde != null)
         {
-            roundPanelCanvasGroup = RoundPanel.GetComponent<CanvasGroup>();
-            RoundPanel.SetActive(false);
+            roundPanelCanvasGroup = panelRonde.GetComponent<CanvasGroup>();
+            panelRonde.SetActive(false);
         }
 
-        if (PausePanel != null) PausePanel.SetActive(false); 
+        if (panelPause != null) panelPause.SetActive(false); 
         
         if (volumeButton != null)
         {
@@ -102,48 +102,48 @@ public class UIManager : MonoBehaviour
 
     public void SetupConfirmTangkisAction(UnityAction action)
     {
-        if (KonfirmasiTangkisButton != null)
+        if (confirmTangkisButton != null)
         {
-            KonfirmasiTangkisButton.onClick.RemoveAllListeners();
-            KonfirmasiTangkisButton.onClick.AddListener(action);
-            KonfirmasiTangkisButton.gameObject.SetActive(true);
+            confirmTangkisButton.onClick.RemoveAllListeners();
+            confirmTangkisButton.onClick.AddListener(action);
+            confirmTangkisButton.gameObject.SetActive(true);
         }
     }
 
-    public void ShowPilihKartuAksi(ActionType jenisAksi)
+    public void ShowSelectKartuAction(ActionType actionType)
     {
         HideAllPlayerPanels();
         string message = "";
-        Transform targetPosisi = posisiPanelDefault;
+        Transform targetPosition = defaultPanelPosition;
 
-        switch (jenisAksi)
+        switch (actionType)
         {
             case ActionType.Melangkah:
                 message = "Pilih satu kartu, untuk melangkah seberapa jauh!!";
-                targetPosisi = posisiPanelKanan;
+                targetPosition = rightPanelPosition;
                 break;
             case ActionType.Serang:
                 message = "Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.";
-                targetPosisi = posisiPanelBawah;
+                targetPosition = bottomPanelPosition;
                 break;
             case ActionType.Perkuat:
                 message = "Pilih satu kartu tambahan untuk memperkuat serangan.";
-                targetPosisi = posisiPanelKanan;
+                targetPosition = rightPanelPosition;
                 break;
             case ActionType.Sergap:
                 message = "Pilih kartu untuk melakukan Sergap.";
-                targetPosisi = posisiPanelBawah;
+                targetPosition = bottomPanelPosition;
                 break;
             case ActionType.SerangBalik:
                 HideAttackStrength();
                 message = "Pilih satu kartu untuk melakukan Serang Balik!!";
-                targetPosisi = posisiPanelBawah;
+                targetPosition = bottomPanelPosition;
                 break;
         }
 
         ShowMessage(message, 0f);
-        MoveCardPanel(targetPosisi);
-        KartuManusiaPanel.SetActive(true);
+        MoveKartuPanel(targetPosition);
+        panelKartuManusia.SetActive(true);
         SetPlayerHandInteractable(true);
     }
 
@@ -181,10 +181,10 @@ public class UIManager : MonoBehaviour
             targetImages[player.score - 1].gameObject.SetActive(true);
     }
 
-    public void UpdateMainDeckUI(int cardCount)
+    public void UpdateMainDekUI(int cardCount)
     {
-        if (sisaKartuDeckText == null) return;
-        sisaKartuDeckText.text = cardCount.ToString();
+        if (remainingDekText == null) return;
+        remainingDekText.text = cardCount.ToString();
     }
 
     public void ShowMessage(string message, float duration = 2f)
@@ -194,7 +194,7 @@ public class UIManager : MonoBehaviour
         messageCoroutine = StartCoroutine(ShowMessageCoroutine(message, duration));
     }
 
-    public void ShowTangkisanGagalMessage(float duration = 3f)
+    public void ShowTangkisFailedMessage(float duration = 3f)
     {
         ShowMessage("Tangkisan GAGAL!! Nilai tidak sesuai", duration);
     }
@@ -206,30 +206,30 @@ public class UIManager : MonoBehaviour
         systemText.gameObject.SetActive(false);
     }
 
-    public void ShowNilaiSerangan(int strength)
+    public void ShowAttackValue(int strength)
     {
-        if (nilaiSerangText == null) return;
-        nilaiSerangText.gameObject.SetActive(true);
-        nilaiSerangText.text = $"KEKUATAN SERANGAN: {strength}";
+        if (attackValueText == null) return;
+        attackValueText.gameObject.SetActive(true);
+        attackValueText.text = $"KEKUATAN SERANGAN: {strength}";
     }
 
-    public void UpdateTotalNilaiTangkisan(int total, int requiredStrength)
+    public void UpdateTotalTangkisValue(int total, int requiredStrength)
     {
-        if (nilaiSerangText == null) return;
-        nilaiSerangText.gameObject.SetActive(true);
-        nilaiSerangText.text = $"TANGKISAN ANDA: {total} / {requiredStrength}";
+        if (attackValueText == null) return;
+        attackValueText.gameObject.SetActive(true);
+        attackValueText.text = $"TANGKISAN ANDA: {total} / {requiredStrength}";
     }
 
     public void HideAttackStrength()
     {
-        if (nilaiSerangText != null) nilaiSerangText.gameObject.SetActive(false);
+        if (attackValueText != null) attackValueText.gameObject.SetActive(false);
     }
 
-    public void MoveCardPanel(Transform targetPosisi)
+    public void MoveKartuPanel(Transform targetPosition)
     {
-        if (KartuManusiaPanel != null && targetPosisi != null)
+        if (panelKartuManusia != null && targetPosition != null)
         {
-            KartuManusiaPanel.transform.position = targetPosisi.position;
+            panelKartuManusia.transform.position = targetPosition.position;
         }
     }
 
@@ -237,34 +237,34 @@ public class UIManager : MonoBehaviour
     {
         HideAllPlayerPanels();
         HideAttackStrength();
-        KartuManusiaPanel.SetActive(false);
+        panelKartuManusia.SetActive(false);
     }
 
     public void ShowPausePanel()
     {
-        if (PausePanel != null)
+        if (panelPause != null)
         {
-            PausePanel.SetActive(true);
+            panelPause.SetActive(true);
             if (TransisiScene.Instance != null) UpdateVolumeButtonSprite(TransisiScene.Instance.IsMuted());
         }
     }
 
     public void HidePausePanel()
     {
-        if (PausePanel != null) PausePanel.SetActive(false);
+        if (panelPause != null) panelPause.SetActive(false);
     }
 
-    public void HideConfirmTangkisbtn()
+    public void HideConfirmTangkisButton()
     {
-        if (KonfirmasiTangkisButton != null) KonfirmasiTangkisButton.gameObject.SetActive(false);
+        if (confirmTangkisButton != null) confirmTangkisButton.gameObject.SetActive(false);
     }
 
-    public void HideCardPanel()
+    public void HideKartuPanel()
     {
-        if (KartuManusiaPanel != null) KartuManusiaPanel.SetActive(false);
+        if (panelKartuManusia != null) panelKartuManusia.SetActive(false);
     }
 
-    public void HideAllUIsForRoundEnd()
+    public void HideAllUIsForRondeEnd()
     {
         HideAllPlayerPanels();
         HideAttackStrength();
@@ -273,67 +273,67 @@ public class UIManager : MonoBehaviour
 
     public void HideAllPlayerPanels()
     {
-        OpsiAwalPanel.SetActive(false);
-        AksiMelangkahPanel.SetActive(false);
-        AksiTangkisPanel.SetActive(false);
-        AksiSergapPanel.SetActive(false);
-        PerkuatSeranganPanel.SetActive(false);
-        if (InfoPanel != null) InfoPanel.SetActive(false);
-        KonfirmasiTangkisButton.gameObject.SetActive(false);
-        KartuManusiaPanel.SetActive(false);
+        panelOpsiAwal.SetActive(false);
+        panelAksiMelangkah.SetActive(false);
+        panelAksiTangkis.SetActive(false);
+        panelAksiSergap.SetActive(false);
+        panelPerkuatSerangan.SetActive(false);
+        if (panelInfo != null) panelInfo.SetActive(false);
+        confirmTangkisButton.gameObject.SetActive(false);
+        panelKartuManusia.SetActive(false);
     }
 
-    public void ShowOpsiAwal(bool bisaMelangkah, bool bisaMenyerang)
+    public void ShowInitialChoice(bool canMelangkah, bool canSerang)
     {
         RestoreDefaultLayout();
 
         ShowMessage("Silahkan pilih aksi melangkah atau serang", 0f);
         if (melangkahArrow != null) 
         {
-            melangkahArrow.SetActive(bisaMelangkah && !bisaMenyerang);
+            melangkahArrow.SetActive(canMelangkah && !canSerang);
         }
 
-        OpsiAwalPanel.SetActive(true);
-        if (InfoPanel != null) InfoPanel.SetActive(true);
-        MoveCardPanel(posisiPanelDefault);
-        KartuManusiaPanel.SetActive(true);
+        panelOpsiAwal.SetActive(true);
+        if (panelInfo != null) panelInfo.SetActive(true);
+        MoveKartuPanel(defaultPanelPosition);
+        panelKartuManusia.SetActive(true);
         
-        MelangkahButton.interactable = bisaMelangkah;
-        SerangButton.interactable = bisaMenyerang;
+        btnMelangkah.interactable = canMelangkah;
+        btnSerang.interactable = canSerang;
         
         SetPlayerHandInteractable(false);
     }
 
     public void ShowPerkuatSerangan()
     {
-        PerkuatSeranganPanel.SetActive(true);
+        panelPerkuatSerangan.SetActive(true);
         ShowMessage("Serangan berhasil!! ingin perkuat serangan??", 0f);
     }
 
-    public void ShowPilihKartuTangkis(int kekuatanSerangan)
+    public void ShowSelectKartuTangkis(int attackStrength)
     {
-        AksiTangkisPanel.SetActive(false);
-        ShowMessage($"Pilih Kartu Dengan Nilai {kekuatanSerangan}, Lalu Tekan Tangkis!!", 0f);
-        MoveCardPanel(posisiPanelKanan);
-        KartuManusiaPanel.SetActive(true);
+        panelAksiTangkis.SetActive(false);
+        ShowMessage($"Pilih Kartu Dengan Nilai {attackStrength}, Lalu Tekan Tangkis!!", 0f);
+        MoveKartuPanel(rightPanelPosition);
+        panelKartuManusia.SetActive(true);
         SetPlayerHandInteractable(true);
-        UpdateTotalNilaiTangkisan(0, kekuatanSerangan);
+        UpdateTotalTangkisValue(0, attackStrength);
     }
 
     public IEnumerator ShowRondePanel(int roundNumber, float totalDuration)
     {
-        HideAllUIsForRoundEnd();
+        HideAllUIsForRondeEnd();
 
         float fadeDuration = 0.5f;
         float holdDuration = totalDuration - (fadeDuration * 2);
 
-        if (RoundPanel != null && RondeImage != null && roundNumberSprites.Length > 0)
+        if (panelRonde != null && rondeImage != null && roundNumberSprites.Length > 0)
         {
             if (roundNumber >= 1 && roundNumber <= roundNumberSprites.Length)
             {
-                RondeImage.sprite = roundNumberSprites[roundNumber - 1];
-                RondeImage.gameObject.SetActive(true);
-                RoundPanel.SetActive(true);
+                rondeImage.sprite = roundNumberSprites[roundNumber - 1];
+                rondeImage.gameObject.SetActive(true);
+                panelRonde.SetActive(true);
                 roundPanelCanvasGroup.alpha = 0f; 
 
                 yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
@@ -342,7 +342,7 @@ public class UIManager : MonoBehaviour
 
                 yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
 
-                RoundPanel.SetActive(false);
+                panelRonde.SetActive(false);
             }
         }
         else
@@ -351,18 +351,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ShowGameWIN(string winnerName, float totalDuration)
+    public IEnumerator ShowGameWin(string winnerName, float totalDuration)
     {
         float fadeDuration = 0.5f;
         float holdDuration = totalDuration - (fadeDuration * 2);
 
-        if (RoundPanel != null && RondeImage != null)
+        if (panelRonde != null && rondeImage != null)
         {
-            if (winnerName == "Pemain") RondeImage.sprite = pemainMenangSprite;
-            else RondeImage.sprite = aiMenangSprite;
+            if (winnerName == "Manusia") rondeImage.sprite = playerWinSprite;
+            else rondeImage.sprite = aiWinSprite;
 
-            RondeImage.gameObject.SetActive(true);
-            RoundPanel.SetActive(true);
+            rondeImage.gameObject.SetActive(true);
+            panelRonde.SetActive(true);
             roundPanelCanvasGroup.alpha = 0f; 
 
             yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
@@ -371,7 +371,7 @@ public class UIManager : MonoBehaviour
 
             yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
 
-            RoundPanel.SetActive(false);
+            panelRonde.SetActive(false);
         }
     }
 
@@ -398,31 +398,31 @@ public class UIManager : MonoBehaviour
         cg.alpha = endAlpha; 
     }
 
-    public IEnumerator ShowArahLangkah(bool bisaMaju, bool bisaMundur)
+    public IEnumerator ShowArahLangkah(bool canMaju, bool canMundur)
     {
         HideAllPlayerPanels();
         yield return new WaitForSeconds(1.5f);
         ShowMessage("Pilih arah untuk melangkah!!", 0f);
-        AksiMelangkahPanel.SetActive(true);
-        MajuButton.interactable = bisaMaju;
-        MundurButton.interactable = bisaMundur;
+        panelAksiMelangkah.SetActive(true);
+        btnMaju.interactable = canMaju;
+        btnMundur.interactable = canMundur;
     }
 
     public IEnumerator ShowSergap()
     {
         yield return new WaitForSeconds(2.0f);
         ShowMessage("Anda berada di jangkauan sergap, Lakukan Sergap??", 0f);
-        AksiSergapPanel.SetActive(true);
+        panelAksiSergap.SetActive(true);
     }
 
-    public IEnumerator ShowTangkis(int kekuatan, bool isSerangBalik)
+    public IEnumerator ShowTangkis(int strength, bool isSerangBalik)
     {
         HideAllPlayerPanels();
         yield return new WaitForSeconds(1.5f);
         HideAttackStrength();
         string message = isSerangBalik ? "AI melakukan serang balik. Tangkis Serangan Balik??" : "Anda diserang! Tangkis serangan ini?";
         ShowMessage(message, 0f);
-        AksiTangkisPanel.SetActive(true);
+        panelAksiTangkis.SetActive(true);
     }
 
     void OnVolumeButtonPressed()

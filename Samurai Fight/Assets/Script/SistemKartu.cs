@@ -8,7 +8,7 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public TextMeshProUGUI valueText;
     private float highlightYOffset = 35f;     
     private float highlightScaleMultiplier = 1.1f; 
-    private Card cardData;
+    private Card kartuData;
     private Image imageComponent;
     private Vector3 originalPosition;
     private Vector3 originalScale;
@@ -25,7 +25,7 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void Initialize(Card data)
     {
-        cardData = data;
+        kartuData = data;
         valueText.text = data.value.ToString();
         gameObject.SetActive(true);
 
@@ -36,14 +36,14 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void HideSlot()
     {
-        cardData = null;
+        kartuData = null;
         gameObject.SetActive(false);
     }
 
     public void OnClick()
     {
-        if (cardData == null) return;
-        GameManager.instance.CardHandPressed(cardData, this);
+        if (kartuData == null) return;
+        GameManager.instance.OnKartuHandPressed(kartuData, this);
     }
 
     public void ToggleSelection(bool select)

@@ -130,7 +130,7 @@ public class TransisiScene : MonoBehaviour
 
         if (newMusic != null)
         {
-            if (changeSong || bgmSource.clip == null)
+            if (changeSong || bgmSource.clip == null || !bgmSource.isPlaying)
             {
                 bgmSource.clip = newMusic;
                 bgmSource.Stop(); 

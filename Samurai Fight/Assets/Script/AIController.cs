@@ -8,7 +8,7 @@ public class AIController : MonoBehaviour
     private GameManager gameManager;
     private UIManager uiManager;
     private Player aiPlayer;
-    private Player humanPlayer;
+    private Player manusiaPlayer;
 
     public void Initialize(GameManager gm, UIManager um)
     {
@@ -19,9 +19,9 @@ public class AIController : MonoBehaviour
     public IEnumerator ExecuteTurn(Player ai, Player player)
     {
         this.aiPlayer = ai;
-        this.humanPlayer = player;
+        this.manusiaPlayer = player;
 
-        if (uiManager.InfoPanel != null) uiManager.InfoPanel.SetActive(true);
+        if (uiManager.panelInfo != null) uiManager.panelInfo.SetActive(true);
         uiManager.ShowMessage("Giliran AI...", 0f);
         
         yield return new WaitForSeconds(2.0f);
@@ -32,87 +32,87 @@ public class AIController : MonoBehaviour
             yield break; 
         }
 
-        int distance = aiPlayer.position - humanPlayer.position;
-        bool canAttack = aiPlayer.hand.Any(card => card.value == distance);
-        bool canMoveForward = aiPlayer.hand.Any(card => aiPlayer.position - card.value > humanPlayer.position);
-        bool canMoveBackward = aiPlayer.hand.Any(card => aiPlayer.position + card.value <= 23);
+        int distance = aiPlayer.position - manusiaPlayer.position;
+        bool canSerang = aiPlayer.hand.Any(kartu => kartu.value == distance);
+        bool canMaju = aiPlayer.hand.Any(kartu => aiPlayer.position - kartu.value > manusiaPlayer.position);
+        bool canMundur = aiPlayer.hand.Any(kartu => aiPlayer.position + kartu.value <= 23);
 
-        if (canAttack)
+        if (canSerang)
         {
-            Card attackCard = aiPlayer.hand.First(card => card.value == distance);
-            uiManager.ShowMessage($"AI menyerang dengan kekuatan {attackCard.value}.", 2.5f);
+            Card kartuSerang = aiPlayer.hand.First(kartu => kartu.value == distance);
+            uiManager.ShowMessage($"AI menyerang dengan kekuatan {kartuSerang.value}.", 2.5f);
             yield return new WaitForSeconds(2.0f);
-            aiPlayer.hand.Remove(attackCard);
+            aiPlayer.hand.Remove(kartuSerang);
             
-            gameManager.InisiasiSerangan(aiPlayer, humanPlayer, attackCard.value, isCounter: false);
+            gameManager.InitiateSerangan(aiPlayer, manusiaPlayer, kartuSerang.value, isCounter: false);
         }
-        else if (canMoveForward)
+        else if (canMaju)
         {
-            var validCards = aiPlayer.hand.Where(card => aiPlayer.position - card.value > humanPlayer.position).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+            var validKartu = aiPlayer.hand.Where(kartu => aiPlayer.position - kartu.value > manusiaPlayer.position).ToList();
+            Card selectedKartu = validKartu[Random.Range(0, validKartu.Count)];
             
-            int targetPos = aiPlayer.position - chosenCard.value;
+            int targetPosition = aiPlayer.position - selectedKartu.value;
             uiManager.ShowMessage("AI melangkah maju.", 1.5f); 
             
-            yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
+            yield return gameManager.StartCoroutine(gameManager.MovePionPerLangkah(aiPlayer, targetPosition));
             
-            aiPlayer.hand.Remove(chosenCard);
-            StartCoroutine(CheckForAISergapCoroutine());
+            aiPlayer.hand.Remove(selectedKartu);
+            StartCoroutine(CheckAISergapCoroutine());
         }
-        else if (canMoveBackward)
+        else if (canMundur)
         {
-            var validCards = aiPlayer.hand.Where(card => aiPlayer.position + card.value <= 23).ToList();
-            Card chosenCard = validCards[Random.Range(0, validCards.Count)];
+            var validKartu = aiPlayer.hand.Where(kartu => aiPlayer.position + kartu.value <= 23).ToList();
+            Card selectedKartu = validKartu[Random.Range(0, validKartu.Count)];
             
-            int targetPos = aiPlayer.position + chosenCard.value;
+            int targetPosition = aiPlayer.position + selectedKartu.value;
             uiManager.ShowMessage("AI melangkah mundur.", 1.5f);
             
-            yield return gameManager.StartCoroutine(gameManager.MovePionStepByStep(aiPlayer, targetPos));
+            yield return gameManager.StartCoroutine(gameManager.MovePionPerLangkah(aiPlayer, targetPosition));
             
-            aiPlayer.hand.Remove(chosenCard);
-            StartCoroutine(CheckForAISergapCoroutine());
+            aiPlayer.hand.Remove(selectedKartu);
+            StartCoroutine(CheckAISergapCoroutine());
         }
         else
         {
-            StartCoroutine(gameManager.TieBreakerDelay(GameManager.TieBreakerReason.PlayerCornered));
+            StartCoroutine(gameManager.DelayTieBreaker(GameManager.TieBreakerReason.PlayerTrapped));
         }
     }
 
     public void HandleAIAttacked(Player ai, Player player, int attackValue, bool isCounter)
     {
         this.aiPlayer = ai;
-        this.humanPlayer = player;
+        this.manusiaPlayer = player;
         StartCoroutine(DecideAITangkisCoroutine(attackValue, isCounter));
     }
 
-    private IEnumerator DecideAITangkisCoroutine(int attackValue, bool isCurrentAttackACounter)
+    private IEnumerator DecideAITangkisCoroutine(int attackValue, bool isThisSerangCounter)
     {
         yield return new WaitForSeconds(2.5f);
-        List<Card> parryCombination = KombinasiTangkisan(attackValue, aiPlayer.hand, !isCurrentAttackACounter);
+        List<Card> kombinasiTangkis = FindKombinasiTangkis(attackValue, aiPlayer.hand, !isThisSerangCounter);
 
-        if (parryCombination != null)
+        if (kombinasiTangkis != null)
         {
-            uiManager.PlayCutscene(uiManager.clipAITangkisSukses, () => 
+            uiManager.PlayCutscene(uiManager.clipAIBerhasilTangkis, () => 
             {
-                gameManager.StartCoroutine(ProcessAISuccessParry(parryCombination, isCurrentAttackACounter));
+                gameManager.StartCoroutine(ProcessSuccessfulAITangkis(kombinasiTangkis, isThisSerangCounter));
             });
         }
         else
         {
-            uiManager.PlayCutscene(uiManager.clipAITangkisGagal, () => 
+            uiManager.PlayCutscene(uiManager.clipAIGagalTangkis, () => 
             {
-                gameManager.StartCoroutine(ProcessAIFailedParry());
+                gameManager.StartCoroutine(ProcessFailedAITangkis());
             });
         }
     }
 
-    private IEnumerator ProcessAISuccessParry(List<Card> parryCombination, bool isCurrentAttackACounter)
+    private IEnumerator ProcessSuccessfulAITangkis(List<Card> kombinasiTangkis, bool isThisSerangCounter)
     {
         uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
         yield return new WaitForSeconds(3.0f);
-        foreach (var card in parryCombination) aiPlayer.hand.Remove(card);
+        foreach (var kartu in kombinasiTangkis) aiPlayer.hand.Remove(kartu);
 
-        if (isCurrentAttackACounter)
+        if (isThisSerangCounter)
         {
             gameManager.EndTurn();
         }
@@ -122,11 +122,11 @@ public class AIController : MonoBehaviour
         }
     }
 
-    private IEnumerator ProcessAIFailedParry()
+    private IEnumerator ProcessFailedAITangkis()
     {
         uiManager.ShowMessage($"AI gagal menangkis serangan Anda.", 2.5f);
         yield return new WaitForSeconds(2.5f);
-        StartCoroutine(gameManager.RoundOverDelay(humanPlayer)); 
+        StartCoroutine(gameManager.DelayRondeEnd(manusiaPlayer)); 
     }
 
     private IEnumerator ExecuteAISerangBalikCoroutine()
@@ -136,29 +136,29 @@ public class AIController : MonoBehaviour
             gameManager.EndTurn();
             yield break;
         } 
-        Card counterCard = aiPlayer.hand.OrderBy(card => card.value).First(); 
-        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {counterCard.value}!", 2.5f);
+        Card kartuCounter = aiPlayer.hand.OrderBy(kartu => kartu.value).First(); 
+        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {kartuCounter.value}!", 2.5f);
         yield return new WaitForSeconds(2.5f);
-        aiPlayer.hand.Remove(counterCard);
-        gameManager.InisiasiSerangan(aiPlayer, humanPlayer, counterCard.value, true);
+        aiPlayer.hand.Remove(kartuCounter);
+        gameManager.InitiateSerangan(aiPlayer, manusiaPlayer, kartuCounter.value, true);
     }
 
-    private IEnumerator CheckForAISergapCoroutine()
+    private IEnumerator CheckAISergapCoroutine()
     {
         yield return new WaitForSeconds(2.5f);
 
-        int newDistance = aiPlayer.position - humanPlayer.position;
-        bool canSergap = aiPlayer.hand.Any(card => card.value == newDistance);
+        int newDistance = aiPlayer.position - manusiaPlayer.position;
+        bool canSergap = aiPlayer.hand.Any(kartu => kartu.value == newDistance);
 
         if (canSergap && aiPlayer.hand.Count > 0)
         {
-            Card sergapCard = aiPlayer.hand.First(card => card.value == newDistance);
+            Card kartuSergap = aiPlayer.hand.First(kartu => kartu.value == newDistance);
             
-            uiManager.ShowMessage($"AI melakukan Sergap dengan kekuatan {sergapCard.value}!", 2.5f);
+            uiManager.ShowMessage($"AI melakukan Sergap dengan kekuatan {kartuSergap.value}!", 2.5f);
             yield return new WaitForSeconds(2.5f);
 
-            aiPlayer.hand.Remove(sergapCard);
-            gameManager.InisiasiSerangan(aiPlayer, humanPlayer, sergapCard.value, false, false); 
+            aiPlayer.hand.Remove(kartuSergap);
+            gameManager.InitiateSerangan(aiPlayer, manusiaPlayer, kartuSergap.value, false, false); 
         }
         else
         {
@@ -166,24 +166,24 @@ public class AIController : MonoBehaviour
         }
     }
 
-    private List<Card> KombinasiTangkisan(int target, List<Card> hand, bool mustHaveCardLeft)
+    private List<Card> FindKombinasiTangkis(int target, List<Card> handKartu, bool mustLeaveKartu)
     {
-        List<Card> FindSubsetSum(int currentTarget, List<Card> currentHand, List<Card> currentCombination)
+        List<Card> FindSubsetSum(int currentTarget, List<Card> currentKartu, List<Card> currentKombinasi)
         {
             if (currentTarget == 0)
             {
-                if (mustHaveCardLeft && hand.Count - currentCombination.Count < 1) return null;
-                return currentCombination;
+                if (mustLeaveKartu && handKartu.Count - currentKombinasi.Count < 1) return null;
+                return currentKombinasi;
             }
-            if (currentTarget < 0 || currentHand.Count == 0) return null;
-            Card head = currentHand[0];
-            List<Card> tail = currentHand.GetRange(1, currentHand.Count - 1);
-            var withHead = new List<Card>(currentCombination) { head };
+            if (currentTarget < 0 || currentKartu.Count == 0) return null;
+            Card head = currentKartu[0];
+            List<Card> tail = currentKartu.GetRange(1, currentKartu.Count - 1);
+            var withHead = new List<Card>(currentKombinasi) { head };
             var resultWith = FindSubsetSum(currentTarget - head.value, tail, withHead);
             if (resultWith != null) return resultWith;
-            var resultWithout = FindSubsetSum(currentTarget, tail, currentCombination);
+            var resultWithout = FindSubsetSum(currentTarget, tail, currentKombinasi);
             return resultWithout;
         }
-        return FindSubsetSum(target, new List<Card>(hand), new List<Card>());
+        return FindSubsetSum(target, new List<Card>(handKartu), new List<Card>());
     }
 }
