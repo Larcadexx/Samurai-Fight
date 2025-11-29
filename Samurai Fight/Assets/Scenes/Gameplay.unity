@@ -2060,8 +2060,8 @@ MonoBehaviour:
   cutscenePanel: {fileID: 1951961639}
   clipPlayerTangkisSukses: {fileID: 32900000, guid: 21207b84a511e43fda5b6c88e878bcd4, type: 3}
   clipPlayerTangkisGagal: {fileID: 32900000, guid: ba6a51a3c8f0042e7b58cd56f0ce8d4c, type: 3}
-  clipAITangkisSukses: {fileID: 32900000, guid: 898a05861408f4a6a9fae44bd3e59389, type: 3}
-  clipAITangkisGagal: {fileID: 32900000, guid: 6ab6e107c576e405d934e5e32ffda19b, type: 3}
+  clipAITangkisSukses: {fileID: 32900000, guid: 8ccc0bc0f02fa496c8b3efd08b7a3380, type: 3}
+  clipAITangkisGagal: {fileID: 32900000, guid: 7e6ae15d31a1245e39420b721439adb2, type: 3}
 --- !u!4 &461529152
 Transform:
   m_ObjectHideFlags: 0
@@ -5941,7 +5941,7 @@ MonoBehaviour:
   - {fileID: 5371671862546577336}
   - {fileID: 4524298506227147223}
   playerStartingPos: 5
-  aiStartingPos: 15
+  aiStartingPos: 19
   maxHandSize: 5
   winningScore: 5
   movementSpeed: 6
@@ -6120,7 +6120,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: -131.2, y: -151.5, z: -537.3}
+  TargetOffset: {x: 149.9, y: -35.37, z: -465.6}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -6145,7 +6145,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 68.5, y: 81, z: -36.5}
+  FollowOffset: {x: 62.5, y: 86.2, z: 48.2}
 --- !u!4 &1305546823
 Transform:
   m_ObjectHideFlags: 0
@@ -6154,8 +6154,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305546819}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.04357747, y: -0.671476, z: 0.039612707, w: 0.7386825}
-  m_LocalPosition: {x: 761.8903, y: -246.45166, z: 771.7181}
+  m_LocalRotation: {x: 0.021412516, y: -0.7399388, z: 0.023580132, w: 0.6719197}
+  m_LocalPosition: {x: 755.8903, y: -241.25166, z: 856.4181}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7570,7 +7570,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -714, y: 192}
+  m_AnchoredPosition: {x: 187, y: 560}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1439845858
@@ -7710,7 +7710,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 446.70154, y: 78}
+  m_AnchoredPosition: {x: 589, y: 78}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1448948509
@@ -11840,7 +11840,7 @@ MonoBehaviour:
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 27.8, y: 83.9, z: 13.7}
+  TargetOffset: {x: 35.3, y: 73.7, z: -1.7}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -11865,7 +11865,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: -87.9, y: 104.6, z: -33.2}
+  FollowOffset: {x: -87.9, y: 85.2, z: -41.1}
 --- !u!4 &1974658660
 Transform:
   m_ObjectHideFlags: 0
@@ -11874,8 +11874,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1974658656}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.07389741, y: 0.68741596, z: -0.070648074, w: 0.7190323}
-  m_LocalPosition: {x: -755.71387, y: -222.99991, z: 755.4742}
+  m_LocalRotation: {x: 0.049846858, y: 0.67968416, z: -0.046389665, w: 0.7303375}
+  m_LocalPosition: {x: -755.71387, y: -242.39992, z: 747.5742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

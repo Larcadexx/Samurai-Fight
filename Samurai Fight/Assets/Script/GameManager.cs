@@ -1,9 +1,9 @@
+using UnityEngine;
+using System.Linq;
+using UnityEngine.UI; 
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI; 
-using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -172,6 +172,9 @@ public class GameManager : MonoBehaviour
     public void btnMelangkahPressed()
     {
         if (isPaused) return;
+        
+        uiManager.HideMessage(); 
+
         if (CameraManager.Instance != null) CameraManager.Instance.SwitchToMelangkah();
         StartCoroutine(btnMelangkahPressedCoroutine());
     }
@@ -198,8 +201,11 @@ public class GameManager : MonoBehaviour
     public void btnPerkuatSeranganNo()
     {
         if (isPaused) return;
+        
+        uiManager.HideMessage();
         uiManager.HideAllPlayerPanels();
-        InisiasiSerangan(player, ai, InisiasiKartuSerang.value, false);
+        
+        InisiasiSerangan(player, ai, InisiasiKartuSerang.value, false, false);
     }
 
     public void btnSergapYes()
@@ -271,7 +277,6 @@ public class GameManager : MonoBehaviour
             {
                 uiManager.PlayCutscene(uiManager.clipPlayerTangkisSukses, () => 
                 {
-                    uiManager.ShowMessage("Tangkisan berhasil! Siapkan Serang Balik.", 2.5f);
                     foreach (var entry in selectedTangkis)
                     {
                         player.hand.Remove(entry.Key);
@@ -346,7 +351,14 @@ public class GameManager : MonoBehaviour
         attackValue = value;
         IsSeranganBalik = isCounter;
 
-        if (showAttackValueUI) uiManager.ShowNilaiSerangan(attackValue);
+        if (showAttackValueUI && currentAttacker == player) 
+        {
+            uiManager.ShowNilaiSerangan(attackValue);
+        }
+        else
+        {
+            uiManager.HideAttackStrength();
+        }
 
         if (pihakPenangkis.isAI)
         {
@@ -474,7 +486,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShowPlayerTurnMessage()
     {
         uiManager.InfoPanel.SetActive(true);
-        uiManager.ShowMessage("Giliran anda!!", 1.5f);
+        uiManager.ShowMessage("Giliran anda!!",2.0f);
         yield return new WaitForSeconds(1.5f);
         CheckOpsiAwal();
     }
@@ -537,7 +549,12 @@ public class GameManager : MonoBehaviour
                 int totalAttackValue = InisiasiKartuSerang.value + clickedCard.value;
                 player.hand.Remove(clickedCard);
                 slotController.HideSlot();
-                InisiasiSerangan(player, ai, totalAttackValue, false);
+                
+                uiManager.ShowNilaiSerangan(totalAttackValue);
+                yield return new WaitForSeconds(0.7f);
+                uiManager.HideAttackStrength();
+
+                InisiasiSerangan(player, ai, totalAttackValue, false, false);
                 break;
 
             case PlayerTurnState.MemilihKartuLangkah:
@@ -551,7 +568,7 @@ public class GameManager : MonoBehaviour
             case PlayerTurnState.MemilihKartuSerangBalik:
                 player.hand.Remove(clickedCard);
                 slotController.HideSlot();
-                InisiasiSerangan(player, ai, clickedCard.value, true);
+                InisiasiSerangan(player, ai, clickedCard.value, true, false);
                 break;
         }
     }   
@@ -585,8 +602,8 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
-        yield return new WaitForSeconds(2.5f);
-        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
+        yield return new WaitForSeconds(0.5f);
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToAttack();
         playerState = PlayerTurnState.MemilihKartuSerangBalik;
         uiManager.ShowPilihKartuAksi(ActionType.SerangBalik);
     }
