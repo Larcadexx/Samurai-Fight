@@ -2058,8 +2058,8 @@ MonoBehaviour:
   melangkahArrow: {fileID: 107270531}
   videoPlayer: {fileID: 461529153}
   cutscenePanel: {fileID: 1951961639}
-  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: 21207b84a511e43fda5b6c88e878bcd4, type: 3}
-  clipManusiaGagalTangkis: {fileID: 32900000, guid: ba6a51a3c8f0042e7b58cd56f0ce8d4c, type: 3}
+  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: 5bade6e08a5014c76b97aa3f78b66d81, type: 3}
+  clipManusiaGagalTangkis: {fileID: 32900000, guid: 4ad80867f499f432780a2711f762c317, type: 3}
   clipAIBerhasilTangkis: {fileID: 32900000, guid: 8ccc0bc0f02fa496c8b3efd08b7a3380, type: 3}
   clipAIGagalTangkis: {fileID: 32900000, guid: 7e6ae15d31a1245e39420b721439adb2, type: 3}
 --- !u!4 &461529152
