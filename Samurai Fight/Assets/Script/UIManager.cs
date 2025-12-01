@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq; 
 using UnityEngine.Events;
 using UnityEngine.Video; 
 
@@ -21,7 +22,8 @@ public class UIManager : MonoBehaviour
     [Header("Setup")]
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
-    public SistemKartu[] cardSlots;
+    
+    public CardSystem[] cardSlots;
 
     [Header("Position Panel Kartu")]
     public Transform defaultPanelPosition;
@@ -57,7 +59,8 @@ public class UIManager : MonoBehaviour
     public Button btnMundur;
     public Button confirmTangkisButton;
     
-    [Header("Pause Panel Elements")]
+    [Header("Volume Control & Pause")]
+    public Slider sliderVolume; 
     public Button volumeButton;
     public Sprite volumeOnSprite;
     public Sprite volumeOffSprite;
@@ -96,7 +99,50 @@ public class UIManager : MonoBehaviour
         
         if (volumeButton != null)
         {
+            volumeButton.onClick.RemoveAllListeners();
             volumeButton.onClick.AddListener(OnVolumeButtonPressed);
+        }
+
+        if (sliderVolume != null)
+        {
+            if (TransisiScene.Instance != null)
+            {
+                sliderVolume.value = TransisiScene.Instance.GetMasterVolume();
+                UpdateVolumeButtonSprite(TransisiScene.Instance.IsMuted());
+            }
+            sliderVolume.onValueChanged.AddListener(OnSliderChanged);
+        }
+    }
+
+    public void OnSliderChanged(float value)
+    {
+        if (TransisiScene.Instance != null)
+        {
+            TransisiScene.Instance.SetMasterVolume(value);
+            
+            bool isMuted = (value <= 0);
+            UpdateVolumeButtonSprite(isMuted);
+        }
+    }
+
+    void OnVolumeButtonPressed()
+    {
+        if (TransisiScene.Instance != null)
+        {
+            TransisiScene.Instance.ToggleMute();
+
+            bool isMuted = TransisiScene.Instance.IsMuted();
+            UpdateVolumeButtonSprite(isMuted);
+
+            sliderVolume.value = TransisiScene.Instance.GetMasterVolume();
+        }
+    }
+
+    void UpdateVolumeButtonSprite(bool isMuted)
+    {
+        if (volumeButton != null)
+        {
+            volumeButton.image.sprite = isMuted ? volumeOffSprite : volumeOnSprite;
         }
     }
 
@@ -119,7 +165,7 @@ public class UIManager : MonoBehaviour
         switch (actionType)
         {
             case ActionType.Melangkah:
-                message = "Pilih satu kartu, untuk melangkah seberapa jauh!!";
+                message = "Pilih kartu, untuk melangkah seberapa jauh!!";
                 targetPosition = rightPanelPosition;
                 break;
             case ActionType.Serang:
@@ -127,7 +173,7 @@ public class UIManager : MonoBehaviour
                 targetPosition = bottomPanelPosition;
                 break;
             case ActionType.Perkuat:
-                message = "Pilih satu kartu tambahan untuk memperkuat serangan.";
+                message = "Pilih kartu tambahan untuk memperkuat serangan.";
                 targetPosition = rightPanelPosition;
                 break;
             case ActionType.Sergap:
@@ -136,7 +182,7 @@ public class UIManager : MonoBehaviour
                 break;
             case ActionType.SerangBalik:
                 HideAttackStrength();
-                message = "Pilih satu kartu untuk melakukan Serang Balik!!";
+                message = "Pilih kartu untuk melakukan Serang Balik!!";
                 targetPosition = bottomPanelPosition;
                 break;
         }
@@ -425,23 +471,6 @@ public class UIManager : MonoBehaviour
         panelAksiTangkis.SetActive(true);
     }
 
-    void OnVolumeButtonPressed()
-    {
-        if (TransisiScene.Instance != null)
-        {
-            bool isNowMuted = TransisiScene.Instance.ToggleMute();
-            UpdateVolumeButtonSprite(isNowMuted);
-        }
-    }
-
-    void UpdateVolumeButtonSprite(bool isMuted)
-    {
-        if (volumeButton != null)
-        {
-            volumeButton.image.sprite = isMuted ? volumeOffSprite : volumeOnSprite;
-        }
-    }
-
     public void PlayCutscene(VideoClip clip, System.Action onComplete)
     {
         StopAllCoroutines(); 
@@ -513,5 +542,12 @@ public class UIManager : MonoBehaviour
         if (TransisiScene.Instance != null) TransisiScene.Instance.ResumeBGMAfterCutscene(0.5f);
         
         onComplete?.Invoke();
+    }
+    public void SetConfirmTangkisInteractable(bool isInteractable)
+    {
+        if (confirmTangkisButton != null)
+        {
+            confirmTangkisButton.interactable = isInteractable;
+        }
     }
 }

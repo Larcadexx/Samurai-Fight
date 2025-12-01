@@ -11,9 +11,6 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
     public AIController aiController;
 
-    [Header("Volume Slider")]
-    public Slider sliderVolume; 
-
     [Header("Referensi Objek di Scene")]
     public GameObject pionManusia;
     public GameObject pionAI;
@@ -62,7 +59,8 @@ public class GameManager : MonoBehaviour
     
     private int attackValue;
     private Card kartuInitialSerang;
-    private List<KeyValuePair<Card, SistemKartu>> selectedKartuTangkis = new List<KeyValuePair<Card, SistemKartu>>();
+    
+    private List<KeyValuePair<Card, CardSystem>> selectedKartuTangkis = new List<KeyValuePair<Card, CardSystem>>();
     private bool isSerangBalik = false;
     private bool isPaused = false;
     private const float DELAY_BUTTON_PRESS = 0.3f;
@@ -77,20 +75,9 @@ public class GameManager : MonoBehaviour
     {
         if (aiController != null) aiController.Initialize(this, uiManager);
         
-        if (sliderVolume != null && TransisiScene.Instance != null)
-        {
-            sliderVolume.value = TransisiScene.Instance.GetMasterVolume();
-            sliderVolume.onValueChanged.AddListener(OnVolumeChanged);
-        }
-
         SetupGame();
         if (AnimasiManager.Instance != null) AnimasiManager.Instance.ResetAllAnimations();
         StartRonde();
-    }
-
-    public void OnVolumeChanged(float value)
-    {
-        if (TransisiScene.Instance != null) TransisiScene.Instance.SetMasterVolume(value);
     }
 
     void SetupGame()
@@ -231,6 +218,8 @@ public class GameManager : MonoBehaviour
         currentPhase = AttackPhase.PlayerSelectingKartuTangkis;
         uiManager.ShowSelectKartuTangkis(attackValue);
         uiManager.SetupConfirmTangkisAction(BtnConfirmTangkis);
+
+        uiManager.SetConfirmTangkisInteractable(false); 
     }
 
     public void BtnTangkisNo()
@@ -308,7 +297,7 @@ public class GameManager : MonoBehaviour
         currentPhase = AttackPhase.None;
     }
 
-    public void OnKartuHandPressed(Card clickedKartu, SistemKartu slotController)
+    public void OnCardHandPressed(Card clickedKartu, CardSystem slotController)
     {
         if (isPaused) return;
 
@@ -327,7 +316,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(HandleKartuActionCoroutine(clickedKartu, slotController));
     }
 
-    private void HandleSergap(Card clickedKartu, SistemKartu slotController)
+    private void HandleSergap(Card clickedKartu, CardSystem slotController)
     {
         int distance = ai.position - player.position;
         if (clickedKartu.value == distance)
@@ -373,9 +362,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleKartuTangkisSelection(Card clickedKartu, SistemKartu slotController)
+    private void HandleKartuTangkisSelection(Card clickedKartu, CardSystem slotController)
     {
-        var kartuEntry = new KeyValuePair<Card, SistemKartu>(clickedKartu, slotController);
+        var kartuEntry = new KeyValuePair<Card, CardSystem>(clickedKartu, slotController);
+        
         if (selectedKartuTangkis.Any(p => p.Value == slotController))
         {
             selectedKartuTangkis.RemoveAll(p => p.Value == slotController);
@@ -386,8 +376,12 @@ public class GameManager : MonoBehaviour
             selectedKartuTangkis.Add(kartuEntry);
             slotController.ToggleSelection(true);
         }
+        
         int currentTangkisTotal = selectedKartuTangkis.Sum(entry => entry.Key.value);
         uiManager.UpdateTotalTangkisValue(currentTangkisTotal, attackValue);
+
+        bool adaKartu = selectedKartuTangkis.Count > 0;
+        uiManager.SetConfirmTangkisInteractable(adaKartu);
     }
 
     private void RefillKartu(Player targetPlayer)
@@ -403,7 +397,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            foreach (SistemKartu slot in uiManager.cardSlots)
+            foreach (CardSystem slot in uiManager.cardSlots)
             {
                 if (targetPlayer.hand.Count >= maxUkuranKartu) break;
                 if (!slot.gameObject.activeSelf)
@@ -420,6 +414,8 @@ public class GameManager : MonoBehaviour
 
     private void CheckInitialOptions()
     {
+        SetAllKartuInteractable(false);
+
         bool canMelangkah = player.hand.Any(kartu => (player.position + kartu.value < ai.position) || (player.position - kartu.value >= 1));
         int distance = ai.position - player.position;
         bool canSerang = player.hand.Any(kartu => kartu.value == distance);
@@ -506,6 +502,8 @@ public class GameManager : MonoBehaviour
         arahLangkah = isMaju ? 1 : -1;
         playerState = StateGiliranPlayer.SelectingKartuMelangkah;
         uiManager.ShowSelectKartuAction(ActionType.Melangkah);
+
+        SetAllKartuInteractable(true);
     }
 
     private IEnumerator BtnSerangPressedCoroutine()
@@ -516,10 +514,12 @@ public class GameManager : MonoBehaviour
         playerState = StateGiliranPlayer.SelectingKartuSerang;
         uiManager.ShowSelectKartuAction(ActionType.Serang);
         
+        SetAllKartuInteractable(true);
+
         if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
     }
 
-    private IEnumerator HandleKartuActionCoroutine(Card clickedKartu, SistemKartu slotController)
+    private IEnumerator HandleKartuActionCoroutine(Card clickedKartu, CardSystem slotController)
     {
         StateGiliranPlayer currentState = playerState;
         playerState = StateGiliranPlayer.None;
@@ -573,7 +573,7 @@ public class GameManager : MonoBehaviour
         }
     }   
 
-    private IEnumerator HandleMelangkahCoroutine(Card clickedKartu, SistemKartu slotController)
+    private IEnumerator HandleMelangkahCoroutine(Card clickedKartu, CardSystem slotController)
     {
         int newPosition = player.position + (clickedKartu.value * arahLangkah);
         bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
@@ -705,6 +705,17 @@ public class GameManager : MonoBehaviour
         else
         {
             SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    private void SetAllKartuInteractable(bool aktif)
+    {
+        if (uiManager != null && uiManager.cardSlots != null)
+        {
+            foreach (CardSystem slot in uiManager.cardSlots)
+            {
+                if (slot != null) slot.SetInteractable(aktif);
+            }
         }
     }
 }

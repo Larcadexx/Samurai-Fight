@@ -16,6 +16,7 @@ public class TransisiScene : MonoBehaviour
     public AudioSource bgmSource;
     
     private float masterVolume = 0.5f; 
+    private float lastVolume = 0.5f; // MENYIMPAN RIWAYAT VOLUME SEBELUM MUTE
 
     [System.Serializable]
     public struct ScenePlaylist
@@ -66,6 +67,7 @@ public class TransisiScene : MonoBehaviour
                 bgmSource.clip = initialMusic;
                 bgmSource.loop = true;
                 bgmSource.Play();
+                // Volume dimulai dari 0 untuk efek fade-in nanti
                 bgmSource.volume = 0f; 
             }
 
@@ -73,22 +75,36 @@ public class TransisiScene : MonoBehaviour
         }
     }
 
-  
-    public bool ToggleMute()
+    // --- LOGIC SINKRONISASI VOLUME BARU ---
+
+    public void ToggleMute()
     {
         if (bgmSource != null)
         {
             bgmSource.mute = !bgmSource.mute;
-            return bgmSource.mute;
+
+            if (bgmSource.mute)
+            {
+                // KETIKA MUTE: Simpan volume terakhir, lalu set volume ke 0
+                if (masterVolume > 0) lastVolume = masterVolume;
+                SetMasterVolume(0); 
+            }
+            else
+            {
+                // KETIKA UNMUTE: Kembalikan volume ke posisi terakhir
+                // Jika lastVolume error (0), kembalikan ke default 0.5
+                float targetVolume = (lastVolume > 0) ? lastVolume : 0.5f;
+                SetMasterVolume(targetVolume);
+            }
         }
-        return false;
     }
 
     public bool IsMuted()
     {
         if (bgmSource != null)
         {
-            return bgmSource.mute;
+            // Dianggap mute jika centang Mute aktif ATAU volume 0
+            return bgmSource.mute || masterVolume <= 0;
         }
         return false;
     }
@@ -96,9 +112,22 @@ public class TransisiScene : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        if (bgmSource != null && !isTransisiActive)
+
+        if (bgmSource != null)
         {
             bgmSource.volume = masterVolume;
+            
+            // Logic Otomatis: Jika Slider di 0, otomatis Mute. Jika > 0, Unmute.
+            if (masterVolume <= 0)
+            {
+                bgmSource.mute = true;
+            }
+            else
+            {
+                bgmSource.mute = false;
+                // Update memori lastVolume hanya ketika volume sedang aktif (>0)
+                lastVolume = masterVolume; 
+            }
         }
     }
 
@@ -106,6 +135,8 @@ public class TransisiScene : MonoBehaviour
     {
         return masterVolume;
     }
+
+    // --- BATAS LOGIC BARU ---
 
     public void LoadSceneTransisi(string targetSceneName)
     {
@@ -175,6 +206,7 @@ public class TransisiScene : MonoBehaviour
 
             fadeCanvasGroup.alpha = Mathf.Clamp01(progress);
 
+            // Fade out audio berdasarkan volume saat ini
             bgmSource.volume = Mathf.Lerp(startVolume, 0f, progress);
 
             yield return null;
@@ -199,6 +231,7 @@ public class TransisiScene : MonoBehaviour
 
             if (bgmSource.clip != null && bgmSource.isPlaying)
             {
+                // Fade in audio menuju masterVolume yang diset user
                 bgmSource.volume = Mathf.Lerp(0f, masterVolume, progress);
             }
 
@@ -208,6 +241,7 @@ public class TransisiScene : MonoBehaviour
         fadeCanvasGroup.alpha = 0f;
         fadeCanvasObject.SetActive(false);
         
+        // Pastikan volume akhir sesuai settingan user
         if (bgmSource.clip != null) bgmSource.volume = masterVolume;
     }
 
@@ -219,6 +253,7 @@ public class TransisiScene : MonoBehaviour
     public void ResumeBGMAfterCutscene(float duration = 0.5f)
     {
         StopAllCoroutines();
+        // Kembalikan ke masterVolume, bukan 1f (agar sesuai slider)
         StartCoroutine(FadeBGMVolume(masterVolume, duration));
     }
 

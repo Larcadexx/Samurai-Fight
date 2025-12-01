@@ -108,8 +108,6 @@ public class AIController : MonoBehaviour
 
     private IEnumerator ProcessSuccessfulAITangkis(List<Card> kombinasiTangkis, bool isThisSerangCounter)
     {
-        uiManager.ShowMessage($"AI berhasil menangkis serangan Anda.", 3.0f);
-        yield return new WaitForSeconds(3.0f);
         foreach (var kartu in kombinasiTangkis) aiPlayer.hand.Remove(kartu);
 
         if (isThisSerangCounter)
@@ -120,13 +118,13 @@ public class AIController : MonoBehaviour
         {
             StartCoroutine(ExecuteAISerangBalikCoroutine());
         }
+        yield break;
     }
 
     private IEnumerator ProcessFailedAITangkis()
     {
-        uiManager.ShowMessage($"AI gagal menangkis serangan Anda.", 2.5f);
-        yield return new WaitForSeconds(2.5f);
         StartCoroutine(gameManager.DelayRondeEnd(manusiaPlayer)); 
+        yield break;
     }
 
     private IEnumerator ExecuteAISerangBalikCoroutine()
@@ -137,8 +135,7 @@ public class AIController : MonoBehaviour
             yield break;
         } 
         Card kartuCounter = aiPlayer.hand.OrderBy(kartu => kartu.value).First(); 
-        uiManager.ShowMessage($"AI melakukan Serang Balik dengan kekuatan {kartuCounter.value}!", 2.5f);
-        yield return new WaitForSeconds(2.5f);
+        
         aiPlayer.hand.Remove(kartuCounter);
         gameManager.InitiateSerangan(aiPlayer, manusiaPlayer, kartuCounter.value, true);
     }

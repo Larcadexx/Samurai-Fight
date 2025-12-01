@@ -3,18 +3,21 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems; 
 
-public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public TextMeshProUGUI valueText;
     private float highlightYOffset = 35f;     
     private float highlightScaleMultiplier = 1.1f; 
-    private Card kartuData;
+    
+    private Card cardData;
     private Image imageComponent;
     private Vector3 originalPosition;
     private Vector3 originalScale;
 
     private bool isSelected = false;
     private bool isHovered = false;
+    
+    private bool isInteractable = true; 
 
     private void Awake()
     {
@@ -25,25 +28,39 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void Initialize(Card data)
     {
-        kartuData = data;
+        cardData = data;
         valueText.text = data.value.ToString();
         gameObject.SetActive(true);
 
         isSelected = false;
         isHovered = false;
+        isInteractable = true; 
         UpdateVisualState(); 
+    }
+
+    public void SetInteractable(bool status)
+    {
+        isInteractable = status;
+        if (!status)
+        {
+            isHovered = false;
+            UpdateVisualState();
+        }
     }
 
     public void HideSlot()
     {
-        kartuData = null;
+        cardData = null;
         gameObject.SetActive(false);
     }
 
     public void OnClick()
     {
-        if (kartuData == null) return;
-        GameManager.instance.OnKartuHandPressed(kartuData, this);
+        if (!isInteractable) return;
+
+        if (cardData == null) return;
+
+        GameManager.instance.OnCardHandPressed(cardData, this);
     }
 
     public void ToggleSelection(bool select)
@@ -54,6 +71,8 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!isInteractable) return;
+
         isHovered = true;
         UpdateVisualState();
     }
@@ -64,14 +83,13 @@ public class SistemKartu : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         UpdateVisualState();
     }
 
-
     private void UpdateVisualState()
     {
         if (imageComponent == null) return;
-        if (isSelected || isHovered)
+        
+        if ((isSelected || isHovered) && isInteractable)
         {
             transform.localPosition = originalPosition + new Vector3(0, highlightYOffset, 0);
-            
             transform.localScale = originalScale * highlightScaleMultiplier;
         }
         else
