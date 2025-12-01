@@ -2052,16 +2052,17 @@ MonoBehaviour:
   btnMaju: {fileID: 668226391}
   btnMundur: {fileID: 393232854}
   confirmTangkisButton: {fileID: 1448948509}
+  sliderVolume: {fileID: 273846227}
   volumeButton: {fileID: 1501956374}
   volumeOnSprite: {fileID: 21300000, guid: cad106aefb93b41278578be7dcee78d0, type: 3}
   volumeOffSprite: {fileID: 21300000, guid: ab48b56589c03488b844c308fc000994, type: 3}
   melangkahArrow: {fileID: 107270531}
   videoPlayer: {fileID: 461529153}
   cutscenePanel: {fileID: 1951961639}
-  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: 5bade6e08a5014c76b97aa3f78b66d81, type: 3}
-  clipManusiaGagalTangkis: {fileID: 32900000, guid: 4ad80867f499f432780a2711f762c317, type: 3}
-  clipAIBerhasilTangkis: {fileID: 32900000, guid: 8ccc0bc0f02fa496c8b3efd08b7a3380, type: 3}
-  clipAIGagalTangkis: {fileID: 32900000, guid: 7e6ae15d31a1245e39420b721439adb2, type: 3}
+  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: 0acfde47158ab47c9a749564a11a220d, type: 3}
+  clipManusiaGagalTangkis: {fileID: 32900000, guid: e70e9298a6e4c4f64acaaeb8255cbbac, type: 3}
+  clipAIBerhasilTangkis: {fileID: 32900000, guid: 58a155bcfe78f409fb7717581f96ed3f, type: 3}
+  clipAIGagalTangkis: {fileID: 32900000, guid: c73f4d9f5a4064ad98ba5ff11a11b018, type: 3}
 --- !u!4 &461529152
 Transform:
   m_ObjectHideFlags: 0
@@ -5063,7 +5064,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiManager: {fileID: 461529151}
   aiController: {fileID: 343344174}
-  sliderVolume: {fileID: 273846227}
   pionManusia: {fileID: 960568415}
   pionAI: {fileID: 272891694}
   petakPapan:
