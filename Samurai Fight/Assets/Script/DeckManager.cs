@@ -4,7 +4,12 @@ using System.Collections.Generic;
 public class DeckManager : MonoBehaviour
 {
     public static DeckManager Instance;
+    
+    [Header("Debug: AI Hand Inspector")]
+    [SerializeField]
+    private List<Card> aiHandVisualizer; 
 
+    [Header("Main Deck")]
     [SerializeField] 
     private List<Card> dek = new List<Card>();
 
@@ -12,6 +17,13 @@ public class DeckManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+    void Update()
+    {
+        if (GameManager.instance != null)
+        {
+            aiHandVisualizer = GameManager.instance.GetAIHand();
+        }
     }
 
     public void SetupDek()

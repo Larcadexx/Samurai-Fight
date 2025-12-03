@@ -22,6 +22,7 @@ public class AIController : MonoBehaviour
         this.manusiaPlayer = player;
 
         if (uiManager.panelInfo != null) uiManager.panelInfo.SetActive(true);
+        if (uiManager.panelDek != null) uiManager.panelDek.SetActive(true);
         uiManager.ShowMessage("Giliran AI...", 0f);
         
         yield return new WaitForSeconds(2.0f);

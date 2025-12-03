@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic; 
 using System.Linq; 
 using UnityEngine.Events;
 using UnityEngine.Video; 
@@ -29,7 +30,10 @@ public class UIManager : MonoBehaviour
     public Transform defaultPanelPosition;
     public Transform rightPanelPosition;
     public Transform bottomPanelPosition;
-
+    
+    [Header("Animation References")]
+    public RectTransform deckPosition; 
+    
     [Header("Text System")]
     public TextMeshProUGUI attackValueText;
     public TextMeshProUGUI systemText;
@@ -43,6 +47,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Panels")]
     public GameObject panelKartuManusia;
+    public GameObject panelDek; 
     public GameObject panelInfo;
     public GameObject panelOpsiAwal;
     public GameObject panelAksiMelangkah;
@@ -85,6 +90,8 @@ public class UIManager : MonoBehaviour
         
         HideAllPlayerPanels();
         
+        if (panelDek != null) panelDek.SetActive(false);
+
         if (attackValueText != null) attackValueText.gameObject.SetActive(false);
         if (systemText != null) systemText.gameObject.SetActive(false);
         if (confirmTangkisButton != null) confirmTangkisButton.gameObject.SetActive(false);
@@ -112,6 +119,67 @@ public class UIManager : MonoBehaviour
             }
             sliderVolume.onValueChanged.AddListener(OnSliderChanged);
         }
+    }
+
+    public IEnumerator AnimateCardRefill(List<int> targetSlots, int startDeckCount, System.Action onComplete)
+    {
+        MoveKartuPanel(defaultPanelPosition); 
+        panelKartuManusia.SetActive(true);
+        if (panelDek != null) panelDek.SetActive(true);
+        
+        foreach(int idx in targetSlots)
+        {
+            if(idx < cardSlots.Length) cardSlots[idx].gameObject.SetActive(false);
+        }
+        
+        int visualDeckCount = startDeckCount;
+        UpdateMainDekUI(visualDeckCount);
+
+        foreach (int slotIndex in targetSlots)
+        {
+            if (slotIndex >= cardSlots.Length) continue;
+
+            visualDeckCount--;
+            UpdateMainDekUI(visualDeckCount);
+
+            GameObject flyingCard = new GameObject("FlyingCard");
+            flyingCard.transform.SetParent(panelKartuManusia.transform.parent); 
+            if (deckPosition != null) flyingCard.transform.position = deckPosition.position;
+            flyingCard.transform.localScale = Vector3.one;
+
+            Image img = flyingCard.AddComponent<Image>();
+            if (deckPosition != null && deckPosition.GetComponent<Image>() != null)
+            {
+                img.sprite = deckPosition.GetComponent<Image>().sprite; 
+            }
+            
+            RectTransform flyRect = flyingCard.GetComponent<RectTransform>();
+            RectTransform targetRect = cardSlots[slotIndex].GetComponent<RectTransform>();
+            flyRect.sizeDelta = targetRect.sizeDelta;
+
+            float duration = 0.65f; 
+            float elapsed = 0f;
+            Vector3 startPos = (deckPosition != null) ? deckPosition.position : Vector3.zero;
+            Vector3 endPos = targetRect.position;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                flyingCard.transform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+
+            Destroy(flyingCard);
+            cardSlots[slotIndex].gameObject.SetActive(true); 
+
+            yield return new WaitForSeconds(0.3f);
+        }
+        
+        yield return new WaitForSeconds(0.5f);
+        if (panelDek != null) panelDek.SetActive(false);
+
+        onComplete?.Invoke();
     }
 
     public void OnSliderChanged(float value)
@@ -315,6 +383,7 @@ public class UIManager : MonoBehaviour
         HideAllPlayerPanels();
         HideAttackStrength();
         HideMessage();
+        if (panelDek != null) panelDek.SetActive(false); 
     }
 
     public void HideAllPlayerPanels()
@@ -327,6 +396,7 @@ public class UIManager : MonoBehaviour
         if (panelInfo != null) panelInfo.SetActive(false);
         confirmTangkisButton.gameObject.SetActive(false);
         panelKartuManusia.SetActive(false);
+        if (panelDek != null) panelDek.SetActive(false);
     }
 
     public void ShowInitialChoice(bool canMelangkah, bool canSerang)
@@ -340,6 +410,9 @@ public class UIManager : MonoBehaviour
         }
 
         panelOpsiAwal.SetActive(true);
+        
+        if (panelDek != null) panelDek.SetActive(true);
+
         if (panelInfo != null) panelInfo.SetActive(true);
         MoveKartuPanel(defaultPanelPosition);
         panelKartuManusia.SetActive(true);
@@ -543,6 +616,7 @@ public class UIManager : MonoBehaviour
         
         onComplete?.Invoke();
     }
+
     public void SetConfirmTangkisInteractable(bool isInteractable)
     {
         if (confirmTangkisButton != null)
