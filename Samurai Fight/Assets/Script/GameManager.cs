@@ -153,13 +153,20 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.5f);
 
-        int cardsNeeded = maxUkuranKartu - player.hand.Count;
-
-        if (cardsNeeded > 0)
+        int playerNeeds = maxUkuranKartu - player.hand.Count;
+        int aiNeeds = maxUkuranKartu - ai.hand.Count; 
+        int totalNeeded = playerNeeds + aiNeeds;
+        
+        int currentDeckCount = DeckManager.Instance.GetSisaDek();
+        if (currentDeckCount < totalNeeded)
         {
-            int currentDeckCount = DeckManager.Instance.GetSisaDek();
+            StartCoroutine(DelayTieBreaker(TieBreakerReason.DekEmpty));
+            yield break; 
+        }
 
-            emptySlots.Sort();
+        if (playerNeeds > 0)
+        {
+            emptySlots.Sort(); 
 
             foreach (int indexTarget in emptySlots)
             {
@@ -170,25 +177,23 @@ public class GameManager : MonoBehaviour
                         player.hand.Insert(indexTarget, newKartu);
                     else
                         player.hand.Add(newKartu);
+                    if (indexTarget < uiManager.cardSlots.Length)
+                    {
+                        uiManager.cardSlots[indexTarget].Initialize(newKartu);
+                        uiManager.cardSlots[indexTarget].gameObject.SetActive(false); 
+                    }
                 }
             }
-            
-            uiManager.UpdatePlayerHandUI(player); 
-            
             bool animationDone = false;
             StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), currentDeckCount, () => { animationDone = true; }));
             
             while (!animationDone) yield return null;
+            
+            uiManager.UpdatePlayerHandUI(player);
         }
 
         emptySlots.Clear();
         yield return StartCoroutine(RefillKartuAI());
-
-        if (DeckManager.Instance.IsDekEmpty() && (player.hand.Count < maxUkuranKartu || ai.hand.Count < maxUkuranKartu))
-        {
-            StartCoroutine(DelayTieBreaker(TieBreakerReason.DekEmpty));
-            yield break;
-        }
 
         activePlayer = (activePlayer == player) ? ai : player;
         StartTurn();
@@ -309,9 +314,12 @@ public class GameManager : MonoBehaviour
     public void BtnConfirmTangkis()
     {
         if (isPaused) return;
+
         uiManager.HideConfirmTangkisButton();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
+
+        uiManager.HideAttackStrength();
 
         int totalTangkisValue = selectedKartuTangkis.Sum(entry => entry.Key.value);
         bool isValueCorrect = totalTangkisValue == attackValue;
@@ -328,8 +336,10 @@ public class GameManager : MonoBehaviour
                     {
                         RegisterEmptySlot(entry.Value); 
                         player.hand.Remove(entry.Key);
-                        entry.Value.HideSlot();
+                        entry.Value.HideSlot(); 
                     }
+
+                    CleanupTangkisState(); 
                     EndTurn();
                 });
             }
@@ -341,8 +351,9 @@ public class GameManager : MonoBehaviour
                     {
                         RegisterEmptySlot(entry.Value); 
                         player.hand.Remove(entry.Key);
-                        entry.Value.HideSlot();
                     }
+
+                    CleanupTangkisState(); 
                     StartCoroutine(ExecutePlayerSerangBalikCoroutine());
                 });
             }
@@ -350,6 +361,7 @@ public class GameManager : MonoBehaviour
             {
                 uiManager.PlayCutscene(uiManager.clipManusiaGagalTangkis, () => 
                 {
+                    CleanupTangkisState();
                     uiManager.ShowMessage("Tangkisan Tidak Sah! Wajib menyisakan 1 kartu untuk Serang Balik.", 3.5f);
                     StartCoroutine(DelayRondeEnd(attackingSide));
                 });
@@ -359,14 +371,28 @@ public class GameManager : MonoBehaviour
         {
             uiManager.PlayCutscene(uiManager.clipManusiaGagalTangkis, () => 
             {
+                CleanupTangkisState();
                 uiManager.ShowTangkisFailedMessage(3.5f);
                 StartCoroutine(DelayRondeEnd(attackingSide));
             });
         }
+    }
 
-        foreach (var entry in selectedKartuTangkis) entry.Value.ToggleSelection(false);
-        selectedKartuTangkis.Clear();
+    private void CleanupTangkisState()
+    {
+        uiManager.HideAttackStrength();
         currentPhase = AttackPhase.None;
+
+        foreach (var entry in selectedKartuTangkis) 
+        {
+            if(entry.Value != null)
+            {
+                entry.Value.ToggleSelection(false);
+                entry.Value.HideSlot(); 
+            }
+        }
+        
+        selectedKartuTangkis.Clear();
     }
 
     public void OnCardHandPressed(Card clickedKartu, CardSystem slotController)
@@ -552,7 +578,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator HandleKartuActionCoroutine(Card clickedKartu, CardSystem slotController)
     {
         StateGiliranPlayer currentState = playerState;
-        playerState = StateGiliranPlayer.None;
+        playerState = StateGiliranPlayer.None; 
 
         switch (currentState)
         {
@@ -575,7 +601,6 @@ public class GameManager : MonoBehaviour
                     EndTurn();
                 }
                 break;
-
             case StateGiliranPlayer.PerkuatSerangan:
                 int totalSerangValue = kartuInitialSerang.value + clickedKartu.value;
                 RegisterEmptySlot(slotController); 
@@ -584,7 +609,6 @@ public class GameManager : MonoBehaviour
 
                 InitiateSerangan(player, ai, totalSerangValue, false, false);
                 break;
-
             case StateGiliranPlayer.SelectingKartuMelangkah:
                 yield return StartCoroutine(HandleMelangkahCoroutine(clickedKartu, slotController));
                 break;
@@ -592,15 +616,18 @@ public class GameManager : MonoBehaviour
             case StateGiliranPlayer.SelectingKartuSergap:
                 HandleSergap(clickedKartu, slotController);
                 break;
-
             case StateGiliranPlayer.SelectingKartuSerangBalik:
                 RegisterEmptySlot(slotController); 
                 player.hand.Remove(clickedKartu);
                 slotController.HideSlot();
+                
+                uiManager.HideMessage();
+                uiManager.HideAttackStrength();
+
                 InitiateSerangan(player, ai, clickedKartu.value, true, false);
                 break;
         }
-    }   
+    }
 
     private IEnumerator HandleMelangkahCoroutine(Card clickedKartu, CardSystem slotController)
     {
@@ -633,9 +660,14 @@ public class GameManager : MonoBehaviour
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
     {
         yield return new WaitForSeconds(0.5f);
+        
         if (CameraManager.Instance != null) CameraManager.Instance.SwitchToAttack();
+        
         playerState = StateGiliranPlayer.SelectingKartuSerangBalik;
+        
         uiManager.ShowSelectKartuAction(ActionType.SerangBalik);
+
+        uiManager.HideAttackStrength(); 
     }
 
     public IEnumerator DelayRondeEnd(Player winner)

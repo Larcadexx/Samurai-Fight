@@ -3639,6 +3639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87f70a215223a4b7aa32d1bae4e5d709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  aiHandVisualizer: []
   dek: []
 --- !u!4 &903460003
 Transform:

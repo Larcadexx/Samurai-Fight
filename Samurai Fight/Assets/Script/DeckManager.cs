@@ -5,11 +5,11 @@ public class DeckManager : MonoBehaviour
 {
     public static DeckManager Instance;
     
-    [Header("Debug: AI Hand Inspector")]
+    [Header("AI Hand Card")]
     [SerializeField]
     private List<Card> aiHandVisualizer; 
 
-    [Header("Main Deck")]
+    [Header("Main Deck Card")]
     [SerializeField] 
     private List<Card> dek = new List<Card>();
 
