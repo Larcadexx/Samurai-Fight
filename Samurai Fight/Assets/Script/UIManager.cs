@@ -57,6 +57,10 @@ public class UIManager : MonoBehaviour
     public GameObject panelRonde;
     public GameObject panelPause; 
 
+    [Header("Canvas Groups References")] 
+    public CanvasGroup panelDekCanvasGroup;
+    public CanvasGroup panelKartuManusiaCanvasGroup;
+
     [Header("Action Buttons")]
     public Button btnMelangkah;
     public Button btnSerang;
@@ -88,6 +92,12 @@ public class UIManager : MonoBehaviour
     {
         instance = this;
         
+        if (panelDek != null && panelDekCanvasGroup == null) 
+            panelDekCanvasGroup = panelDek.GetComponent<CanvasGroup>();
+            
+        if (panelKartuManusia != null && panelKartuManusiaCanvasGroup == null)
+            panelKartuManusiaCanvasGroup = panelKartuManusia.GetComponent<CanvasGroup>();
+
         HideAllPlayerPanels();
         
         if (panelDek != null) panelDek.SetActive(false);
@@ -124,8 +134,19 @@ public class UIManager : MonoBehaviour
     public IEnumerator AnimateCardRefill(List<int> targetSlots, int startDeckCount, System.Action onComplete)
     {
         MoveKartuPanel(defaultPanelPosition); 
-        panelKartuManusia.SetActive(true);
-        if (panelDek != null) panelDek.SetActive(true);
+        
+        if (panelKartuManusiaCanvasGroup != null)
+            yield return StartCoroutine(FadePanel(panelKartuManusia, panelKartuManusiaCanvasGroup, true, 0.5f));
+        else 
+            panelKartuManusia.SetActive(true);
+
+        if (panelDek != null && !panelDek.activeSelf)
+        {
+            if (panelDekCanvasGroup != null)
+                StartCoroutine(FadePanel(panelDek, panelDekCanvasGroup, true, 0.5f));
+            else
+                panelDek.SetActive(true);
+        }
         
         foreach(int idx in targetSlots)
         {
@@ -177,9 +198,32 @@ public class UIManager : MonoBehaviour
         }
         
         yield return new WaitForSeconds(0.5f);
-        if (panelDek != null) panelDek.SetActive(false);
+        
+        if (panelDek != null && panelDek.activeSelf)
+        {
+             if (panelDekCanvasGroup != null)
+                yield return StartCoroutine(FadePanel(panelDek, panelDekCanvasGroup, false, 0.5f));
+            else
+                panelDek.SetActive(false);
+        }
 
         onComplete?.Invoke();
+    }
+
+    public IEnumerator FadePanel(GameObject panel, CanvasGroup cg, bool show, float duration)
+    {
+        if (show)
+        {
+            panel.SetActive(true);
+            cg.alpha = 0f; 
+            yield return StartCoroutine(FadeCanvasGroup(cg, 0f, 1f, duration));
+        }
+        else
+        {
+            cg.alpha = 1f; 
+            yield return StartCoroutine(FadeCanvasGroup(cg, 1f, 0f, duration));
+            panel.SetActive(false); 
+        }
     }
 
     public void OnSliderChanged(float value)

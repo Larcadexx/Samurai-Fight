@@ -111,18 +111,48 @@ public class GameManager : MonoBehaviour
         player.hand.Clear();
         ai.hand.Clear();
 
-        for (int i = 0; i < maxUkuranKartu; i++)
-        {
-            player.hand.Add(DeckManager.Instance.DrawDek());
-            ai.hand.Add(DeckManager.Instance.DrawDek());
-        }
-
         uiManager.UpdatePlayerHandUI(player);
         uiManager.UpdateMainDekUI(DeckManager.Instance.GetSisaDek());
         
         activePlayer = (roundNumber % 2 != 0) ? ai : player;
 
-        StartCoroutine(ShowRondeStartMessageAndBeginTurn());
+        StartCoroutine(StartRoundSequence());
+    }
+
+    private IEnumerator StartRoundSequence()
+    {
+        yield return StartCoroutine(uiManager.ShowRondePanel(roundNumber, 2.0f));
+
+        yield return new WaitForSeconds(0.5f);
+
+        yield return StartCoroutine(RefillKartuAI());
+
+        yield return new WaitForSeconds(0.8f);
+
+        int deckAfterAI = DeckManager.Instance.GetSisaDek();
+        List<int> slotsToFill = new List<int>();
+        
+        for (int i = 0; i < maxUkuranKartu; i++)
+        {
+            slotsToFill.Add(i);
+            Card newKartu = DeckManager.Instance.DrawDek();
+            player.hand.Add(newKartu);
+
+            if (i < uiManager.cardSlots.Length)
+            {
+                uiManager.cardSlots[i].Initialize(newKartu);
+                uiManager.cardSlots[i].gameObject.SetActive(false); 
+            }
+        }
+
+        bool animationDone = false;
+        StartCoroutine(uiManager.AnimateCardRefill(slotsToFill, deckAfterAI, () => { animationDone = true; }));
+
+        while (!animationDone) yield return null;
+        
+        uiManager.UpdatePlayerHandUI(player);
+
+        StartTurn();
     }
 
     private void StartTurn()
@@ -164,8 +194,13 @@ public class GameManager : MonoBehaviour
             yield break; 
         }
 
+        yield return StartCoroutine(RefillKartuAI());
+
+        yield return new WaitForSeconds(0.8f);
+
         if (playerNeeds > 0)
         {
+            int deckAfterAI = DeckManager.Instance.GetSisaDek();
             emptySlots.Sort(); 
 
             foreach (int indexTarget in emptySlots)
@@ -177,6 +212,7 @@ public class GameManager : MonoBehaviour
                         player.hand.Insert(indexTarget, newKartu);
                     else
                         player.hand.Add(newKartu);
+                    
                     if (indexTarget < uiManager.cardSlots.Length)
                     {
                         uiManager.cardSlots[indexTarget].Initialize(newKartu);
@@ -184,8 +220,9 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
+
             bool animationDone = false;
-            StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), currentDeckCount, () => { animationDone = true; }));
+            StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), deckAfterAI, () => { animationDone = true; }));
             
             while (!animationDone) yield return null;
             
@@ -193,7 +230,6 @@ public class GameManager : MonoBehaviour
         }
 
         emptySlots.Clear();
-        yield return StartCoroutine(RefillKartuAI());
 
         activePlayer = (activePlayer == player) ? ai : player;
         StartTurn();
@@ -201,14 +237,30 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RefillKartuAI()
     {
+        if (uiManager.panelDek != null) 
+        {
+            if (uiManager.panelDekCanvasGroup != null)
+            {
+                yield return StartCoroutine(uiManager.FadePanel(uiManager.panelDek, uiManager.panelDekCanvasGroup, true, 0.5f));
+            }
+            else
+            {
+                uiManager.panelDek.SetActive(true);
+            }
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
         while (ai.hand.Count < maxUkuranKartu)
         {
             Card newKartu = DeckManager.Instance.DrawDek();
             if (newKartu == null) break; 
+            
             ai.hand.Add(newKartu);
+            
             uiManager.UpdateMainDekUI(DeckManager.Instance.GetSisaDek());
 
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -219,12 +271,6 @@ public class GameManager : MonoBehaviour
         {
             emptySlots.Add(idx);
         }
-    }
-
-    private IEnumerator ShowRondeStartMessageAndBeginTurn()
-    {
-        yield return StartCoroutine(uiManager.ShowRondePanel(roundNumber, 2.0f));
-        StartTurn();
     }
 
     private IEnumerator ShowPlayerTurnMessage()
