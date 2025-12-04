@@ -399,7 +399,7 @@ public class UIManager : MonoBehaviour
         if (panelDek != null) panelDek.SetActive(false);
     }
 
-    public void ShowInitialChoice(bool canMelangkah, bool canSerang)
+    public void ShowOpsiAwal(bool canMelangkah, bool canSerang)
     {
         RestoreDefaultLayout();
 

@@ -233,7 +233,7 @@ public class GameManager : MonoBehaviour
         uiManager.panelDek.SetActive(true);
         uiManager.ShowMessage("Giliran anda!!", 2.0f);
         yield return new WaitForSeconds(1.5f);
-        CheckInitialOptions();
+        CheckOpsiAwal();
     }
 
     public void BtnMelangkahPressed()
@@ -483,14 +483,14 @@ public class GameManager : MonoBehaviour
         uiManager.SetConfirmTangkisInteractable(adaKartu);
     }
 
-    private void CheckInitialOptions()
+    private void CheckOpsiAwal()
     {
         SetAllKartuInteractable(false);
         bool canMelangkah = player.hand.Any(kartu => (player.position + kartu.value < ai.position) || (player.position - kartu.value >= 1));
         int distance = ai.position - player.position;
         bool canSerang = player.hand.Any(kartu => kartu.value == distance);
 
-        uiManager.ShowInitialChoice(canMelangkah, canSerang);
+        uiManager.ShowOpsiAwal(canMelangkah, canSerang);
 
         if (!canMelangkah && !canSerang) StartCoroutine(DelayTieBreaker(TieBreakerReason.PlayerTrapped));
     }
@@ -781,12 +781,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-public List<Card> GetAIHand()
-{
-    if (ai != null)
+    public List<Card> GetAIHand()
     {
-        return ai.hand;
+        if (ai != null)
+        {
+            return ai.hand;
+        }
+        return null;
     }
-    return null;
-}
 }
