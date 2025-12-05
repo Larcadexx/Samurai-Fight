@@ -161,16 +161,29 @@ public class GameManager : MonoBehaviour
         if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
         
         playerState = StateGiliranPlayer.None;
-        uiManager.RestoreDefaultLayout();
-
+        uiManager.RestoreDefaultLayout(); 
         if (AnimasiManager.Instance != null)
         {
             AnimasiManager.Instance.SetWalking(false, false); 
             AnimasiManager.Instance.SetWalking(true, false); 
         }
 
-        if (activePlayer.isAI) StartCoroutine(aiController.ExecuteTurn(ai, player));
-        else StartCoroutine(ShowPlayerTurnMessage());
+        if (activePlayer.isAI)
+        {
+            if (uiManager.panelDek != null) 
+            {
+                if (uiManager.panelDekCanvasGroup != null)
+                     StartCoroutine(uiManager.FadePanel(uiManager.panelDek, uiManager.panelDekCanvasGroup, true, 0.5f));
+                else
+                     uiManager.panelDek.SetActive(true);
+            }
+
+            StartCoroutine(aiController.ExecuteTurn(ai, player));
+        }
+        else 
+        {
+            StartCoroutine(ShowPlayerTurnMessage());
+        }
     }
 
     public void EndTurn()
