@@ -556,6 +556,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 252432101}
+  - component: {fileID: 252432102}
   m_Layer: 0
   m_Name: DekPanel
   m_TagString: Untagged
@@ -563,16 +564,15 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &252432101
-Transform:
+--- !u!224 &252432101
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 252432100}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -622.3054, y: 174.69983, z: -59.63147}
+  m_LocalPosition: {x: 0, y: 0, z: -59.63147}
   m_LocalScale: {x: 0.81437, y: 0.81437, z: 0.81437}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -580,6 +580,23 @@ Transform:
   - {fileID: 1286598693}
   m_Father: {fileID: 1641180304}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -622.3054, y: 174.69983}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &252432102
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252432100}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &272891694 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ec0a246230511db498e03e861d4c4a75, type: 3}
@@ -1911,6 +1928,8 @@ MonoBehaviour:
   panelPerkuatSerangan: {fileID: 1357192393}
   panelRonde: {fileID: 1144221412}
   panelPause: {fileID: 73342008}
+  panelDekCanvasGroup: {fileID: 252432102}
+  panelKartuManusiaCanvasGroup: {fileID: 1623273791}
   btnMelangkah: {fileID: 1234080717}
   btnSerang: {fileID: 631932512}
   btnMaju: {fileID: 668226391}
@@ -1923,10 +1942,10 @@ MonoBehaviour:
   melangkahArrow: {fileID: 107270531}
   videoPlayer: {fileID: 461529153}
   cutscenePanel: {fileID: 1951961639}
-  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: 0acfde47158ab47c9a749564a11a220d, type: 3}
-  clipManusiaGagalTangkis: {fileID: 32900000, guid: e70e9298a6e4c4f64acaaeb8255cbbac, type: 3}
-  clipAIBerhasilTangkis: {fileID: 32900000, guid: 58a155bcfe78f409fb7717581f96ed3f, type: 3}
-  clipAIGagalTangkis: {fileID: 32900000, guid: c73f4d9f5a4064ad98ba5ff11a11b018, type: 3}
+  clipManusiaBerhasilTangkis: {fileID: 32900000, guid: b42b3ae8ba0de4b62a54fb10ca76d3e6, type: 3}
+  clipManusiaGagalTangkis: {fileID: 32900000, guid: d002e9ea498a3404aaaef694f624b07c, type: 3}
+  clipAIBerhasilTangkis: {fileID: 32900000, guid: 7ecb5c95c3ece4f2a96b47b87d2f858f, type: 3}
+  clipAIGagalTangkis: {fileID: 32900000, guid: 367d188a58f534919b316a3e4376abf1, type: 3}
 --- !u!4 &461529152
 Transform:
   m_ObjectHideFlags: 0
@@ -4893,8 +4912,8 @@ MonoBehaviour:
   - {fileID: 6461109676001431320}
   - {fileID: 5371671862546577336}
   - {fileID: 4524298506227147223}
-  posisiAwalPlayer: 6
-  posisiAwalAI: 18
+  posisiAwalPlayer: 1
+  posisiAwalAI: 23
   maxUkuranKartu: 5
   skorMenang: 5
   kecepatanGerak: 6
@@ -8180,6 +8199,7 @@ GameObject:
   - component: {fileID: 1623273788}
   - component: {fileID: 1623273790}
   - component: {fileID: 1623273789}
+  - component: {fileID: 1623273791}
   m_Layer: 5
   m_Name: KartuManusiaPanel
   m_TagString: Untagged
@@ -8249,6 +8269,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1623273787}
   m_CullTransparentMesh: 1
+--- !u!225 &1623273791
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1623273787}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1629297276
 GameObject:
   m_ObjectHideFlags: 0
