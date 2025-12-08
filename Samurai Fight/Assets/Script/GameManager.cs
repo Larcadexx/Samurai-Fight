@@ -691,13 +691,15 @@ public class GameManager : MonoBehaviour
     private IEnumerator HandleMelangkahCoroutine(Card clickedKartu, CardSystem slotController)
     {
         int newPosition = player.position + (clickedKartu.value * arahLangkah);
+        
         bool isValidMove = (arahLangkah == 1 && newPosition < ai.position) || (arahLangkah == -1 && newPosition >= 1);
+
+        RegisterEmptySlot(slotController); 
+        player.hand.Remove(clickedKartu);
+        slotController.HideSlot();
 
         if (isValidMove)
         {
-            RegisterEmptySlot(slotController); 
-            player.hand.Remove(clickedKartu);
-            slotController.HideSlot();
             if (CameraManager.Instance != null) CameraManager.Instance.SwitchToBergerak();
             yield return new WaitForSeconds(1f);
             yield return StartCoroutine(MovePionPerLangkah(player, newPosition));
@@ -706,14 +708,23 @@ public class GameManager : MonoBehaviour
 
             int newDistance = ai.position - player.position;
             bool canSergap = player.hand.Any(kartu => kartu.value == newDistance);
+            
             if (canSergap)
             {
                 if (CameraManager.Instance != null) CameraManager.Instance.SwitchToMelangkah();
                 StartCoroutine(uiManager.ShowSergap());
             }
-            else EndTurn();
+            else 
+            {
+                EndTurn();
+            }
         }
-        else StartTurn();
+        else
+        {
+            uiManager.ShowMessage("Langkah Gagal! Jarak tidak valid. Giliran hangus!", 2.5f);
+            yield return new WaitForSeconds(2.5f);
+            EndTurn(); 
+        }
     }
 
     private IEnumerator ExecutePlayerSerangBalikCoroutine()
