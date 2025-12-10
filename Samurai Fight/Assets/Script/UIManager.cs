@@ -276,11 +276,11 @@ public class UIManager : MonoBehaviour
         switch (actionType)
         {
             case ActionType.Melangkah:
-                message = "Pilih kartu, untuk melangkah seberapa jauh!!";
+                message = "Pilih kartu untuk menentukan jarak langkah!";
                 targetPosition = rightPanelPosition;
                 break;
             case ActionType.Serang:
-                message = "Pilih kartu yang nilainya sama dengan jarak Anda ke lawan.";
+                message = "Pilih kartu yang jaraknya sesuai dengan lawan.";
                 targetPosition = bottomPanelPosition;
                 break;
             case ActionType.Perkuat:
@@ -288,7 +288,7 @@ public class UIManager : MonoBehaviour
                 targetPosition = rightPanelPosition;
                 break;
             case ActionType.Sergap:
-                message = "Pilih kartu yang nilainya sama dengan jarak Anda ke lawan. untuk melakukan Sergap.";
+                message = "Pilih kartu yang jaraknya sesuai dengan lawan. untuk melakukan Sergap.";
                 targetPosition = bottomPanelPosition;
                 break;
             case ActionType.SerangBalik:
@@ -353,7 +353,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowTangkisFailedMessage(float duration = 3f)
     {
-        ShowMessage("Tangkisan GAGAL!! Nilai tidak sesuai", duration);
+        ShowMessage("Tangkisan GAGAL! Kartu tidak sesuai", duration);
     }
 
     public void HideMessage()
@@ -469,13 +469,13 @@ public class UIManager : MonoBehaviour
     public void ShowPerkuatSerangan()
     {
         panelPerkuatSerangan.SetActive(true);
-        ShowMessage("Serangan berhasil!! ingin perkuat serangan??", 0f);
+        ShowMessage("Serangan berhasil! Ingin perkuat serangan??", 0f);
     }
 
     public void ShowSelectKartuTangkis(int attackStrength)
     {
         panelAksiTangkis.SetActive(false);
-        ShowMessage($"Pilih Kartu Dengan Nilai {attackStrength}, Lalu Tekan Tangkis!!", 0f);
+        ShowMessage($"Pilih satu kartu atau kombinasi dengan total nilai {attackStrength}, lalu Tekan Tangkis!", 0f);
         MoveKartuPanel(rightPanelPosition);
         panelKartuManusia.SetActive(true);
         SetPlayerHandInteractable(true);
@@ -573,7 +573,7 @@ public class UIManager : MonoBehaviour
     public IEnumerator ShowSergap()
     {
         yield return new WaitForSeconds(2.0f);
-        ShowMessage("Anda berada di jangkauan sergap, Lakukan Sergap??", 0f);
+        ShowMessage("Anda berada di jangkauan sergap, lakukan sergap??", 0f);
         panelAksiSergap.SetActive(true);
     }
 

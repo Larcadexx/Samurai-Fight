@@ -290,7 +290,7 @@ public class GameManager : MonoBehaviour
     {
         uiManager.panelInfo.SetActive(true);
         uiManager.panelDek.SetActive(true);
-        uiManager.ShowMessage("Giliran anda!!", 2.0f);
+        uiManager.ShowMessage("Giliran Anda!", 2.0f);
         yield return new WaitForSeconds(1.5f);
         CheckOpsiAwal();
     }
@@ -655,7 +655,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    uiManager.ShowMessage("kartu tidak sesuai! giliran ai", 2.0f);
+                    uiManager.ShowMessage("Kartu tidak sesuai!", 2.0f);
                     yield return new WaitForSeconds(2.0f); 
                     EndTurn();
                 }
@@ -778,7 +778,7 @@ public class GameManager : MonoBehaviour
         switch (reason)
         {
             case TieBreakerReason.PlayerTrapped: message = "Pemain Terpojok! TIE BREAKER diaktifkan."; break;
-            case TieBreakerReason.DekEmpty: message = "Deck Kartu Habis! TIE BREAKER diaktifkan."; break;
+            case TieBreakerReason.DekEmpty: message = "Dek Kartu Habis! TIE BREAKER diaktifkan."; break;
         }
         uiManager.ShowMessage(message, 3.5f);
         yield return new WaitForSeconds(3.5f);
