@@ -486,7 +486,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            uiManager.ShowMessage("Sergap GAGAL!! Nilai tidak sesuai", 2.5f);
+            uiManager.ShowMessage("Sergap GAGAL!! Kartu tidak sesuai", 2.5f);
             EndTurn();
         }
     }
@@ -721,7 +721,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            uiManager.ShowMessage("Langkah Gagal! Jarak tidak valid. Giliran hangus!", 2.5f);
+            uiManager.ShowMessage("Langkah GAGAL! Kartu tidak sesuai.", 2.5f);
             yield return new WaitForSeconds(2.5f);
             EndTurn(); 
         }
@@ -741,32 +741,35 @@ public class GameManager : MonoBehaviour
     }
 
     public IEnumerator DelayRondeEnd(Player winner)
+{
+    
+    uiManager.HideAllUIsForRondeEnd();
+
+    if (winner.score < (skorMenang - 1)) uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.0f);
+
+    winner.score++;
+    uiManager.UpdateScoreUI(winner);
+    yield return new WaitForSeconds(3.0f);
+
+    if (winner.score >= skorMenang)
     {
-        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
-        uiManager.HideAllUIsForRondeEnd();
+        isGameOver = true;
+        yield return new WaitForSeconds(0.3f);
+        string winnerName = winner.isAI ? "AI" : "Manusia";
+        yield return StartCoroutine(uiManager.ShowGameWin(winnerName, 2f));
 
-        if (winner.score < (skorMenang - 1)) uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.0f);
-
-        winner.score++;
-        uiManager.UpdateScoreUI(winner);
-        yield return new WaitForSeconds(3.0f);
-
-        if (winner.score >= skorMenang)
-        {
-            isGameOver = true;
-            yield return new WaitForSeconds(0.3f);
-            string winnerName = winner.isAI ? "AI" : "Manusia";
-            yield return StartCoroutine(uiManager.ShowGameWin(winnerName, 2f));
-
-            string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
-            
-            if (TransisiScene.Instance != null) 
-                TransisiScene.Instance.LoadSceneTransisi(nextScene);
-            else 
-                SceneManager.LoadScene(nextScene);
-        }
-        else StartRonde();
+        string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
+        
+        if (TransisiScene.Instance != null) 
+            TransisiScene.Instance.LoadSceneTransisi(nextScene);
+        else 
+            SceneManager.LoadScene(nextScene);
     }
+    else 
+    {
+        StartRonde(); 
+    }
+}
 
     public IEnumerator DelayTieBreaker(TieBreakerReason reason)
     {

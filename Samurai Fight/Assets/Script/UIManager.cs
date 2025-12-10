@@ -196,7 +196,6 @@ public class UIManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.3f);
         }
-        
         yield return new WaitForSeconds(0.5f);
         
         if (panelDek != null && panelDek.activeSelf)
@@ -289,7 +288,7 @@ public class UIManager : MonoBehaviour
                 targetPosition = rightPanelPosition;
                 break;
             case ActionType.Sergap:
-                message = "Pilih kartu untuk melakukan Sergap.";
+                message = "Pilih kartu yang nilainya sama dengan jarak Anda ke lawan. untuk melakukan Sergap.";
                 targetPosition = bottomPanelPosition;
                 break;
             case ActionType.SerangBalik:
