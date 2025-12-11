@@ -1906,7 +1906,16 @@ MonoBehaviour:
   systemText: {fileID: 691151048}
   remainingDekText: {fileID: 1602482384}
   rondeImage: {fileID: 1965606060}
-  rondeNumberSprites: []
+  rondeNumberSprites:
+  - {fileID: 21300000, guid: 919048f4ea6e24944b77e3b6a102c00b, type: 3}
+  - {fileID: 21300000, guid: 32fa8500b86e14b308e79f975e9bbacd, type: 3}
+  - {fileID: 21300000, guid: 102151774abaa4fbea31c28e983a7d32, type: 3}
+  - {fileID: 21300000, guid: 924d1afd778674a83b0b6e21e6511479, type: 3}
+  - {fileID: 21300000, guid: e65c9daaa01c54c859a530e3eb055d68, type: 3}
+  - {fileID: 21300000, guid: 2b7853fb427eb47e8a1c2f6e39dd5277, type: 3}
+  - {fileID: 21300000, guid: 03e56488684874b5493c4fa0b6a46652, type: 3}
+  - {fileID: 21300000, guid: 6e95d22f1774f44d28bdb29c4b816cf8, type: 3}
+  - {fileID: 21300000, guid: 8f6430a632c8c48d7b920696dd498914, type: 3}
   playerWinSprite: {fileID: 21300000, guid: cf1bfbda6d36941f3afb4ac012186522, type: 3}
   aiWinSprite: {fileID: 21300000, guid: 8fd38037b05f446a09a5c0b45d43c948, type: 3}
   panelKartuManusia: {fileID: 1623273787}
@@ -9889,7 +9898,7 @@ Transform:
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
   m_LocalRotation: {x: 0.05466896, y: -0.034523483, z: 0.0018913237, w: 0.99790573}
-  m_LocalPosition: {x: -613.61383, y: -276.69992, z: 499.47418}
+  m_LocalPosition: {x: -613.61383, y: -243.79991, z: 499.47418}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10903,7 +10912,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 54.2, y: 50.9, z: -289.2}
+  FollowOffset: {x: 54.2, y: 83.8, z: -289.2}
 --- !u!4 &2062306298
 Transform:
   m_ObjectHideFlags: 0
@@ -10913,7 +10922,7 @@ Transform:
   m_GameObject: {fileID: 2062306294}
   serializedVersion: 2
   m_LocalRotation: {x: 0.05466896, y: -0.034523483, z: 0.0018913237, w: 0.99790573}
-  m_LocalPosition: {x: -613.61383, y: -276.69992, z: 499.47418}
+  m_LocalPosition: {x: -613.61383, y: -243.79991, z: 499.47418}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
