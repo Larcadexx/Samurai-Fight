@@ -41,7 +41,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Display Ronde & Victory")]
     public Image rondeImage; 
-    public Sprite[] roundNumberSprites;
+    public Sprite[] rondeNumberSprites;
     public Sprite playerWinSprite; 
     public Sprite aiWinSprite; 
 
@@ -75,7 +75,7 @@ public class UIManager : MonoBehaviour
     public Sprite volumeOffSprite;
 
     private Coroutine messageCoroutine;
-    private CanvasGroup roundPanelCanvasGroup;
+    private CanvasGroup rondePanelCanvasGroup;
 
     [Header("Visual Indicators")]
     public GameObject melangkahArrow;
@@ -108,7 +108,7 @@ public class UIManager : MonoBehaviour
 
         if (panelRonde != null)
         {
-            roundPanelCanvasGroup = panelRonde.GetComponent<CanvasGroup>();
+            rondePanelCanvasGroup = panelRonde.GetComponent<CanvasGroup>();
             panelRonde.SetActive(false);
         }
 
@@ -486,27 +486,27 @@ public class UIManager : MonoBehaviour
         UpdateTotalTangkisValue(0, attackStrength);
     }
 
-    public IEnumerator ShowRondePanel(int roundNumber, float totalDuration)
+    public IEnumerator ShowRondePanel(int rondeNumber, float totalDuration)
     {
         HideAllUIsForRondeEnd();
 
         float fadeDuration = 0.5f;
         float holdDuration = totalDuration - (fadeDuration * 2);
 
-        if (panelRonde != null && rondeImage != null && roundNumberSprites.Length > 0)
+        if (panelRonde != null && rondeImage != null && rondeNumberSprites.Length > 0)
         {
-            if (roundNumber >= 1 && roundNumber <= roundNumberSprites.Length)
+            if (rondeNumber >= 1 && rondeNumber <= rondeNumberSprites.Length)
             {
-                rondeImage.sprite = roundNumberSprites[roundNumber - 1];
+                rondeImage.sprite = rondeNumberSprites[rondeNumber - 1];
                 rondeImage.gameObject.SetActive(true);
                 panelRonde.SetActive(true);
-                roundPanelCanvasGroup.alpha = 0f; 
+                rondePanelCanvasGroup.alpha = 0f; 
 
-                yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
+                yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 0f, 1f, fadeDuration));
 
                 if (holdDuration > 0) yield return new WaitForSeconds(1.2f);
 
-                yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
+                yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 1f, 0f, fadeDuration));
 
                 panelRonde.SetActive(false);
             }
@@ -529,13 +529,13 @@ public class UIManager : MonoBehaviour
 
             rondeImage.gameObject.SetActive(true);
             panelRonde.SetActive(true);
-            roundPanelCanvasGroup.alpha = 0f; 
+            rondePanelCanvasGroup.alpha = 0f; 
 
-            yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 0f, 1f, fadeDuration));
+            yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 0f, 1f, fadeDuration));
 
             if (holdDuration > 0) yield return new WaitForSeconds(0.8f);
 
-            yield return StartCoroutine(FadeCanvasGroup(roundPanelCanvasGroup, 1f, 0f, fadeDuration));
+            yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 1f, 0f, fadeDuration));
 
             panelRonde.SetActive(false);
         }

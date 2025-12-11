@@ -1,15 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class DeckManager : MonoBehaviour
+public class DekManager : MonoBehaviour
 {
-    public static DeckManager Instance;
+    public static DekManager Instance;
     
     [Header("AI Hand Card")]
     [SerializeField]
     private List<Card> aiHandVisualizer; 
 
-    [Header("Main Deck Card")]
+    [Header("Main Dek Card")]
     [SerializeField] 
     private List<Card> dek = new List<Card>();
 

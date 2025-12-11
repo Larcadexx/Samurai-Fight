@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     private Player activePlayer;
 
     private bool isGameOver = false;
-    private int roundNumber = 0;
+    private int rondeNumber = 0;
     private int arahLangkah = 0;
 
     private Player attackingSide; 
@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
         playerState = StateGiliranPlayer.None;
         isSerangBalik = false;
         isGameOver = false;
-        roundNumber++;
+        rondeNumber++;
 
         emptySlots.Clear();
 
@@ -106,22 +106,22 @@ public class GameManager : MonoBehaviour
         MovePionVisual(player, player.position);
         MovePionVisual(ai, ai.position);
 
-        DeckManager.Instance.SetupDek();
+        DekManager.Instance.SetupDek();
         
         player.hand.Clear();
         ai.hand.Clear();
 
         uiManager.UpdatePlayerHandUI(player);
-        uiManager.UpdateMainDekUI(DeckManager.Instance.GetSisaDek());
+        uiManager.UpdateMainDekUI(DekManager.Instance.GetSisaDek());
         
-        activePlayer = (roundNumber % 2 != 0) ? ai : player;
+        activePlayer = (rondeNumber % 2 != 0) ? ai : player;
 
-        StartCoroutine(StartRoundSequence());
+        StartCoroutine(StartRondeSequence());
     }
 
-    private IEnumerator StartRoundSequence()
+    private IEnumerator StartRondeSequence()
     {
-        yield return StartCoroutine(uiManager.ShowRondePanel(roundNumber, 2.0f));
+        yield return StartCoroutine(uiManager.ShowRondePanel(rondeNumber, 2.0f));
 
         yield return new WaitForSeconds(0.5f);
 
@@ -129,13 +129,13 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.8f);
 
-        int deckAfterAI = DeckManager.Instance.GetSisaDek();
+        int dekAfterAI = DekManager.Instance.GetSisaDek();
         List<int> slotsToFill = new List<int>();
         
         for (int i = 0; i < maxUkuranKartu; i++)
         {
             slotsToFill.Add(i);
-            Card newKartu = DeckManager.Instance.DrawDek();
+            Card newKartu = DekManager.Instance.DrawDek();
             player.hand.Add(newKartu);
 
             if (i < uiManager.cardSlots.Length)
@@ -150,7 +150,7 @@ public class GameManager : MonoBehaviour
 
         bool animationDone = false;
         
-        StartCoroutine(uiManager.AnimateCardRefill(slotsToFill, deckAfterAI, () => { animationDone = true; }));
+        StartCoroutine(uiManager.AnimateCardRefill(slotsToFill, dekAfterAI, () => { animationDone = true; }));
 
         uiManager.SetPlayerHandInteractable(false, false); 
 
@@ -206,8 +206,8 @@ public class GameManager : MonoBehaviour
         int aiNeeds = maxUkuranKartu - ai.hand.Count; 
         int totalNeeded = playerNeeds + aiNeeds;
         
-        int currentDeckCount = DeckManager.Instance.GetSisaDek();
-        if (currentDeckCount < totalNeeded)
+        int currentDekCount = DekManager.Instance.GetSisaDek();
+        if (currentDekCount < totalNeeded)
         {
             StartCoroutine(DelayTieBreaker(TieBreakerReason.DekEmpty));
             yield break; 
@@ -219,12 +219,12 @@ public class GameManager : MonoBehaviour
 
         if (playerNeeds > 0)
         {
-            int deckAfterAI = DeckManager.Instance.GetSisaDek();
+            int dekAfterAI = DekManager.Instance.GetSisaDek();
             emptySlots.Sort(); 
 
             foreach (int indexTarget in emptySlots)
             {
-                Card newKartu = DeckManager.Instance.DrawDek();
+                Card newKartu = DekManager.Instance.DrawDek();
                 if (newKartu != null)
                 {
                     if (indexTarget <= player.hand.Count)
@@ -245,7 +245,7 @@ public class GameManager : MonoBehaviour
 
             bool animationDone = false;
             
-            StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), deckAfterAI, () => { animationDone = true; }));
+            StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), dekAfterAI, () => { animationDone = true; }));
             
             uiManager.SetPlayerHandInteractable(false, false);
             
@@ -278,12 +278,12 @@ public class GameManager : MonoBehaviour
 
         while (ai.hand.Count < maxUkuranKartu)
         {
-            Card newKartu = DeckManager.Instance.DrawDek();
+            Card newKartu = DekManager.Instance.DrawDek();
             if (newKartu == null) break; 
             
             ai.hand.Add(newKartu);
             
-            uiManager.UpdateMainDekUI(DeckManager.Instance.GetSisaDek());
+            uiManager.UpdateMainDekUI(DekManager.Instance.GetSisaDek());
 
             yield return new WaitForSeconds(0.5f);
         }
@@ -753,35 +753,35 @@ public class GameManager : MonoBehaviour
     }
 
     public IEnumerator DelayRondeEnd(Player winner)
-{
-    if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
-
-    uiManager.HideAllUIsForRondeEnd();
-
-    winner.score++;
-    uiManager.UpdateScoreUI(winner);
-
-    yield return new WaitForSeconds(2.0f); 
-
-    if (winner.score >= skorMenang)
     {
-        isGameOver = true;
-        yield return new WaitForSeconds(0.3f);
-        string winnerName = winner.isAI ? "AI" : "Manusia";
-        yield return StartCoroutine(uiManager.ShowGameWin(winnerName, 2f));
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
 
-        string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
-        
-        if (TransisiScene.Instance != null) 
-            TransisiScene.Instance.LoadSceneTransisi(nextScene);
+        uiManager.HideAllUIsForRondeEnd();
+
+        winner.score++;
+        uiManager.UpdateScoreUI(winner);
+
+        yield return new WaitForSeconds(2.0f); 
+
+        if (winner.score >= skorMenang)
+        {
+            isGameOver = true;
+            yield return new WaitForSeconds(0.3f);
+            string winnerName = winner.isAI ? "AI" : "Manusia";
+            yield return StartCoroutine(uiManager.ShowGameWin(winnerName, 2f));
+
+            string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
+            
+            if (TransisiScene.Instance != null) 
+                TransisiScene.Instance.LoadSceneTransisi(nextScene);
+            else 
+                SceneManager.LoadScene(nextScene);
+        }
         else 
-            SceneManager.LoadScene(nextScene);
+        {
+            StartRonde(); 
+        }
     }
-    else 
-    {
-        StartRonde(); 
-    }
-}
 
     public IEnumerator DelayTieBreaker(TieBreakerReason reason)
     {
