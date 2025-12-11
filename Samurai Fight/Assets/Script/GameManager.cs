@@ -742,14 +742,14 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator DelayRondeEnd(Player winner)
 {
-    
-    uiManager.HideAllUIsForRondeEnd();
+    if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
 
-    if (winner.score < (skorMenang - 1)) uiManager.ShowMessage($"{winner.playerName} memenangkan Ronde Ke-{roundNumber}!", 3.0f);
+    uiManager.HideAllUIsForRondeEnd();
 
     winner.score++;
     uiManager.UpdateScoreUI(winner);
-    yield return new WaitForSeconds(3.0f);
+
+    yield return new WaitForSeconds(2.0f); 
 
     if (winner.score >= skorMenang)
     {
