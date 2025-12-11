@@ -313,14 +313,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void SetPlayerHandInteractable(bool isInteractable)
+    public void SetPlayerHandInteractable(bool isInteractable, bool shouldLookDisabled = false)
     {
         foreach (var slot in cardSlots)
         {
             Button button = slot.GetComponent<Button>();
             if (button != null)
             {
-                button.interactable = slot.gameObject.activeSelf && isInteractable;
+                button.interactable = !shouldLookDisabled; 
+            }
+            if (slot != null) 
+            {
+                slot.SetInteractable(isInteractable);
             }
         }
     }
@@ -462,8 +466,8 @@ public class UIManager : MonoBehaviour
         
         btnMelangkah.interactable = canMelangkah;
         btnSerang.interactable = canSerang;
-        
-        SetPlayerHandInteractable(false);
+
+        SetPlayerHandInteractable(false, true);
     }
 
     public void ShowPerkuatSerangan()

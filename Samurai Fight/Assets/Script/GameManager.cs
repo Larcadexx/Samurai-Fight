@@ -141,12 +141,18 @@ public class GameManager : MonoBehaviour
             if (i < uiManager.cardSlots.Length)
             {
                 uiManager.cardSlots[i].Initialize(newKartu);
+                
+                uiManager.cardSlots[i].SetInteractable(false); 
+                
                 uiManager.cardSlots[i].gameObject.SetActive(false); 
             }
         }
 
         bool animationDone = false;
+        
         StartCoroutine(uiManager.AnimateCardRefill(slotsToFill, deckAfterAI, () => { animationDone = true; }));
+
+        uiManager.SetPlayerHandInteractable(false, false); 
 
         while (!animationDone) yield return null;
         
@@ -229,13 +235,19 @@ public class GameManager : MonoBehaviour
                     if (indexTarget < uiManager.cardSlots.Length)
                     {
                         uiManager.cardSlots[indexTarget].Initialize(newKartu);
+                        
+                        uiManager.cardSlots[indexTarget].SetInteractable(false);
+
                         uiManager.cardSlots[indexTarget].gameObject.SetActive(false); 
                     }
                 }
             }
 
             bool animationDone = false;
+            
             StartCoroutine(uiManager.AnimateCardRefill(new List<int>(emptySlots), deckAfterAI, () => { animationDone = true; }));
+            
+            uiManager.SetPlayerHandInteractable(false, false);
             
             while (!animationDone) yield return null;
             
