@@ -15,8 +15,9 @@ public class TransisiScene : MonoBehaviour
     [Header("Audio Components")]
     public AudioSource bgmSource;
     
+    // Logic Volume
     private float masterVolume = 0.5f; 
-    private float lastVolume = 0.5f; // MENYIMPAN RIWAYAT VOLUME SEBELUM MUTE
+    private float lastVolume = 0.5f; 
 
     [System.Serializable]
     public struct ScenePlaylist
@@ -59,54 +60,47 @@ public class TransisiScene : MonoBehaviour
 
         if (Instance == this)
         {
-            string currentScene = SceneManager.GetActiveScene().name;
-            AudioClip initialMusic = FindMusic(currentScene);
-
-            if (initialMusic != null)
-            {
-                bgmSource.clip = initialMusic;
-                bgmSource.loop = true;
-                bgmSource.Play();
-                // Volume dimulai dari 0 untuk efek fade-in nanti
-                bgmSource.volume = 0f; 
-            }
-
-            StartCoroutine(FadeIn());
+            PlayMusicForCurrentScene();
+            
+            StartCoroutine(AnimateFade(1f, 0f, 0f, masterVolume, true));
         }
     }
 
-    // --- LOGIC SINKRONISASI VOLUME BARU ---
+    private void PlayMusicForCurrentScene()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        AudioClip initialMusic = FindMusic(currentScene);
+
+        if (initialMusic != null)
+        {
+            bgmSource.clip = initialMusic;
+            bgmSource.loop = true;
+            bgmSource.Play();
+            bgmSource.volume = 0f; 
+        }
+    }
 
     public void ToggleMute()
     {
-        if (bgmSource != null)
-        {
-            bgmSource.mute = !bgmSource.mute;
+        if (bgmSource == null) return;
 
-            if (bgmSource.mute)
-            {
-                // KETIKA MUTE: Simpan volume terakhir, lalu set volume ke 0
-                if (masterVolume > 0) lastVolume = masterVolume;
-                SetMasterVolume(0); 
-            }
-            else
-            {
-                // KETIKA UNMUTE: Kembalikan volume ke posisi terakhir
-                // Jika lastVolume error (0), kembalikan ke default 0.5
-                float targetVolume = (lastVolume > 0) ? lastVolume : 0.5f;
-                SetMasterVolume(targetVolume);
-            }
+        bgmSource.mute = !bgmSource.mute;
+
+        if (bgmSource.mute)
+        {
+            if (masterVolume > 0) lastVolume = masterVolume;
+            SetMasterVolume(0); 
+        }
+        else
+        {
+            float targetVolume = (lastVolume > 0) ? lastVolume : 0.5f;
+            SetMasterVolume(targetVolume);
         }
     }
 
     public bool IsMuted()
     {
-        if (bgmSource != null)
-        {
-            // Dianggap mute jika centang Mute aktif ATAU volume 0
-            return bgmSource.mute || masterVolume <= 0;
-        }
-        return false;
+        return (bgmSource != null && bgmSource.mute) || masterVolume <= 0;
     }
 
     public void SetMasterVolume(float volume)
@@ -117,7 +111,6 @@ public class TransisiScene : MonoBehaviour
         {
             bgmSource.volume = masterVolume;
             
-            // Logic Otomatis: Jika Slider di 0, otomatis Mute. Jika > 0, Unmute.
             if (masterVolume <= 0)
             {
                 bgmSource.mute = true;
@@ -125,18 +118,12 @@ public class TransisiScene : MonoBehaviour
             else
             {
                 bgmSource.mute = false;
-                // Update memori lastVolume hanya ketika volume sedang aktif (>0)
                 lastVolume = masterVolume; 
             }
         }
     }
 
-    public float GetMasterVolume()
-    {
-        return masterVolume;
-    }
-
-    // --- BATAS LOGIC BARU ---
+    public float GetMasterVolume() => masterVolume;
 
     public void LoadSceneTransisi(string targetSceneName)
     {
@@ -152,10 +139,10 @@ public class TransisiScene : MonoBehaviour
         Time.timeScale = 1f;  
 
         AudioClip newMusic = FindMusic(targetSceneName);
-        
         bool changeSong = (newMusic != bgmSource.clip);
+        float currentVol = bgmSource.volume;
 
-        yield return StartCoroutine(FadeOut(true)); 
+        yield return StartCoroutine(AnimateFade(0f, 1f, currentVol, 0f, false));
 
         SceneManager.LoadScene(targetSceneName);
 
@@ -176,88 +163,68 @@ public class TransisiScene : MonoBehaviour
 
         yield return new WaitForSeconds(waitDuration);
 
-        yield return StartCoroutine(FadeIn());
+        yield return StartCoroutine(AnimateFade(1f, 0f, 0f, masterVolume, true));
         
         isTransisiActive = false;
+    }
+
+    private IEnumerator AnimateFade(float startAlpha, float endAlpha, float startVol, float endVol, bool deactivateCanvasOnEnd)
+    {
+        if (fadeCanvasObject != null) fadeCanvasObject.SetActive(true);
+        
+        float timer = 0f;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            float progress = Mathf.Clamp01(timer / fadeDuration);
+
+            if (fadeCanvasGroup != null)
+            {
+                fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, progress);
+            }
+
+            if (bgmSource != null)
+            {
+                bgmSource.volume = Mathf.Lerp(startVol, endVol, progress);
+            }
+
+            yield return null;
+        }
+
+        if (fadeCanvasGroup != null) fadeCanvasGroup.alpha = endAlpha;
+        if (bgmSource != null) bgmSource.volume = endVol;
+
+        if (deactivateCanvasOnEnd && fadeCanvasObject != null) 
+        {
+            fadeCanvasObject.SetActive(false);
+        }
     }
 
     private AudioClip FindMusic(string sceneName)
     {
         foreach (var item in musicList)
         {
-            if (item.sceneName == sceneName)
-            {
-                return item.bgmMusic;
-            }
+            if (item.sceneName == sceneName) return item.bgmMusic;
         }
         return null; 
     }
 
-    private IEnumerator FadeOut(bool muteAudio)
-    {
-        fadeCanvasObject.SetActive(true);
-        float timer = 0f;
-        float startVolume = bgmSource.volume;
-
-        while (timer < fadeDuration)
-        {
-            timer += Time.deltaTime;
-            float progress = timer / fadeDuration;
-
-            fadeCanvasGroup.alpha = Mathf.Clamp01(progress);
-
-            // Fade out audio berdasarkan volume saat ini
-            bgmSource.volume = Mathf.Lerp(startVolume, 0f, progress);
-
-            yield return null;
-        }
-        
-        fadeCanvasGroup.alpha = 1f;
-        bgmSource.volume = 0f; 
-    }
-
-    private IEnumerator FadeIn()
-    {
-        float timer = 0f;
-        
-        bgmSource.volume = 0f;
-
-        while (timer < fadeDuration)
-        {
-            timer += Time.deltaTime;
-            float progress = timer / fadeDuration; 
-
-            fadeCanvasGroup.alpha = Mathf.Clamp01(1f - progress);
-
-            if (bgmSource.clip != null && bgmSource.isPlaying)
-            {
-                // Fade in audio menuju masterVolume yang diset user
-                bgmSource.volume = Mathf.Lerp(0f, masterVolume, progress);
-            }
-
-            yield return null;
-        }
-
-        fadeCanvasGroup.alpha = 0f;
-        fadeCanvasObject.SetActive(false);
-        
-        // Pastikan volume akhir sesuai settingan user
-        if (bgmSource.clip != null) bgmSource.volume = masterVolume;
-    }
-
     public void MuteBGMForCutscene(float duration = 0.5f)
     {
-        StartCoroutine(FadeBGMVolume(0f, duration));
+        StartCoroutine(FadeBGMOnly(0f, duration));
     }
 
     public void ResumeBGMAfterCutscene(float duration = 0.5f)
     {
         StopAllCoroutines();
-        // Kembalikan ke masterVolume, bukan 1f (agar sesuai slider)
-        StartCoroutine(FadeBGMVolume(masterVolume, duration));
+        if (!isTransisiActive) 
+        {
+            StartCoroutine(FadeBGMOnly(masterVolume, duration));
+        }
     }
 
-    private IEnumerator FadeBGMVolume(float targetVolume, float duration)
+    private IEnumerator FadeBGMOnly(float targetVolume, float duration)
     {
         if (bgmSource == null) yield break;
 

@@ -1312,7 +1312,7 @@ Transform:
   m_GameObject: {fileID: 352976457}
   serializedVersion: 2
   m_LocalRotation: {x: 0.013089582, y: 0, z: 0, w: 0.99991435}
-  m_LocalPosition: {x: 8, y: -100, z: -35}
+  m_LocalPosition: {x: 0, y: -150, z: 60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4957,10 +4957,10 @@ MonoBehaviour:
   - {fileID: 6461109676001431320}
   - {fileID: 5371671862546577336}
   - {fileID: 4524298506227147223}
-  posisiAwalPlayer: 6
-  posisiAwalAI: 18
+  posisiAwalPlayer: 1
+  posisiAwalAI: 23
   maxUkuranKartu: 5
-  skorMenang: 5
+  skorMenang: 3
   kecepatanGerak: 6
 --- !u!4 &1267798871
 Transform:
@@ -9941,8 +9941,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.05466896, y: -0.034523483, z: 0.0018913237, w: 0.99790573}
-  m_LocalPosition: {x: -613.61383, y: -243.79991, z: 499.47418}
+  m_LocalRotation: {x: 0.049846854, y: 0.67968416, z: -0.046389677, w: 0.73033744}
+  m_LocalPosition: {x: -755.71387, y: -242.39992, z: 747.5742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

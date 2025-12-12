@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic; 
-using System.Linq; 
 using UnityEngine.Events;
 using UnityEngine.Video; 
 
@@ -74,9 +73,6 @@ public class UIManager : MonoBehaviour
     public Sprite volumeOnSprite;
     public Sprite volumeOffSprite;
 
-    private Coroutine messageCoroutine;
-    private CanvasGroup rondePanelCanvasGroup;
-
     [Header("Visual Indicators")]
     public GameObject melangkahArrow;
 
@@ -87,6 +83,9 @@ public class UIManager : MonoBehaviour
     public VideoClip clipManusiaGagalTangkis; 
     public VideoClip clipAIBerhasilTangkis;
     public VideoClip clipAIGagalTangkis;
+
+    private Coroutine messageCoroutine;
+    private CanvasGroup rondePanelCanvasGroup;
 
     void Awake()
     {
@@ -136,14 +135,14 @@ public class UIManager : MonoBehaviour
         MoveKartuPanel(defaultPanelPosition); 
         
         if (panelKartuManusiaCanvasGroup != null)
-            yield return StartCoroutine(FadePanel(panelKartuManusia, panelKartuManusiaCanvasGroup, true, 0.5f));
+            yield return StartCoroutine(TogglePanelFade(panelKartuManusia, panelKartuManusiaCanvasGroup, true));
         else 
             panelKartuManusia.SetActive(true);
 
         if (panelDek != null && !panelDek.activeSelf)
         {
             if (panelDekCanvasGroup != null)
-                StartCoroutine(FadePanel(panelDek, panelDekCanvasGroup, true, 0.5f));
+                StartCoroutine(TogglePanelFade(panelDek, panelDekCanvasGroup, true));
             else
                 panelDek.SetActive(true);
         }
@@ -163,37 +162,8 @@ public class UIManager : MonoBehaviour
             visualDeckCount--;
             UpdateMainDekUI(visualDeckCount);
 
-            GameObject flyingCard = new GameObject("FlyingCard");
-            flyingCard.transform.SetParent(panelKartuManusia.transform.parent); 
-            if (deckPosition != null) flyingCard.transform.position = deckPosition.position;
-            flyingCard.transform.localScale = Vector3.one;
-
-            Image img = flyingCard.AddComponent<Image>();
-            if (deckPosition != null && deckPosition.GetComponent<Image>() != null)
-            {
-                img.sprite = deckPosition.GetComponent<Image>().sprite; 
-            }
+            yield return StartCoroutine(FlyCardToSlot(slotIndex));
             
-            RectTransform flyRect = flyingCard.GetComponent<RectTransform>();
-            RectTransform targetRect = cardSlots[slotIndex].GetComponent<RectTransform>();
-            flyRect.sizeDelta = targetRect.sizeDelta;
-
-            float duration = 0.65f; 
-            float elapsed = 0f;
-            Vector3 startPos = (deckPosition != null) ? deckPosition.position : Vector3.zero;
-            Vector3 endPos = targetRect.position;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-                flyingCard.transform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
-                yield return null;
-            }
-
-            Destroy(flyingCard);
-            cardSlots[slotIndex].gameObject.SetActive(true); 
-
             yield return new WaitForSeconds(0.3f);
         }
         yield return new WaitForSeconds(0.5f);
@@ -201,7 +171,7 @@ public class UIManager : MonoBehaviour
         if (panelDek != null && panelDek.activeSelf)
         {
              if (panelDekCanvasGroup != null)
-                yield return StartCoroutine(FadePanel(panelDek, panelDekCanvasGroup, false, 0.5f));
+                yield return StartCoroutine(TogglePanelFade(panelDek, panelDekCanvasGroup, false));
             else
                 panelDek.SetActive(false);
         }
@@ -209,20 +179,71 @@ public class UIManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    public IEnumerator FadePanel(GameObject panel, CanvasGroup cg, bool show, float duration)
+    private IEnumerator FlyCardToSlot(int slotIndex)
+    {
+        GameObject flyingCard = new GameObject("FlyingCard");
+        flyingCard.transform.SetParent(panelKartuManusia.transform.parent); 
+        if (deckPosition != null) flyingCard.transform.position = deckPosition.position;
+        flyingCard.transform.localScale = Vector3.one;
+
+        Image img = flyingCard.AddComponent<Image>();
+        if (deckPosition != null && deckPosition.GetComponent<Image>() != null)
+        {
+            img.sprite = deckPosition.GetComponent<Image>().sprite; 
+        }
+        
+        RectTransform flyRect = flyingCard.GetComponent<RectTransform>();
+        RectTransform targetRect = cardSlots[slotIndex].GetComponent<RectTransform>();
+        flyRect.sizeDelta = targetRect.sizeDelta;
+
+        float duration = 0.65f; 
+        float elapsed = 0f;
+        Vector3 startPos = (deckPosition != null) ? deckPosition.position : Vector3.zero;
+        Vector3 endPos = targetRect.position;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            flyingCard.transform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+
+        Destroy(flyingCard);
+        cardSlots[slotIndex].gameObject.SetActive(true); 
+    }
+
+    public IEnumerator TogglePanelFade(GameObject panel, CanvasGroup cg, bool show, float duration = 0.5f)
     {
         if (show)
         {
             panel.SetActive(true);
-            cg.alpha = 0f; 
+            cg.alpha = 0f;
             yield return StartCoroutine(FadeCanvasGroup(cg, 0f, 1f, duration));
         }
         else
         {
-            cg.alpha = 1f; 
+            cg.alpha = 1f;
             yield return StartCoroutine(FadeCanvasGroup(cg, 1f, 0f, duration));
-            panel.SetActive(false); 
+            panel.SetActive(false);
         }
+    }
+
+    public IEnumerator FadePanel(GameObject panel, CanvasGroup cg, bool show, float duration)
+    {
+        yield return StartCoroutine(TogglePanelFade(panel, cg, show, duration));
+    }
+
+    private IEnumerator FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / duration);
+            yield return null;
+        }
+        cg.alpha = endAlpha; 
     }
 
     public void OnSliderChanged(float value)
@@ -230,7 +251,6 @@ public class UIManager : MonoBehaviour
         if (TransisiScene.Instance != null)
         {
             TransisiScene.Instance.SetMasterVolume(value);
-            
             bool isMuted = (value <= 0);
             UpdateVolumeButtonSprite(isMuted);
         }
@@ -241,10 +261,8 @@ public class UIManager : MonoBehaviour
         if (TransisiScene.Instance != null)
         {
             TransisiScene.Instance.ToggleMute();
-
             bool isMuted = TransisiScene.Instance.IsMuted();
             UpdateVolumeButtonSprite(isMuted);
-
             sliderVolume.value = TransisiScene.Instance.GetMasterVolume();
         }
     }
@@ -458,7 +476,11 @@ public class UIManager : MonoBehaviour
 
         panelOpsiAwal.SetActive(true);
         
-        if (panelDek != null) panelDek.SetActive(true);
+        if (panelDek != null) 
+        {
+            panelDek.SetActive(true);
+            if (panelDekCanvasGroup != null) panelDekCanvasGroup.alpha = 1f; 
+        }
 
         if (panelInfo != null) panelInfo.SetActive(true);
         MoveKartuPanel(defaultPanelPosition);
@@ -552,18 +574,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration)
-    {
-        float elapsedTime = 0f;
-        while (elapsedTime < duration)
-        {
-            elapsedTime += Time.deltaTime;
-            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / duration);
-            yield return null;
-        }
-        cg.alpha = endAlpha; 
-    }
-
     public IEnumerator ShowArahLangkah(bool canMaju, bool canMundur)
     {
         HideAllPlayerPanels();
@@ -612,7 +622,9 @@ public class UIManager : MonoBehaviour
         cutscenePanel.SetActive(true);
         CanvasGroup cg = cutscenePanel.GetComponent<CanvasGroup>();
         if (cg == null) cg = cutscenePanel.AddComponent<CanvasGroup>();
-        cg.alpha = 0f;
+        
+        // Gunakan fade baru
+        yield return StartCoroutine(FadeCanvasGroup(cg, 0f, 1f, 0.5f));
 
         videoPlayer.clip = clip;
         videoPlayer.Prepare();
@@ -621,16 +633,6 @@ public class UIManager : MonoBehaviour
         {
             yield return null;
         }
-
-        float timer = 0f;
-        float fadeDuration = 0.5f;
-        while (timer < fadeDuration)
-        {
-            timer += Time.deltaTime;
-            cg.alpha = Mathf.Lerp(0f, 1f, timer / fadeDuration);
-            yield return null;
-        }
-        cg.alpha = 1f;
 
         videoPlayer.Play();
 
@@ -647,14 +649,8 @@ public class UIManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f); 
 
-        timer = 0f;
-        while (timer < fadeDuration)
-        {
-            timer += Time.deltaTime;
-            cg.alpha = Mathf.Lerp(1f, 0f, timer / fadeDuration);
-            yield return null;
-        }
-        cg.alpha = 0f;
+        // Gunakan fade baru
+        yield return StartCoroutine(FadeCanvasGroup(cg, 1f, 0f, 0.5f));
 
         videoPlayer.Stop();
         cutscenePanel.SetActive(false);

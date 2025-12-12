@@ -7,16 +7,18 @@ public class AnimasiManager : MonoBehaviour
     [Header("Animator References")]
     public Animator playerAnimator;
     public Animator aiAnimator;
+    private int walkingHash;
+    private int walkingBackwardHash;
 
-    [Header("Parameter Names")]
-    private string walkingBool = "isWalking";
-    private string walkingBackwardBool = "isWalkingBackward";
+    private const string PARAM_WALKING = "isWalking";
+    private const string PARAM_WALKING_BACKWARD = "isWalkingBackward";
 
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
+            InitializeAnimatorHashes();
         }
         else
         {
@@ -24,46 +26,53 @@ public class AnimasiManager : MonoBehaviour
         }
     }
 
-       public void SetWalking(bool isAI, bool isWalking)
+    private void InitializeAnimatorHashes()
     {
-        Animator targetAnimator = isAI ? aiAnimator : playerAnimator;
+        walkingHash = Animator.StringToHash(PARAM_WALKING);
+        walkingBackwardHash = Animator.StringToHash(PARAM_WALKING_BACKWARD);
+    }
 
-        if (targetAnimator != null)
-        {
-            targetAnimator.SetBool(walkingBool, isWalking);
-        }
-        else
-        {
-            Debug.LogWarning($"Animator untuk {(isAI ? "AI" : "Player")} belum di-assign di AnimasiManager.");
-        }
+
+    public void SetWalking(bool isAI, bool isWalking)
+    {
+        SetBoolToAnimator(isAI, walkingHash, isWalking);
     }
 
     public void SetWalkingBackward(bool isAI, bool isWalking)
     {
-        Animator targetAnimator = isAI ? aiAnimator : playerAnimator;
-        if (targetAnimator != null)
-        {
-            targetAnimator.SetBool(walkingBackwardBool, isWalking);
-        }
+        SetBoolToAnimator(isAI, walkingBackwardHash, isWalking);
     }
 
     public void ResetAllAnimations()
     {
-        if (playerAnimator != null)
-        {
-            playerAnimator.SetBool("isWalking", false);
-            playerAnimator.SetBool("isWalkingBackward", false);
-            playerAnimator.Rebind();
-            playerAnimator.Update(0f);
-        }
+        ResetSingleAnimator(playerAnimator);
+        ResetSingleAnimator(aiAnimator);
+    }
 
-        if (aiAnimator != null)
+
+    private void SetBoolToAnimator(bool isAI, int paramHash, bool value)
+    {
+        Animator target = isAI ? aiAnimator : playerAnimator;
+
+        if (target != null)
         {
-            aiAnimator.SetBool("isWalking", false);
-            aiAnimator.SetBool("isWalkingBackward", false);
-            aiAnimator.Rebind();
-            aiAnimator.Update(0f);
+            target.SetBool(paramHash, value);
+        }
+        else
+        {
+            Debug.LogWarning($"Animator {(isAI ? "AI" : "Player")} bernilai null.");
         }
     }
 
+    private void ResetSingleAnimator(Animator anim)
+    {
+        if (anim != null)
+        {
+            anim.SetBool(walkingHash, false);
+            anim.SetBool(walkingBackwardHash, false);
+            
+            anim.Rebind(); 
+            anim.Update(0f);
+        }
+    }
 }

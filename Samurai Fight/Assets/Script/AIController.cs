@@ -41,7 +41,7 @@ public class AIController : MonoBehaviour
         if (canSerang)
         {
             Card kartuSerang = aiPlayer.hand.First(kartu => kartu.value == distance);
-            uiManager.ShowMessage($"AI menyerang dengan kekuatan {kartuSerang.value}.", 2.5f);
+            uiManager.ShowMessage("AI menyerang anda!", 2.5f);
             yield return new WaitForSeconds(2.0f);
             aiPlayer.hand.Remove(kartuSerang);
             
@@ -152,7 +152,7 @@ public class AIController : MonoBehaviour
         {
             Card kartuSergap = aiPlayer.hand.First(kartu => kartu.value == newDistance);
             
-            uiManager.ShowMessage($"AI melakukan Sergap dengan kekuatan {kartuSergap.value}!", 2.5f);
+            uiManager.ShowMessage("AI menyergap anda!", 2.5f);
             yield return new WaitForSeconds(2.5f);
 
             aiPlayer.hand.Remove(kartuSergap);

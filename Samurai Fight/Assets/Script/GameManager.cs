@@ -23,6 +23,12 @@ public class GameManager : MonoBehaviour
     [Range(1, 5)] public int skorMenang = 5;
     public float kecepatanGerak = 6f;
 
+    private const string TAG_MANUSIA = "Manusia";
+    private const string TAG_AI = "AI";
+    private const string SCENE_WIN = "SceneWIN";
+    private const string SCENE_LOSE = "SceneLOSE";
+    private const string SCENE_MAIN_MENU = "MainMenu";
+
     private enum StateGiliranPlayer
     {
         None,
@@ -84,8 +90,8 @@ public class GameManager : MonoBehaviour
 
     void SetupGame()
     {
-        player = new Player("Manusia", posisiAwalPlayer);
-        ai = new Player("AI", posisiAwalAI, true);
+        player = new Player(TAG_MANUSIA, posisiAwalPlayer);
+        ai = new Player(TAG_AI, posisiAwalAI, true);
         uiManager.ResetScoreUI();
     }
 
@@ -141,9 +147,7 @@ public class GameManager : MonoBehaviour
             if (i < uiManager.cardSlots.Length)
             {
                 uiManager.cardSlots[i].Initialize(newKartu);
-                
                 uiManager.cardSlots[i].SetInteractable(false); 
-                
                 uiManager.cardSlots[i].gameObject.SetActive(false); 
             }
         }
@@ -179,7 +183,7 @@ public class GameManager : MonoBehaviour
             if (uiManager.panelDek != null) 
             {
                 if (uiManager.panelDekCanvasGroup != null)
-                     StartCoroutine(uiManager.FadePanel(uiManager.panelDek, uiManager.panelDekCanvasGroup, true, 0.5f));
+                     StartCoroutine(uiManager.TogglePanelFade(uiManager.panelDek, uiManager.panelDekCanvasGroup, true));
                 else
                      uiManager.panelDek.SetActive(true);
             }
@@ -266,7 +270,7 @@ public class GameManager : MonoBehaviour
         {
             if (uiManager.panelDekCanvasGroup != null)
             {
-                yield return StartCoroutine(uiManager.FadePanel(uiManager.panelDek, uiManager.panelDekCanvasGroup, true, 0.5f));
+                yield return StartCoroutine(uiManager.TogglePanelFade(uiManager.panelDek, uiManager.panelDekCanvasGroup, true, 0.5f));
             }
             else
             {
@@ -767,10 +771,10 @@ public class GameManager : MonoBehaviour
         {
             isGameOver = true;
             yield return new WaitForSeconds(0.3f);
-            string winnerName = winner.isAI ? "AI" : "Manusia";
+            string winnerName = winner.isAI ? TAG_AI : TAG_MANUSIA;
             yield return StartCoroutine(uiManager.ShowGameWin(winnerName, 2f));
 
-            string nextScene = (winner == player) ? "SceneWIN" : "SceneLOSE";
+            string nextScene = (winner == player) ? SCENE_WIN : SCENE_LOSE;
             
             if (TransisiScene.Instance != null) 
                 TransisiScene.Instance.LoadSceneTransisi(nextScene);
@@ -847,11 +851,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         if (TransisiScene.Instance != null)
         {
-            TransisiScene.Instance.LoadSceneTransisi("MainMenu");
+            TransisiScene.Instance.LoadSceneTransisi(SCENE_MAIN_MENU);
         }
         else
         {
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene(SCENE_MAIN_MENU);
         }
     }
 
