@@ -22,7 +22,9 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("Game Rule")]
     public Image gameRulesImage;       
-    public List<Sprite> gameRulesSprites; 
+    public List<Sprite> gameRulesSprites;
+    public GameObject prevRuleButton; 
+    public GameObject nextRuleButton;
 
     private int currentPageIndex = 0;
     private bool isVolumePanelVisible = false;
@@ -112,22 +114,22 @@ public class MainMenuManager : MonoBehaviour
     {
         if (gameRulesSprites.Count == 0) return;
 
-        currentPageIndex++;
-        if (currentPageIndex >= gameRulesSprites.Count)
-            currentPageIndex = 0;
-            
-        UpdatePageDisplay();
+        if (currentPageIndex < gameRulesSprites.Count - 1)
+        {
+            currentPageIndex++;
+            UpdatePageDisplay();
+        }
     }
 
     public void PrevPage()
     {
         if (gameRulesSprites.Count == 0) return;
 
-        currentPageIndex--;
-        if (currentPageIndex < 0)
-            currentPageIndex = gameRulesSprites.Count - 1;
-            
-        UpdatePageDisplay();
+        if (currentPageIndex > 0)
+        {
+            currentPageIndex--;
+            UpdatePageDisplay();
+        }
     }
 
     void UpdatePageDisplay()
@@ -135,6 +137,16 @@ public class MainMenuManager : MonoBehaviour
         if (gameRulesImage != null && gameRulesSprites.Count > 0)
         {
             gameRulesImage.sprite = gameRulesSprites[currentPageIndex];
+
+            if (prevRuleButton != null)
+            {
+                prevRuleButton.SetActive(currentPageIndex > 0);
+            }
+
+            if (nextRuleButton != null)
+            {
+                nextRuleButton.SetActive(currentPageIndex < gameRulesSprites.Count - 1);
+            }
         }
         else
         {

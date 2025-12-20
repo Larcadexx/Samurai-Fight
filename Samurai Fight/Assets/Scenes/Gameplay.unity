@@ -172,6 +172,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 481590927}
+  smoothSpeed: 15
+  hoverYOffset: 30
+  hoverScale: 1.15
+  selectYOffset: 70
+  selectScale: 1.25
+  selectedColor: {r: 0.9084568, g: 1, b: 0, a: 1}
 --- !u!114 &66050780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2305,6 +2311,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 1463320329}
+  smoothSpeed: 15
+  hoverYOffset: 30
+  hoverScale: 1.15
+  selectYOffset: 70
+  selectScale: 1.25
+  selectedColor: {r: 0.9084568, g: 1, b: 0, a: 1}
 --- !u!114 &507613890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3367,6 +3379,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 1414014684}
+  smoothSpeed: 15
+  hoverYOffset: 30
+  hoverScale: 1.15
+  selectYOffset: 70
+  selectScale: 1.25
+  selectedColor: {r: 0.9084568, g: 1, b: 0, a: 1}
 --- !u!114 &688654235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4468,6 +4486,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 316536538}
+  smoothSpeed: 15
+  hoverYOffset: 30
+  hoverScale: 1.15
+  selectYOffset: 70
+  selectScale: 1.25
+  selectedColor: {r: 0.9084568, g: 1, b: 0, a: 1}
 --- !u!114 &1112797028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8322,7 +8346,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1623273787}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -9510,6 +9534,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   valueText: {fileID: 1348298497}
+  smoothSpeed: 15
+  hoverYOffset: 30
+  hoverScale: 1.15
+  selectYOffset: 70
+  selectScale: 1.25
+  selectedColor: {r: 0.9084568, g: 1, b: 0, a: 1}
 --- !u!114 &1807183162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9915,7 +9945,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 3500
-  field of view: 60
+  field of view: 70
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -9941,8 +9971,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864660923}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.049846854, y: 0.67968416, z: -0.046389677, w: 0.73033744}
-  m_LocalPosition: {x: -755.71387, y: -242.39992, z: 747.5742}
+  m_LocalRotation: {x: 0.013089582, y: 0, z: 0, w: 0.99991435}
+  m_LocalPosition: {x: 0, y: -150, z: 60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
