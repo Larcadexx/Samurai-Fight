@@ -22,13 +22,12 @@ public class UIManager : MonoBehaviour
     [Header("Setup")]
     public Image[] scoreManusiaImages;
     public Image[] scoreAiImages;
-    
     public CardSystem[] cardSlots;
 
-    [Header("Position Panel Kartu")]
-    public Transform defaultPanelPosition;
-    public Transform rightPanelPosition;
-    public Transform bottomPanelPosition;
+    [Header("Position Panel Kartu (WAJIB DIISI)")]
+    public Transform defaultPanelPosition; // Posisi Tengah (Standar)
+    public Transform rightPanelPosition;   // Posisi Kanan (Melangkah/Tangkis)
+    public Transform bottomPanelPosition;  // Posisi Bawah (Serang/Sergap)
     
     [Header("Animation References")]
     public RectTransform deckPosition; 
@@ -130,9 +129,32 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // --- LOGIKA PERPINDAHAN BARU (ANTI-HILANG) ---
+    public void MoveKartuPanel(Transform targetPosition)
+    {
+        if (panelKartuManusia != null && targetPosition != null)
+        {
+            // 1. Pindahkan posisi global
+            panelKartuManusia.transform.position = targetPosition.position;
+            
+            // 2. FIX PENTING: Paksa posisi Z menjadi 0 (lokal) agar tidak tembus ke belakang
+            Vector3 fixedPos = panelKartuManusia.transform.localPosition;
+            fixedPos.z = 0f;
+            panelKartuManusia.transform.localPosition = fixedPos;
+
+            // 3. Pastikan panel menyala
+            panelKartuManusia.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("MoveKartuPanel Gagal: Target Posisi atau Panel Kartu belum di-assign di Inspector!");
+        }
+    }
+    // ----------------------------------------------
+
     public IEnumerator AnimateCardRefill(List<int> targetSlots, int startDeckCount, System.Action onComplete)
     {
-        MoveKartuPanel(defaultPanelPosition); 
+        MoveKartuPanel(defaultPanelPosition); // Pindah ke tengah saat refill
         
         if (panelKartuManusiaCanvasGroup != null)
             yield return StartCoroutine(TogglePanelFade(panelKartuManusia, panelKartuManusiaCanvasGroup, true));
@@ -163,7 +185,6 @@ public class UIManager : MonoBehaviour
             UpdateMainDekUI(visualDeckCount);
 
             yield return StartCoroutine(FlyCardToSlot(slotIndex));
-            
             yield return new WaitForSeconds(0.3f);
         }
         yield return new WaitForSeconds(0.5f);
@@ -189,11 +210,16 @@ public class UIManager : MonoBehaviour
         Image img = flyingCard.AddComponent<Image>();
         if (deckPosition != null && deckPosition.GetComponent<Image>() != null)
         {
-            img.sprite = deckPosition.GetComponent<Image>().sprite; 
+            img.sprite = deckPosition.GetComponent<Image>().sprite;
+            img.preserveAspect = true; 
         }
         
         RectTransform flyRect = flyingCard.GetComponent<RectTransform>();
         RectTransform targetRect = cardSlots[slotIndex].GetComponent<RectTransform>();
+        
+        flyRect.anchorMin = targetRect.anchorMin;
+        flyRect.anchorMax = targetRect.anchorMax;
+        flyRect.pivot = targetRect.pivot;
         flyRect.sizeDelta = targetRect.sizeDelta;
 
         float duration = 0.65f; 
@@ -210,7 +236,7 @@ public class UIManager : MonoBehaviour
         }
 
         Destroy(flyingCard);
-        cardSlots[slotIndex].gameObject.SetActive(true); 
+        if (slotIndex < cardSlots.Length) cardSlots[slotIndex].gameObject.SetActive(true); 
     }
 
     public IEnumerator TogglePanelFade(GameObject panel, CanvasGroup cg, bool show, float duration = 0.5f)
@@ -227,11 +253,6 @@ public class UIManager : MonoBehaviour
             yield return StartCoroutine(FadeCanvasGroup(cg, 1f, 0f, duration));
             panel.SetActive(false);
         }
-    }
-
-    public IEnumerator FadePanel(GameObject panel, CanvasGroup cg, bool show, float duration)
-    {
-        yield return StartCoroutine(TogglePanelFade(panel, cg, show, duration));
     }
 
     private IEnumerator FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration)
@@ -251,8 +272,7 @@ public class UIManager : MonoBehaviour
         if (TransisiScene.Instance != null)
         {
             TransisiScene.Instance.SetMasterVolume(value);
-            bool isMuted = (value <= 0);
-            UpdateVolumeButtonSprite(isMuted);
+            UpdateVolumeButtonSprite(value <= 0);
         }
     }
 
@@ -261,8 +281,7 @@ public class UIManager : MonoBehaviour
         if (TransisiScene.Instance != null)
         {
             TransisiScene.Instance.ToggleMute();
-            bool isMuted = TransisiScene.Instance.IsMuted();
-            UpdateVolumeButtonSprite(isMuted);
+            UpdateVolumeButtonSprite(TransisiScene.Instance.IsMuted());
             sliderVolume.value = TransisiScene.Instance.GetMasterVolume();
         }
     }
@@ -270,9 +289,7 @@ public class UIManager : MonoBehaviour
     void UpdateVolumeButtonSprite(bool isMuted)
     {
         if (volumeButton != null)
-        {
             volumeButton.image.sprite = isMuted ? volumeOffSprite : volumeOnSprite;
-        }
     }
 
     public void SetupConfirmTangkisAction(UnityAction action)
@@ -289,36 +306,37 @@ public class UIManager : MonoBehaviour
     {
         HideAllPlayerPanels();
         string message = "";
-        Transform targetPosition = defaultPanelPosition;
+        
+        // Logika Target Posisi
+        Transform targetPos = defaultPanelPosition;
 
         switch (actionType)
         {
             case ActionType.Melangkah:
                 message = "Pilih kartu untuk menentukan jarak langkah!";
-                targetPosition = rightPanelPosition;
+                targetPos = rightPanelPosition; // Pindah Kanan
                 break;
             case ActionType.Serang:
                 message = "Pilih kartu yang jaraknya sesuai dengan lawan.";
-                targetPosition = bottomPanelPosition;
+                targetPos = bottomPanelPosition; // Pindah Bawah
                 break;
             case ActionType.Perkuat:
                 message = "Pilih kartu tambahan untuk memperkuat serangan.";
-                targetPosition = rightPanelPosition;
+                targetPos = rightPanelPosition; // Pindah Kanan
                 break;
             case ActionType.Sergap:
-                message = "Pilih kartu yang jaraknya sesuai dengan lawan. untuk melakukan Sergap.";
-                targetPosition = bottomPanelPosition;
+                message = "Pilih kartu yang jaraknya sesuai dengan lawan untuk melakukan Sergap.";
+                targetPos = bottomPanelPosition; // Pindah Bawah
                 break;
             case ActionType.SerangBalik:
                 HideAttackStrength();
                 message = "Pilih kartu untuk melakukan Serang Balik!!";
-                targetPosition = bottomPanelPosition;
+                targetPos = bottomPanelPosition; // Pindah Bawah
                 break;
         }
 
         ShowMessage(message, 0f);
-        MoveKartuPanel(targetPosition);
-        panelKartuManusia.SetActive(true);
+        MoveKartuPanel(targetPos); // Eksekusi pindah
         SetPlayerHandInteractable(true);
     }
 
@@ -336,14 +354,8 @@ public class UIManager : MonoBehaviour
         foreach (var slot in cardSlots)
         {
             Button button = slot.GetComponent<Button>();
-            if (button != null)
-            {
-                button.interactable = !shouldLookDisabled; 
-            }
-            if (slot != null) 
-            {
-                slot.SetInteractable(isInteractable);
-            }
+            if (button != null) button.interactable = !shouldLookDisabled; 
+            if (slot != null) slot.SetInteractable(isInteractable);
         }
     }
 
@@ -404,14 +416,6 @@ public class UIManager : MonoBehaviour
         if (attackValueText != null) attackValueText.gameObject.SetActive(false);
     }
 
-    public void MoveKartuPanel(Transform targetPosition)
-    {
-        if (panelKartuManusia != null && targetPosition != null)
-        {
-            panelKartuManusia.transform.position = targetPosition.position;
-        }
-    }
-
     public void RestoreDefaultLayout()
     {
         HideAllPlayerPanels();
@@ -470,9 +474,7 @@ public class UIManager : MonoBehaviour
 
         ShowMessage("Silahkan pilih aksi melangkah atau serang", 0f);
         if (melangkahArrow != null) 
-        {
             melangkahArrow.SetActive(canMelangkah && !canSerang);
-        }
 
         panelOpsiAwal.SetActive(true);
         
@@ -483,8 +485,9 @@ public class UIManager : MonoBehaviour
         }
 
         if (panelInfo != null) panelInfo.SetActive(true);
+        
+        // Pindahkan kembali ke tengah saat ronde mulai
         MoveKartuPanel(defaultPanelPosition);
-        panelKartuManusia.SetActive(true);
         
         btnMelangkah.interactable = canMelangkah;
         btnSerang.interactable = canSerang;
@@ -502,8 +505,10 @@ public class UIManager : MonoBehaviour
     {
         panelAksiTangkis.SetActive(false);
         ShowMessage($"Pilih satu kartu atau kombinasi dengan total nilai {attackStrength}, lalu Tekan Tangkis!", 0f);
+        
+        // Pindahkan ke Kanan saat Tangkis
         MoveKartuPanel(rightPanelPosition);
-        panelKartuManusia.SetActive(true);
+        
         SetPlayerHandInteractable(true);
         UpdateTotalTangkisValue(0, attackStrength);
     }
@@ -525,9 +530,7 @@ public class UIManager : MonoBehaviour
                 rondePanelCanvasGroup.alpha = 0f; 
 
                 yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 0f, 1f, fadeDuration));
-
                 if (holdDuration > 0) yield return new WaitForSeconds(1.2f);
-
                 yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 1f, 0f, fadeDuration));
 
                 panelRonde.SetActive(false);
@@ -554,9 +557,7 @@ public class UIManager : MonoBehaviour
             rondePanelCanvasGroup.alpha = 0f; 
 
             yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 0f, 1f, fadeDuration));
-
             if (holdDuration > 0) yield return new WaitForSeconds(0.8f);
-
             yield return StartCoroutine(FadeCanvasGroup(rondePanelCanvasGroup, 1f, 0f, fadeDuration));
 
             panelRonde.SetActive(false);
@@ -616,55 +617,39 @@ public class UIManager : MonoBehaviour
         }
 
         if (GameManager.instance != null) GameManager.instance.uiManager.SetPlayerHandInteractable(false);
-        
         if (TransisiScene.Instance != null) TransisiScene.Instance.MuteBGMForCutscene(0.5f);
 
         cutscenePanel.SetActive(true);
         CanvasGroup cg = cutscenePanel.GetComponent<CanvasGroup>();
         if (cg == null) cg = cutscenePanel.AddComponent<CanvasGroup>();
         
-        // Gunakan fade baru
         yield return StartCoroutine(FadeCanvasGroup(cg, 0f, 1f, 0.5f));
 
         videoPlayer.clip = clip;
         videoPlayer.Prepare();
 
-        while (!videoPlayer.isPrepared)
-        {
-            yield return null;
-        }
+        while (!videoPlayer.isPrepared) yield return null;
 
         videoPlayer.Play();
-
         bool isVideoFinished = false;
         void OnVideoFinished(VideoPlayer vp) { isVideoFinished = true; }
         videoPlayer.loopPointReached += OnVideoFinished;
 
-        while (!isVideoFinished)
-        {
-            yield return null;
-        }
+        while (!isVideoFinished) yield return null;
 
         videoPlayer.loopPointReached -= OnVideoFinished;
-
         yield return new WaitForSeconds(0.5f); 
-
-        // Gunakan fade baru
         yield return StartCoroutine(FadeCanvasGroup(cg, 1f, 0f, 0.5f));
 
         videoPlayer.Stop();
         cutscenePanel.SetActive(false);
 
         if (TransisiScene.Instance != null) TransisiScene.Instance.ResumeBGMAfterCutscene(0.5f);
-        
         onComplete?.Invoke();
     }
 
     public void SetConfirmTangkisInteractable(bool isInteractable)
     {
-        if (confirmTangkisButton != null)
-        {
-            confirmTangkisButton.interactable = isInteractable;
-        }
+        if (confirmTangkisButton != null) confirmTangkisButton.interactable = isInteractable;
     }
 }
