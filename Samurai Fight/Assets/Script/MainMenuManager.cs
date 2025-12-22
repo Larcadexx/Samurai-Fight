@@ -20,13 +20,20 @@ public class MainMenuManager : MonoBehaviour
     [Header("UI Slider")]
     public Slider volumeSlider; 
 
-    [Header("Game Rule")]
+    [Header("Game Rule System")]
     public Image gameRulesImage;       
     public List<Sprite> gameRulesSprites;
     public GameObject prevRuleButton; 
     public GameObject nextRuleButton;
 
+    [Header("Credits System")]
+    public Image creditImage;             // Komponen Image di dalam creditPanel
+    public List<Sprite> creditSprites;    // Daftar gambar untuk credit
+    public GameObject prevCreditButton;   // Tombol Back untuk credit
+    public GameObject nextCreditButton;   // Tombol Next untuk credit
+
     private int currentPageIndex = 0;
+    private int currentCreditPageIndex = 0; // Index halaman credit
     private bool isVolumePanelVisible = false;
 
     void Start()
@@ -72,6 +79,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
+    // --- LOGIKA CREDITS (BARU) ---
     public void ShowCredits()
     {
         ToggleMainButtons(false);
@@ -81,6 +89,9 @@ public class MainMenuManager : MonoBehaviour
             isVolumePanelVisible = false;
             volumePanel.SetActive(false);
         }
+
+        currentCreditPageIndex = 0; // Reset ke halaman awal
+        UpdateCreditPageDisplay();
     }
 
     public void HideCredits()
@@ -88,6 +99,41 @@ public class MainMenuManager : MonoBehaviour
         ToggleMainButtons(true);
         creditPanel.SetActive(false);
     }
+
+    public void NextCreditPage()
+    {
+        if (creditSprites.Count == 0) return;
+        if (currentCreditPageIndex < creditSprites.Count - 1)
+        {
+            currentCreditPageIndex++;
+            UpdateCreditPageDisplay();
+        }
+    }
+
+    public void PrevCreditPage()
+    {
+        if (creditSprites.Count == 0) return;
+        if (currentCreditPageIndex > 0)
+        {
+            currentCreditPageIndex--;
+            UpdateCreditPageDisplay();
+        }
+    }
+
+    void UpdateCreditPageDisplay()
+    {
+        if (creditImage != null && creditSprites.Count > 0)
+        {
+            creditImage.sprite = creditSprites[currentCreditPageIndex];
+
+            if (prevCreditButton != null)
+                prevCreditButton.SetActive(currentCreditPageIndex > 0);
+
+            if (nextCreditButton != null)
+                nextCreditButton.SetActive(currentCreditPageIndex < creditSprites.Count - 1);
+        }
+    }
+    // ----------------------------
 
     public void ShowGameRules()
     {
@@ -147,10 +193,6 @@ public class MainMenuManager : MonoBehaviour
             {
                 nextRuleButton.SetActive(currentPageIndex < gameRulesSprites.Count - 1);
             }
-        }
-        else
-        {
-            Debug.LogWarning("gameRulesImage atau gameRulesSprites belum di-assign di Inspector!");
         }
     }
 
