@@ -390,6 +390,7 @@ public class GameManager : MonoBehaviour
     {
         if (isPaused) return;
 
+        uiManager.HideKartuPanel();
         uiManager.HideConfirmTangkisButton();
         uiManager.SetPlayerHandInteractable(false);
         uiManager.HideMessage();
