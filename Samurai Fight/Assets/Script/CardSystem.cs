@@ -25,6 +25,7 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     
     private Canvas cardCanvas;
     private GraphicRaycaster cardRaycaster;
+    private CanvasGroup cardCanvasGroup; // Tambahan: CanvasGroup
 
     // Default values
     private Vector3 originalPosition;
@@ -58,19 +59,16 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         cardRaycaster = GetComponent<GraphicRaycaster>();
         if (cardRaycaster == null) cardRaycaster = gameObject.AddComponent<GraphicRaycaster>();
 
+        // Tambahan: Pastikan ada CanvasGroup untuk kontrol transparansi
+        cardCanvasGroup = GetComponent<CanvasGroup>();
+        if (cardCanvasGroup == null) cardCanvasGroup = gameObject.AddComponent<CanvasGroup>();
+
         cardCanvas.overrideSorting = true;
         cardCanvas.sortingOrder = 0;
         
-        if (transform.localScale != Vector3.zero)
-        {
-            originalPosition = transform.localPosition; 
-            originalScale = transform.localScale;
-        }
-        else
-        {
-            originalPosition = transform.localPosition;
-            originalScale = Vector3.one; 
-        }
+        // Simpan posisi awal
+        originalPosition = transform.localPosition; 
+        originalScale = (transform.localScale == Vector3.zero) ? Vector3.one : transform.localScale;
 
         if (imageComponent != null) originalColor = imageComponent.color;
 
@@ -85,7 +83,7 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         if (!hasInitializedDefaults) return;
 
-        // Lerp Movement
+        // Pastikan posisi tetap di-update meskipun visualnya hidden
         transform.localPosition = Vector3.Lerp(transform.localPosition, targetPosition, Time.deltaTime * smoothSpeed);
         transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * smoothSpeed);
 
@@ -108,7 +106,9 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         
         if (valueText != null) valueText.text = data.value.ToString();
 
-        gameObject.SetActive(true);
+        // Pastikan objek aktif agar Layout Group menghitung posisi
+        gameObject.SetActive(true); 
+        ShowVisuals(); // Pastikan visual terlihat saat inisialisasi
 
         isSelected = false;
         isHovered = false;
@@ -127,9 +127,26 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         UpdateVisualTargets(); 
     }
 
+    // --- FUNGSI BARU UNTUK REFILL ANIMATION ---
+    public void HideVisuals()
+    {
+        if (!hasInitializedDefaults) SetupDefaults();
+        if (cardCanvasGroup != null) cardCanvasGroup.alpha = 0f; // Transparan
+    }
+
+    public void ShowVisuals()
+    {
+        if (!hasInitializedDefaults) SetupDefaults();
+        if (cardCanvasGroup != null) cardCanvasGroup.alpha = 1f; // Terlihat
+    }
+    // ------------------------------------------
+
     public void SetInteractable(bool status)
     {
         isInteractable = status;
+        // Tambahan: Matikan raycast jika tidak interactable agar tidak menghalangi klik
+        if (cardCanvasGroup != null) cardCanvasGroup.blocksRaycasts = status;
+
         if (!status)
         {
             isHovered = false;
@@ -143,9 +160,10 @@ public class CardSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         isSelected = false;
         isHovered = false;
         if (cardCanvas != null) cardCanvas.sortingOrder = 0;
-        gameObject.SetActive(false);
+        gameObject.SetActive(false); // Kalau slot kosong, boleh dimatikan
     }
 
+    // ... (Sisa fungsi OnClick, ToggleSelection, dll biarkan sama) ...
     public void OnClick()
     {
         if (!isInteractable || cardData == null) return;

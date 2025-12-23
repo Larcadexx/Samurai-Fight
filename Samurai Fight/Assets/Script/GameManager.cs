@@ -148,7 +148,9 @@ public class GameManager : MonoBehaviour
             {
                 uiManager.cardSlots[i].Initialize(newKartu);
                 uiManager.cardSlots[i].SetInteractable(false); 
-                uiManager.cardSlots[i].gameObject.SetActive(false); 
+                
+                uiManager.cardSlots[i].gameObject.SetActive(true); 
+                uiManager.cardSlots[i].HideVisuals(); 
             }
         }
 
@@ -163,43 +165,6 @@ public class GameManager : MonoBehaviour
         uiManager.UpdatePlayerHandUI(player);
 
         StartTurn();
-    }
-
-    private void StartTurn()
-    {
-        if (isGameOver) return;
-        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
-        
-        playerState = StateGiliranPlayer.None;
-        uiManager.RestoreDefaultLayout(); 
-        if (AnimasiManager.Instance != null)
-        {
-            AnimasiManager.Instance.SetWalking(false, false); 
-            AnimasiManager.Instance.SetWalking(true, false); 
-        }
-
-        if (activePlayer.isAI)
-        {
-            if (uiManager.panelDek != null) 
-            {
-                if (uiManager.panelDekCanvasGroup != null)
-                     StartCoroutine(uiManager.TogglePanelFade(uiManager.panelDek, uiManager.panelDekCanvasGroup, true));
-                else
-                     uiManager.panelDek.SetActive(true);
-            }
-
-            StartCoroutine(aiController.ExecuteTurn(ai, player));
-        }
-        else 
-        {
-            StartCoroutine(ShowPlayerTurnMessage());
-        }
-    }
-
-    public void EndTurn()
-    {
-        if (isGameOver) return;
-        StartCoroutine(EndTurnSequence());
     }
 
     private IEnumerator EndTurnSequence()
@@ -242,7 +207,8 @@ public class GameManager : MonoBehaviour
                         
                         uiManager.cardSlots[indexTarget].SetInteractable(false);
 
-                        uiManager.cardSlots[indexTarget].gameObject.SetActive(false); 
+                        uiManager.cardSlots[indexTarget].gameObject.SetActive(true); 
+                        uiManager.cardSlots[indexTarget].HideVisuals();
                     }
                 }
             }
@@ -263,6 +229,45 @@ public class GameManager : MonoBehaviour
         activePlayer = (activePlayer == player) ? ai : player;
         StartTurn();
     }
+
+    private void StartTurn()
+    {
+        if (isGameOver) return;
+        if (CameraManager.Instance != null) CameraManager.Instance.SwitchToDefault();
+        
+        playerState = StateGiliranPlayer.None;
+        uiManager.RestoreDefaultLayout(); 
+        if (AnimasiManager.Instance != null)
+        {
+            AnimasiManager.Instance.SetWalking(false, false); 
+            AnimasiManager.Instance.SetWalking(true, false); 
+        }
+
+        if (activePlayer.isAI)
+        {
+            if (uiManager.panelDek != null) 
+            {
+                if (uiManager.panelDekCanvasGroup != null)
+                     StartCoroutine(uiManager.TogglePanelFade(uiManager.panelDek, uiManager.panelDekCanvasGroup, true));
+                else
+                     uiManager.panelDek.SetActive(true);
+            }
+
+            StartCoroutine(aiController.ExecuteTurn(ai, player));
+        }
+        else 
+        {
+            StartCoroutine(ShowPlayerTurnMessage());
+        }
+    }
+
+    public void EndTurn()
+    {
+        if (isGameOver) return;
+        StartCoroutine(EndTurnSequence());
+    }
+
+    
 
     private IEnumerator RefillKartuAI()
     {

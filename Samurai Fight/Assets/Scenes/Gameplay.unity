@@ -4955,10 +4955,10 @@ MonoBehaviour:
   - {fileID: 6461109676001431320}
   - {fileID: 5371671862546577336}
   - {fileID: 4524298506227147223}
-  posisiAwalPlayer: 5
-  posisiAwalAI: 19
+  posisiAwalPlayer: 1
+  posisiAwalAI: 23
   maxUkuranKartu: 5
-  skorMenang: 3
+  skorMenang: 2
   kecepatanGerak: 6
 --- !u!4 &1267798871
 Transform:
